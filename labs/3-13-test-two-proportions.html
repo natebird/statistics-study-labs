@@ -212,7 +212,7 @@
     { name: "Reminder texts and vaccination (experiment)", g1: "reminder", g2: "no reminder", s: "get vaccinated", exp: true, x1: 141, n1: 300, x2: 117, n2: 300, ha: "gt", al: .05 },
     { name: "Men vs. women on a ballot measure", g1: "men", g2: "women", s: "support the measure", exp: false, x1: 118, n1: 250, x2: 151, n2: 280, ha: "ne", al: .05 },
     { name: "New coating and cracking (experiment)", g1: "new coating", g2: "old coating", s: "crack", exp: true, x1: 9, n1: 120, x2: 21, n2: 120, ha: "lt", al: .05 },
-    { name: "Tiny difference, huge samples", g1: "website A", g2: "website B", s: "make a purchase", exp: true, x1: 2150, n1: 50000, x2: 2010, n2: 50000, ha: "ne", al: .01 },
+    { name: "Tiny difference, huge samples", g1: "website A", g2: "website B", s: "make a purchase", exp: true, x1: 2150, n1: 50000, x2: 2010, n2: 50000, ha: "ne", al: .05 },
     { name: "No evidence: 52% vs. 48%", g1: "juniors", g2: "seniors", s: "have a part-time job", exp: false, x1: 52, n1: 100, x2: 48, n2: 100, ha: "ne", al: .05 }
   ];
   var HA = [["ne", "p₁ − p₂ ≠ 0"], ["gt", "p₁ − p₂ > 0"], ["lt", "p₁ − p₂ < 0"]], SYM = { ne: "≠", gt: ">", lt: "<" };
@@ -283,12 +283,12 @@
   "s": "x₁ = 60 of n₁ = 100 and x₂ = 45 of n₂ = 100. What is the test statistic for H₀: p₁ = p₂? (Pooled p̂c = 0.525.)",
   "o": [
    "z ≈ 1.36",
-   "z ≈ 2.13",
+   "z ≈ 2.12",
    "z ≈ 2.16",
    "z ≈ 0.15"
   ],
   "c": 1,
-  "w": "SE = √(0.525 · 0.475 · (1/100 + 1/100)) ≈ 0.0706, and z = (0.60 − 0.45) ÷ 0.0706 ≈ 2.13."
+  "w": "SE = √(0.525 · 0.475 · (1/100 + 1/100)) ≈ 0.0706, and z = (0.60 − 0.45) ÷ 0.0706 ≈ 2.12."
  },
  {
   "s": "For Hₐ: p₁ − p₂ ≠ 0, the test statistic is z = −2.10. What is the p-value?",

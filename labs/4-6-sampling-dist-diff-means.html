@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sampling Distributions for a Difference in Means Study Lab</title>
-<meta name="description" content="Simulate thousands of differences in sample means and see why the mean is μ₁ − μ₂, the variances add, and the shape becomes normal.">
+<meta name="description" content="Simulate thousands of differences in sample means and see why the mean is μ₁ − μ₂, how the standard deviation √(σ₁²/n₁ + σ₂²/n₂) behaves, and when the shape is normal.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
@@ -108,7 +108,7 @@
   <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
   <div class="concepts">
     <div class="card"><span class="tag">Center</span><h3>Unbiased estimator</h3><p>The mean of the sampling distribution of x̄₁ − x̄₂ is exactly μ₁ − μ₂. On average, the difference in sample means hits the true difference, so x̄₁ − x̄₂ is an unbiased estimator of μ₁ − μ₂.</p></div>
-    <div class="card"><span class="tag">Spread</span><h3>Variances add</h3><p>Each sample mean has its own variability, σ²/n. When you subtract two independent sample means, the variances <b>add</b>: σ₁²/n₁ + σ₂²/n₂. Take the square root to get the standard deviation. Never subtract the standard deviations.</p></div>
+    <div class="card"><span class="tag">Spread</span><h3>Add the terms under the square root</h3><p>Each sample mean has its own variability, σ²/n. For independent samples, the standard deviation of x̄₁ − x̄₂ is √(σ₁²/n₁ + σ₂²/n₂): square each sample mean's SD, <b>add</b> (even though the means are subtracted), then take the square root. Never subtract the standard deviations.</p></div>
     <div class="card"><span class="tag">Sample size</span><h3>Bigger samples, less spread</h3><p>Larger n₁ and n₂ shrink the standard deviation of x̄₁ − x̄₂. Multiplying both sample sizes by 4 cuts the standard deviation in half.</p></div>
     <div class="card"><span class="tag">Shape</span><h3>When is it approximately normal?</h3><p>If both populations are normal, the sampling distribution is normal for any sample sizes. If not, it is approximately normal when both n₁ ≥ 30 and n₂ ≥ 30, by the central limit theorem.</p></div>
     <div class="card"><span class="tag">Independence</span><h3>Two kinds of independence</h3><p>The two samples must be independent of each other (not paired). Within each sample, when sampling without replacement, check the 10% condition: n₁ ≤ 10% of population 1 and n₂ ≤ 10% of population 2.</p></div>
@@ -350,7 +350,7 @@
      "3"
     ],
     "c": 1,
-    "w": "√(6²/36 + 8²/16) = √(1 + 4) = √5 ≈ 2.24. Choice A subtracts the sample means' standard deviations (2 − 1), choice D adds them (1 + 2), and choice C forgets the square root. Variances add, not standard deviations."
+    "w": "√(6²/36 + 8²/16) = √(1 + 4) = √5 ≈ 2.24. Choice A subtracts the sample means' standard deviations (2 − 1), choice D adds them (1 + 2), and choice C forgets the square root. Square, add, then take the square root; never add or subtract the standard deviations themselves."
    },
    {
     "s": "Which statement about the standard deviation of x̄₁ − x̄₂ is true?",
@@ -361,7 +361,7 @@
      "It equals the difference of the population standard deviations."
     ],
     "c": 1,
-    "w": "For independent samples the variances add. The result is larger than either sample mean's standard deviation, because both sample means vary."
+    "w": "For independent samples, σ₁²/n₁ and σ₂²/n₂ add under the square root. The result is larger than either sample mean's standard deviation, because both sample means vary."
    },
    {
     "s": "Two populations are strongly right-skewed. Independent random samples of size 8 and 10 are taken. Which describes the sampling distribution of x̄₁ − x̄₂?",
@@ -383,7 +383,7 @@
      "Impossible to describe"
     ],
     "c": 0,
-    "w": "When both populations are normal, each sample mean is normal for any n, and the difference of independent normal variables is normal."
+    "w": "When both populations are normal, the sampling distribution of x̄₁ − x̄₂ is normal for any sample sizes, so the n ≥ 30 guideline is not needed."
    },
    {
     "s": "Both sample sizes are multiplied by 4. What happens to the standard deviation of x̄₁ − x̄₂?",
@@ -405,7 +405,7 @@
      "The population standard deviations must be equal."
     ],
     "c": 1,
-    "w": "Adding variances requires independence. The 10% condition keeps observations within each sample close enough to independent. Normality matters for shape, not for the SD formula."
+    "w": "The formula requires the two samples to be independent. The 10% condition keeps observations within each sample close enough to independent. Normality matters for shape, not for the SD formula."
    },
    {
     "s": "The sampling distribution of x̄₁ − x̄₂ is approximately normal with mean 2 and standard deviation 1.6. What is P(x̄₁ − x̄₂ > 0)?",

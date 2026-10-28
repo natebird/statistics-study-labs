@@ -50,7 +50,7 @@ window.GLOSSARY = (window.GLOSSARY || []).concat([
   { t: "Power", d: "The probability that a test correctly rejects H₀ when a particular alternative value of the parameter is true. Power = 1 − β.", u: 3, tp: "3.8", f: "Power = 1 − P(Type II error)", x: "Power goes up with a larger sample size, a larger α, or a true value farther from the null value.", r: ["Type II error"] },
 
   // 3.9 Sampling dist of difference
-  { t: "Sampling distribution of p̂₁ − p̂₂", d: "The distribution of the difference in sample proportions over all pairs of independent random samples. Its mean is p₁ − p₂.", u: 3, tp: "3.9", f: "μ = p₁ − p₂;  σ = √( p₁(1−p₁)/n₁ + p₂(1−p₂)/n₂ )", r: ["Combining random variables","Large counts condition"] },
+  { t: "Sampling distribution of p̂₁ − p̂₂", d: "The distribution of the difference in sample proportions over all pairs of independent random samples. Its mean is p₁ − p₂.", u: 3, tp: "3.9", f: "μ = p₁ − p₂;  σ = √( p₁(1−p₁)/n₁ + p₂(1−p₂)/n₂ )", r: ["Large counts condition"] },
   { t: "Independent samples", d: "Samples in which the individuals selected for one sample have no influence on which individuals are selected for the other.", u: 3, tp: "3.9", also: ["3.12","4.6","4.9"], r: ["Paired data"] },
 
   // 3.10 CI for p1-p2

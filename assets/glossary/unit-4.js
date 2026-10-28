@@ -30,7 +30,7 @@ window.GLOSSARY = (window.GLOSSARY || []).concat([
   { t: "t test statistic", d: "A test statistic that follows a t distribution when H₀ is true and conditions are met.", u: 4, tp: "4.5", also: ["4.10"], r: ["Test statistic","t distribution"] },
 
   // 4.6 Sampling dist of difference in means
-  { t: "Sampling distribution of x̄₁ − x̄₂", d: "The distribution of the difference in sample means over all pairs of independent random samples. Its mean is μ₁ − μ₂.", u: 4, tp: "4.6", f: "μ = μ₁ − μ₂;  σ = √( σ₁²/n₁ + σ₂²/n₂ )", x: "The variances add even though the means are subtracted.", r: ["Combining random variables","Independent samples"] },
+  { t: "Sampling distribution of x̄₁ − x̄₂", d: "The distribution of the difference in sample means over all pairs of independent random samples. Its mean is μ₁ − μ₂.", u: 4, tp: "4.6", f: "μ = μ₁ − μ₂;  σ = √( σ₁²/n₁ + σ₂²/n₂ )", x: "The variances add even though the means are subtracted.", r: ["Independent samples"] },
   { t: "Standard error of x̄₁ − x̄₂", d: "The estimated standard deviation of the difference in sample means, using the sample standard deviations.", u: 4, tp: "4.6", also: ["4.7","4.10"], f: "SE = √( s₁²/n₁ + s₂²/n₂ )", r: ["Sampling distribution of x̄₁ − x̄₂"] },
 
   // 4.7 CI for difference in means

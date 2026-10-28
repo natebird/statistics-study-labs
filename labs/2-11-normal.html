@@ -313,7 +313,7 @@
       head = S.side === "between" ? "<b>The middle " + Lab.pct(P, 0) + " runs from " + L(a) + " to " + L(b) + u() + ".</b>" :
         "<b>The cutoff is " + L(a) + u() + ".</b> " + Lab.pct(P, 0) + " of values are " + (S.side === "left" ? "below" : "above") + " it.";
       t.push("Its z-score is " + N(S.side === "between" ? Math.abs(z1) : z1, 3) + (S.side === "between" ? " in each direction (symmetry)." : ", which means the value is " + N(Math.abs(z1), 2) + " SDs " + (z1 >= 0 ? "above" : "below") + " the mean."));
-      t.push("Percentile language: " + L(S.side === "between" ? b : a) + u() + " is the " + Lab.pct(S.side === "between" ? (1 + P) / 2 : S.side === "left" ? P : 1 - P, 0).replace("%", "") + "th percentile.");
+      t.push("Percentile language: " + L(S.side === "between" ? b : a) + u() + " is the " + (function (k) { var m = k % 100; return k + ((m >= 11 && m <= 13) ? "th" : (["th", "st", "nd", "rd"][k % 10] || "th")); })(Math.round((S.side === "between" ? (1 + P) / 2 : S.side === "left" ? P : 1 - P) * 100)) + " percentile.");
     }
     $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
   }

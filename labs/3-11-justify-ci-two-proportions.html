@@ -111,7 +111,7 @@
   <div class="concepts">
     <div class="card"><span class="tag">Plausible values</span><h3>The interval is the evidence</h3><p>Values inside a confidence interval are plausible for the parameter. Values outside are not plausible at that confidence level.</p></div>
     <div class="card"><span class="tag">Zero</span><h3>Is there a difference?</h3><p>If 0 is in the interval for p₁ − p₂, no difference is plausible, so there is not convincing evidence the proportions differ. If 0 is outside, there is.</p></div>
-    <div class="card"><span class="tag">Direction</span><h3>Which group is higher?</h3><p>An interval entirely above 0 supports p₁ > p₂. An interval entirely below 0 supports p₁ < p₂. Check the order of subtraction before you decide.</p></div>
+    <div class="card"><span class="tag">Direction</span><h3>Which group is higher?</h3><p>An interval entirely above 0 supports p₁ &gt; p₂. An interval entirely below 0 supports p₁ &lt; p₂. Check the order of subtraction before you decide.</p></div>
     <div class="card"><span class="tag">Careful</span><h3>Plausible is not proven</h3><p>A value inside the interval is plausible, not established. "0 is in the interval" never proves the proportions are equal; it means we cannot rule equality out.</p></div>
     <div class="card"><span class="tag">Width</span><h3>Sample size and confidence</h3><p>Larger samples give narrower intervals. Higher confidence gives wider intervals. To halve the margin of error, use about four times as many people in each group.</p></div>
     <div class="card"><span class="tag">Scope</span><h3>Cause and generalization</h3><p>Random assignment lets you conclude cause and effect. Random sampling lets you generalize to the populations. A claim needs the right design, not just the right interval.</p></div>
@@ -224,7 +224,7 @@
     { name: "Recycling: town A vs. town B", ctx: "p₁ − p₂ = proportion of households that recycle in town A minus town B, 95% confidence.", lo: -0.038, hi: 0.072, claim: "ne", d: 0 },
     { name: "Ad claim: \"at least 10 points higher\"", ctx: "p₁ − p₂ = proportion who remember the new ad minus the old ad, 90% confidence.", lo: 0.062, hi: 0.148, claim: "gtd", d: 0.10 },
     { name: "Is a 5-point difference plausible?", ctx: "p₁ − p₂ = proportion of juniors minus seniors who drive to school, 99% confidence.", lo: -0.011, hi: 0.093, claim: "eq", d: 0.05 },
-    { name: "Treatment is worse", ctx: "p₁ − p₂ = proportion with side effects on the new dose minus the old dose, 95% confidence.", lo: -0.142, hi: -0.031, claim: "gt", d: 0 }
+    { name: "Claim the new dose has more side effects (it doesn't)", ctx: "p₁ − p₂ = proportion with side effects on the new dose minus the old dose, 95% confidence.", lo: -0.142, hi: -0.031, claim: "gt", d: 0 }
   ];
   var CLAIMS = [["ne", "p₁ ≠ p₂"], ["gt", "p₁ > p₂"], ["lt", "p₁ < p₂"], ["gtd", "p₁ − p₂ > d"], ["eq", "p₁ − p₂ = d is plausible"]];
   var S = { lo: 0.024, hi: 0.161, claim: "gt", d: 0, ctx: "" };

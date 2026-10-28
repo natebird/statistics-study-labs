@@ -299,19 +299,19 @@
 
   var L = { p: 0.1, n: 5 };
   function renderL() {
-    $("lp").value = L.p; $("ln").value = L.n; $("lp-o").textContent = N(L.p, 2); $("ln-o").textContent = L.n;
+    $("lp").value = L.p; $("ln").value = L.n; $("lp-o").textContent = N(L.p, 4); $("ln-o").textContent = L.n;
     var none = Math.pow(1 - L.p, L.n), all = Math.pow(L.p, L.n), r = "";
-    r += '<div class="row"><span>P(no successes) = (1 − ' + N(L.p, 2) + ")<sup>" + L.n + "</sup></span><span>= " + N(none, 4) + "</span></div>";
+    r += '<div class="row"><span>P(no successes) = (1 − ' + N(L.p, 4) + ")<sup>" + L.n + "</sup></span><span>= " + N(none, 4) + "</span></div>";
     r += '<div class="row"><span>P(at least one) = 1 − ' + N(none, 4) + "</span><span>= " + N(1 - none, 4) + "</span></div>";
-    r += '<div class="row"><span>P(all ' + L.n + " succeed) = " + N(L.p, 2) + "<sup>" + L.n + "</sup></span><span>= " + N(all, 4) + "</span></div>";
-    r += '<div class="row"><span>Wrong shortcut n × p = ' + L.n + " × " + N(L.p, 2) + "</span><span>= " + N(L.n * L.p, 3) + (L.n * L.p > 1 ? " (over 1!)" : " (not the answer)") + "</span></div>";
+    r += '<div class="row"><span>P(all ' + L.n + " succeed) = " + N(L.p, 4) + "<sup>" + L.n + "</sup></span><span>= " + N(all, 4) + "</span></div>";
+    r += '<div class="row"><span>Wrong shortcut n × p = ' + L.n + " × " + N(L.p, 4) + "</span><span>= " + N(L.n * L.p, 3) + (L.n * L.p > 1 ? " (over 1!)" : " (not the answer)") + "</span></div>";
     $("calcL").innerHTML = r;
   }
   $("lp").addEventListener("input", function (e) { L.p = +e.target.value; renderL(); });
   $("ln").addEventListener("input", function (e) { L.n = +e.target.value; renderL(); });
   [["At least one 6 in 4 rolls", 1 / 6, 4], ["At least one defect in 20 parts (2% each)", 0.02, 20], ["At least one free throw made in 3 tries (70%)", 0.7, 3]].forEach(function (x) {
     var b = document.createElement("button"); b.type = "button"; b.textContent = x[0];
-    b.addEventListener("click", function () { L.p = Math.round(x[1] * 100) / 100; L.n = x[2]; renderL(); });
+    b.addEventListener("click", function () { L.p = x[1]; L.n = x[2]; renderL(); });
     $("scenL").appendChild(b);
   });
   renderL();

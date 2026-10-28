@@ -127,8 +127,8 @@
     <tbody>
       <tr><td><b>Shape</b></td><td>"Both are skewed."</td><td>"The distribution of commute times for city workers is skewed right, while the distribution for suburban workers is roughly symmetric."</td></tr>
       <tr><td><b>Outliers</b></td><td>"There is an outlier."</td><td>"City workers have one high outlier at 70 minutes; suburban workers have no outliers."</td></tr>
-      <tr><td><b>Center</b></td><td>"A's median is 22 and B's median is 30."</td><td>"The median commute for suburban workers (30 min) is greater than the median for city workers (22 min)."</td></tr>
-      <tr><td><b>Spread</b></td><td>"A is more spread."</td><td>"Commute times for city workers are more variable (IQR = 15 min) than for suburban workers (IQR = 8 min)."</td></tr>
+      <tr><td><b>Center</b></td><td>"A's median is 20.5 and B's median is 30."</td><td>"The median commute for suburban workers (30 min) is greater than the median for city workers (20.5 min)."</td></tr>
+      <tr><td><b>Spread</b></td><td>"A is more spread."</td><td>"Commute times for city workers are more variable (IQR = 14 min) than for suburban workers (IQR = 6 min)."</td></tr>
       <tr><td><b>Overall</b></td><td>"B is bigger."</td><td>"Suburban workers typically have longer, more consistent commutes, although the two distributions overlap a lot."</td></tr>
     </tbody>
   </table>
@@ -297,7 +297,7 @@
   var J = [
     { t: "\"The median for 9th graders is 8.15 hours and the median for 12th graders is 6.5 hours.\"", ok: false, w: "This lists two values but never compares them. Add \"greater than\": the median sleep for 9th graders is greater than for 12th graders." },
     { t: "\"The median sleep for 9th graders (8.15 hours) is greater than the median sleep for 12th graders (6.5 hours).\"", ok: true, w: "Comparative, has values and units, and names both groups and the variable." },
-    { t: "\"The 12th graders have a bigger spread.\"", ok: false, w: "No statistic, no context, and \"bigger spread\" is vague. Name the measure and give values in context: \"The range of sleep times for 12th graders (6 hours) is greater than for 9th graders (3.5 hours).\" (Their IQRs are actually equal, 1.2 hours each, so the outlier is what stretches the range.)" },
+    { t: "\"The 12th graders have a bigger spread.\"", ok: false, w: "No statistic, no context, and \"bigger spread\" is vague. Name the measure and give values in context: \"The range of sleep times for 12th graders (6 hours) is greater than for 9th graders (3.5 hours).\" (Their IQRs are actually equal, 1.2 hours each, so the range difference comes mostly from the 12th graders' extreme values, especially the 10.5-hour outlier.)" },
     { t: "\"Every 9th grader sleeps more than every 12th grader.\"", ok: false, w: "The distributions overlap: some 12th graders sleep more than some 9th graders. A difference in centers is about typical values, not every individual." },
     { t: "\"The 12th graders have a high outlier at 10.5 hours of sleep; the 9th graders have no outliers.\"", ok: true, w: "This addresses outliers for both groups with a specific value and context." },
     { t: "\"The 9th-grade mean is higher than the 12th-grade median, so 9th graders sleep more.\"", ok: false, w: "Compare like with like: median with median, or mean with mean." }

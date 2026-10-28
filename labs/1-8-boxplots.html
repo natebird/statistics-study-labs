@@ -296,6 +296,7 @@
     $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
   }
 
+  function ord(x) { var t = String(x), k = +t % 100; if (!/^\d+$/.test(t)) return t + "th"; return t + ((k >= 11 && k <= 13) ? "th" : (["th", "st", "nd", "rd"][k % 10] || "th")); }
   function renderCum(s) {
     var srt = s.sorted, n = srt.length, pad = Math.max(s.range * 0.05, 0.5);
     var lo = s.min - pad, hi = s.max + pad;
@@ -315,8 +316,8 @@
     $("p-o").textContent = N(S.px);
     $("calcP").innerHTML = '<div class="row"><span>Values at or below ' + N(S.px) + "</span><span>" + below + " of " + n + "</span></div>" +
       '<div class="row"><span>Cumulative relative frequency = ' + below + " ÷ " + n + "</span><span>= " + N(p, 3) + "</span></div>" +
-      '<div class="row"><span>Percentile</span><span>' + N(p * 100, 1) + "th</span></div>";
-    $("storyP").innerHTML = "<p>About <b>" + N(p * 100, 0) + "%</b> of the values are " + N(S.px) + " " + S.unit + " or less, so " + N(S.px) + " is at about the <b>" + N(p * 100, 0) + "th percentile</b>. Compare the dashed lines at 0.25, 0.50, and 0.75 with Q₁ = " + N(s.q1) + ", median = " + N(s.med) + ", and Q₃ = " + N(s.q3) + ".</p>";
+      '<div class="row"><span>Percentile</span><span>' + ord(N(p * 100, 1)) + "</span></div>";
+    $("storyP").innerHTML = "<p>About <b>" + N(p * 100, 0) + "%</b> of the values are " + N(S.px) + " " + S.unit + " or less, so " + N(S.px) + " is at about the <b>" + ord(N(p * 100, 0)) + " percentile</b>. Compare the dashed lines at 0.25, 0.50, and 0.75 with Q₁ = " + N(s.q1) + ", median = " + N(s.med) + ", and Q₃ = " + N(s.q3) + ".</p>";
   }
 
   $("pslider").addEventListener("input", function (e) { S.px = +e.target.value; renderCum(Lab.summary(S.data)); });

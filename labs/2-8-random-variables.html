@@ -236,7 +236,7 @@
     { name: "Cars per household", ctx: "X = number of cars owned by a randomly chosen household.", xs: [0, 1, 2, 3, 4], ps: [0.08, 0.32, 0.38, 0.16, 0.06], ev: ["gt", 2] },
     { name: "Missing probability", ctx: "X = number of pets in a home. One probability is missing; use the fill button.", xs: [0, 1, 2, 3, 4], ps: [0.35, 0.30, 0.20, 0.10, 0], ev: ["le", 1] },
     { name: "Not a valid distribution", ctx: "X = goals scored in a game. These probabilities do not add to 1.", xs: [0, 1, 2, 3], ps: [0.30, 0.40, 0.25, 0.15], ev: ["eq", 1] },
-    { name: "Sum of two dice", ctx: "X = sum of two fair six-sided dice.", xs: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], ps: [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1].map(function (k) { return Math.round(k / 36 * 10000) / 10000; }), ev: ["bt", 6, 8] }
+    { name: "Sum of two dice", ctx: "X = sum of two fair six-sided dice.", xs: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], ps: [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1].map(function (k) { return k / 36; }), ev: ["bt", 6, 8] }
   ];
   var S;
   function load(p) {
@@ -248,7 +248,7 @@
     var h = '<thead><tr><th>Value x</th><th>P(X = x)</th></tr></thead><tbody>';
     S.xs.forEach(function (x, i) {
       h += '<tr><td><label class="sr" for="x' + i + '">Value ' + (i + 1) + '</label><input type="number" id="x' + i + '" step="1" value="' + x + '"></td>' +
-        '<td><label class="sr" for="p' + i + '">Probability ' + (i + 1) + '</label><input type="number" id="p' + i + '" step="0.01" min="0" max="1" value="' + S.ps[i] + '"></td></tr>';
+        '<td><label class="sr" for="p' + i + '">Probability ' + (i + 1) + '</label><input type="number" id="p' + i + '" step="0.01" min="0" max="1" value="' + (+S.ps[i].toFixed(4)) + '"></td></tr>';
     });
     h += '</tbody><tfoot><tr><td>Total</td><td id="totCell"></td></tr></tfoot>';
     $("tbl").innerHTML = h;

@@ -165,8 +165,8 @@
     <div class="card">
       <h3>How to earn the points</h3>
       <ul>
-        <li>Name the statistic and give its value with units and context: "The median commute time is 22 minutes."</li>
-        <li>Interpret the standard deviation as a typical distance: "The commute times typically vary by about 8.4 minutes from the mean of 24.1 minutes."</li>
+        <li>Name the statistic and give its value with units and context: "The median commute time is 23 minutes."</li>
+        <li>Interpret the standard deviation as a typical distance: "The commute times typically vary by about 12.9 minutes from the mean of 26.3 minutes."</li>
         <li>Justify your choice of center: "The median is a better measure of center because the distribution is strongly right-skewed and the median is resistant to the high outlier."</li>
         <li>Show the outlier rule with numbers: "Q₃ + 1.5(IQR) = 30 + 1.5(12) = 48. Since 61 &gt; 48, 61 is an outlier."</li>
         <li>Calculator work alone ("1-Var Stats") earns no credit. Write the values you found with labels.</li>
@@ -366,7 +366,7 @@
     { s: "Temperatures have mean 20°C and standard deviation 5°C. Converting to Fahrenheit uses F = 32 + 1.8C. What are the new mean and standard deviation?", o: ["Mean 68°F, SD 9°F", "Mean 68°F, SD 41°F", "Mean 36°F, SD 9°F", "Mean 68°F, SD 5°F"], c: 0, w: "Mean: 32 + 1.8(20) = 68. SD is only multiplied: 1.8(5) = 9. Adding 32 does not affect spread." },
     { s: "In a distribution, the mean is 52 and the median is 40. Which description is most likely?", o: ["Roughly symmetric", "Skewed to the left", "Skewed to the right", "Uniform"], c: 2, w: "The mean is pulled toward the long tail. A mean well above the median suggests a tail of high values, which is right skew." },
     { s: "Which statement correctly interprets a standard deviation of 3.2 hours for weekly hours of sleep debt among students?", o: ["Every student's sleep debt is within 3.2 hours of the mean.", "The students' sleep debts typically vary by about 3.2 hours from the mean.", "The middle 50% of students have sleep debts within 3.2 hours.", "The average student has 3.2 hours of sleep debt."], c: 1, w: "Standard deviation measures the typical distance from the mean. It does not bound every value (A), describe the middle half (C, that is the IQR), or give the center (D)." },
-    { s: "One data value is changed from 50 to 500. Which statistic is least affected?", o: ["Mean", "Standard deviation", "Range", "Median"], c: 3, w: "If 50 was not near the middle, moving it to the top only changes which side of the middle it is on, and often leaves the median unchanged or nearly so. The other three use every value's actual size." }
+    { s: "One data value is changed from 50 to 500. Which statistic is least affected?", o: ["Mean", "Standard deviation", "Range", "Median"], c: 3, w: "The median depends only on which value is in the middle position. Moving one value farther out in the upper tail does not change the middle position's value unless that value was at or next to the middle. The mean, standard deviation, and range all use the actual size of the changed value, so they jump." }
   ];
   Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
   Lab.nav("1.7");

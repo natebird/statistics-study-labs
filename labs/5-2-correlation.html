@@ -149,8 +149,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
       <tr><td>Add a constant to every x or y</td><td><b>No change</b></td><td>Every point shifts the same amount</td></tr>
       <tr><td>Swap the explanatory and response variables</td><td><b>No change</b></td><td>The formula is symmetric in x and y</td></tr>
       <tr><td>Multiply x (or y) by a negative number</td><td><b>Sign flips</b>, same size</td><td>The direction reverses</td></tr>
-      <tr><td>Add an outlier that fits the line but is far away</td><td><span class="shift">|r| usually increases</span></td><td>It strengthens the linear pattern</td></tr>
-      <tr><td>Add an outlier far from the pattern</td><td><span class="shift">|r| usually decreases</span></td><td>It weakens the linear pattern</td></tr>
+      <tr><td>One unusual point in the data</td><td><span class="shift">r can change a lot</span></td><td>r is not resistant: it uses means and standard deviations</td></tr>
       <tr><td>Data follow a strong curve</td><td>r may be near 0 (or misleading)</td><td>r only measures linear association</td></tr>
     </tbody>
   </table>
@@ -166,7 +165,6 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
       <ul>
         <li>Interpret r with all three pieces: direction, strength, and <i>linear</i>, plus context. "r = −0.86 indicates a strong, negative, linear association between car age and price."</li>
         <li>Before using r, state that the scatterplot shows a roughly linear pattern. r is not meaningful for curved data.</li>
-        <li>When asked how an outlier affects r, say whether it makes the linear pattern stronger or weaker, and explain why.</li>
         <li>If a question asks whether x causes y, check how the data were collected. Observational data support only association; random assignment supports causation.</li>
         <li>Name a plausible lurking variable and explain how it could affect both variables.</li>
       </ul>
@@ -522,15 +520,15 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
     "w": "Larger cities have more of both. This is observational data, so it shows association only, and population is a likely lurking variable."
   },
   {
-    "s": "Five points lie close to a line with r = 0.95. A sixth point is added far below the line on the right side of the graph. The correlation will most likely:",
+    "s": "For a set of data, r = 0.62. Every x-value is multiplied by −2 and then 5 is added. What is the correlation of the new data?",
     "o": [
-      "Increase toward 1",
-      "Stay at 0.95",
-      "Decrease",
-      "Become exactly 0"
+      "0.62",
+      "−0.62",
+      "−1.24",
+      "4.38"
     ],
-    "c": 2,
-    "w": "A point far from the linear pattern weakens the linear association, so r drops. r is not resistant."
+    "c": 1,
+    "w": "Multiplying by a negative number reverses the direction, so r changes sign. Changing units (the factor of 2) and adding a constant do not change the size of r, so the new r is −0.62."
   },
   {
     "s": "For a data set, the products of each point's two z-scores add up to 7.2, and n = 9. What is r?",
