@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -107,7 +107,7 @@
     <div class="card"><span class="tag">Test statistic</span><h3>How many standard errors away?</h3><p>t measures how far the observed difference x̄₁ − x̄₂ is from the hypothesized difference, in standard errors. Far from 0 (in the direction of Hₐ) means the data are surprising if H₀ is true.</p></div>
     <div class="card"><span class="tag">p-value</span><h3>Assume H₀, then ask "how unusual?"</h3><p>The p-value is the probability, assuming H₀ is true, of getting a difference in sample means at least as extreme as the one observed, in the direction of Hₐ. Two-sided tests count both tails.</p></div>
     <div class="card"><span class="tag">Decision</span><h3>Compare p with α</h3><p>If p ≤ α, reject H₀: there is convincing evidence for Hₐ. If p &gt; α, fail to reject H₀: there is not convincing evidence for Hₐ. Never "accept" H₀.</p></div>
-    <div class="card"><span class="tag">df</span><h3>Calculator vs. conservative</h3><p>Technology uses the Welch df. With a table, use the smaller of n₁ − 1 and n₂ − 1. The conservative df gives a slightly larger p-value, so it is less likely to reject.</p></div>
+    <div class="card"><span class="tag">df</span><h3>Calculator vs. conservative</h3><p>Technology (Desmos <code>ttest</code> and the TI-84 with Pooled: No) uses the Welch df. With a table, use the smaller of n₁ − 1 and n₂ − 1. The conservative df gives a slightly larger p-value, so it is less likely to reject.</p></div>
     <div class="card"><span class="tag">Errors</span><h3>What could go wrong?</h3><p>Rejecting a true H₀ is a Type I error (probability α). Failing to reject a false H₀ is a Type II error. Larger samples raise power, the chance of correctly rejecting a false H₀.</p></div>
     <div class="card"><span class="tag">Scope</span><h3>Cause or generalize?</h3><p>With random assignment, a significant difference can be attributed to the treatments. With random samples, the conclusion applies to the populations sampled. Without either, be cautious.</p></div>
   </div>
@@ -133,7 +133,7 @@
       <ul>
         <li><b>State:</b> hypotheses with μ₁ and μ₂ defined in context, and α.</li>
         <li><b>Plan:</b> name the two-sample t-test and check Random, 10%, and Normal/Large sample for each group.</li>
-        <li><b>Do:</b> the test statistic with values plugged in, df, and the p-value.</li>
+        <li><b>Do:</b> the test statistic with values plugged in, df, and the p-value. Output from Desmos <code>ttest(n₁, x̄₁, s₁, n₂, x̄₂, s₂)</code> or the TI-84 2-SampTTest (Pooled: No) alone does not earn this step.</li>
         <li><b>Conclude:</b> compare p with α, make a decision about H₀, and state the conclusion in context about Hₐ: "Because p = 0.012 &lt; 0.05, we reject H₀. There is convincing evidence that…"</li>
       </ul>
     </div>
@@ -177,7 +177,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -294,9 +294,10 @@
       ["Standard error: √(" + N(S.s1 * S.s1 / S.n1, 4) + " + " + N(S.s2 * S.s2 / S.n2, 4) + ")", "= " + N(t2.se, 4)],
       ["t = (" + N(t2.est, 3) + " − " + N(S.d0, 2) + ") ÷ " + N(t2.se, 4), "= " + N(tt, 3)],
       ["p-value, calculator df = " + N(t2.df, 2), pfmt(p)],
-      ["p-value, conservative df = " + t2.dfc, pfmt(pc)],
-      ["Calculator: 2-SampTTest, Stats, x̄1=" + N(S.x1) + ", Sx1=" + N(S.s1) + ", n1=" + S.n1 + ", x̄2=" + N(S.x2) + ", Sx2=" + N(S.s2) + ", n2=" + S.n2 + ", μ1: " + S.ha + "μ2, Pooled: No" + (S.d0 !== 0 ? " (the calculator assumes a difference of 0, so compute t by hand for this H₀)" : ""), "", "code"]
-    ]);
+      ["p-value, conservative df = " + t2.dfc, pfmt(pc)]
+    ]) + Lab.calcHTML(S.ha === ">" ? Lab.CMD.tcdf(tt, Infinity, t2.df) : S.ha === "<" ? Lab.CMD.tcdf(-Infinity, tt, t2.df) : Lab.CMD.tcdf(Math.abs(tt), Infinity, t2.df), S.ha === "≠" ? "Calculator: one tail from t, then double it" : "Calculator: p-value from t")
+      + (S.d0 === 0 ? Lab.calcHTML(Lab.CMD.t2({ n: S.n1, mean: S.x1, sd: S.s1 }, { n: S.n2, mean: S.x2, sd: S.s2 }, { d0: 0, tail: S.ha === ">" ? "right" : S.ha === "<" ? "left" : "two" }), "Calculator: the whole test")
+        : rows([["H₀ difference is " + N(S.d0, 2) + ", not 0. The TI-84 2-SampTTest assumes 0, so compute t by hand and use the tcdf line above.", ""]]));
 
     var head = rej ? "<b>Reject H₀.</b> If there were truly no " + (S.d0 === 0 ? "difference" : "more than the hypothesized difference") + ", a result this extreme would happen only about " + Lab.pct(p, p < 0.01 ? 2 : 1) + " of the time. That is rare enough (p ≤ " + S.alpha + ") to count as convincing evidence."
       : "<b>Fail to reject H₀.</b> If H₀ were true, a result at least this extreme would happen about " + Lab.pct(p, 1) + " of the time. That is not unusual enough (p > " + S.alpha + "), so we lack convincing evidence for Hₐ.";
@@ -310,7 +311,7 @@
 
   (function () {
     var h = "<thead><tr><th>Alternative</th><th>p-value is the area…</th><th>Calculator</th><th>p-value</th></tr></thead><tbody>";
-    [[">", "to the right of t", "tcdf(2.10, 1E99, 40)", Lab.tCdf(2.1, Infinity, 40)], ["<", "to the left of t", "tcdf(−1E99, 2.10, 40)", Lab.tCdf(-Infinity, 2.1, 40)], ["≠", "beyond |t| in both tails (double one tail)", "2 × tcdf(2.10, 1E99, 40)", 2 * Lab.tCdf(2.1, Infinity, 40)]].forEach(function (r) {
+    [[">", "to the right of t", "Desmos: 1 − tdist(40).cdf(2.1)<br>TI-84: tcdf(2.1, 1E99, 40)", Lab.tCdf(2.1, Infinity, 40)], ["<", "to the left of t", "Desmos: tdist(40).cdf(2.1)<br>TI-84: tcdf(−1E99, 2.1, 40)", Lab.tCdf(-Infinity, 2.1, 40)], ["≠", "beyond |t| in both tails (double one tail)", "Desmos: 2(1 − tdist(40).cdf(2.1))<br>TI-84: 2 × tcdf(2.1, 1E99, 40)", 2 * Lab.tCdf(2.1, Infinity, 40)]].forEach(function (r) {
       h += "<tr><td><b>Hₐ: μ₁ − μ₂ " + r[0] + " 0</b></td><td>" + r[1] + "</td><td style='font-family:var(--mono)'>" + r[2] + "</td><td>" + N(r[3], 4) + "</td></tr>";
     });
     $("pTable").innerHTML = h + "</tbody>";

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -156,7 +156,7 @@
         <li>Interpret the mean as a long-run average in context: "If many households were selected, the average number of cars would be about 1.8."</li>
         <li>Interpret σ as typical variation: "The number of cars typically varies by about 0.93 from the mean of 1.8."</li>
         <li>For a transformation, show both rules with numbers: "Y = 15 + 10X, so μ<sub>Y</sub> = 15 + 10(1.8) = $33 and σ<sub>Y</sub> = 10(0.93) = $9.30. The $15 does not change σ."</li>
-        <li>Calculator work is fine for the arithmetic, but write the formula with numbers in it.</li>
+        <li>Calculator work (Desmos or TI-84) is fine for the arithmetic, but write the formula with numbers in it.</li>
 
       </ul>
     </div>
@@ -165,7 +165,7 @@
       <ul>
 
         <li>Forgetting the square root: σ is √σ², not σ² itself.</li>
-        <li>Using Sx instead of σx from 1-Var Stats L1, L2. A probability model's σ weights by probabilities; it does not divide by n − 1.</li>
+        <li>Using Sx instead of σx from TI-84 1-Var Stats L1, L2 (or stdev in Desmos). A probability model's σ weights by probabilities; it does not divide by n − 1.</li>
         <li>Letting a constant change the standard deviation. A flat fee shifts the mean only.</li>
         <li>Using b instead of |b| when b is negative, or multiplying the variance by b instead of b². An SD is never negative.</li>
         <li>Saying "we expect X to be 1.8" for a count. Say the long-run average is 1.8.</li>
@@ -202,7 +202,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -260,7 +260,13 @@
     var t = '<table class="mini"><thead><tr><th>x</th><th>P(x)</th><th>x · P(x)</th><th>(x − μ)² · P(x)</th></tr></thead><tbody>';
     xs.forEach(function (x, i) { t += "<tr><td>" + N(x, 3) + "</td><td>" + N(ps[i], 4) + "</td><td>" + N(x * ps[i], 4) + "</td><td>" + N((x - P.mu) * (x - P.mu) * ps[i], 4) + "</td></tr>"; });
     t += '</tbody><tfoot><tr><td></td><td>Σ = ' + N(tot, 4) + '</td><td>μ = ' + N(P.mu, 4) + '</td><td>σ² = ' + N(P.v, 4) + '</td></tr><tr><td colspan="4">σ = √' + N(P.v, 4) + " = " + N(P.sd, 4) + "</td></tr></tfoot></table>";
-    t += '<p class="note" style="margin-top:8px">Calculator: put x in L1 and P(x) in L2, then 1-Var Stats L1, L2. Use σx, not Sx.</p>';
+    var cv = function (v) { return N(v, 4).replace(/,/g, ""); };
+    t += '<div style="margin-top:8px">' + Lab.calcHTML({
+      d: "\u03BC = total(X P),  \u03C3 = sqrt(total((X \u2212 \u03BC)\u00B2 P))",
+      dn: "First type X = [" + xs.map(cv).join(", ") + "] and P = [" + ps.map(cv).join(", ") + "]. Don't use stdev(X): it ignores the probabilities and divides by n \u2212 1.",
+      t: "1-Var Stats L\u2081, L\u2082",
+      tn: "Put x in L\u2081 and P(x) in L\u2082 (STAT \u25B8 1:Edit), then STAT \u25B8 CALC \u25B8 1:1-Var Stats L\u2081, L\u2082. Use \u03C3x, not Sx."
+    }, "Check \u03BC and \u03C3 on a calculator") + "</div>";
     $("work").innerHTML = t;
     drawLLN(P, ok);
     story(P, ok);

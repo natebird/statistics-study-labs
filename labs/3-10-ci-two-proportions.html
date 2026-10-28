@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -95,6 +95,7 @@
     <div class="card calc-card">
       <h3>Do: the calculation</h3>
       <div class="calc" id="calcDo"></div>
+      <div id="calcDo-cb" style="margin-top:10px;"></div>
     </div>
   </div>
 
@@ -149,7 +150,8 @@
       <tr><td><b>Plan</b></td><td>Name the procedure and check conditions</td><td>Two-sample z-interval for p₁ − p₂. Random ✓, 10% ✓, 412, 38, 341, 59 all ≥ 10 ✓</td></tr>
       <tr><td><b>Do</b></td><td>Formula, numbers, and the interval</td><td>(0.916 − 0.853) ± 1.96(0.0220) = (0.020, 0.106)</td></tr>
       <tr><td><b>Conclude</b></td><td>Interpret in context</td><td>We are 95% confident the interval from 0.020 to 0.106 captures the true difference…</td></tr>
-      <tr><td><b>z* values</b></td><td>90%: 1.645 · 95%: 1.960 · 98%: 2.326 · 99%: 2.576</td><td>invNorm(1 − (1 − C)/2)</td></tr>
+      <tr><td><b>Calculator</b></td><td>Desmos: <code>zproptest(x₁, n₁, x₂, n₂)</code>, then <code>T₁.conf(0.95)</code> · TI-84: 2-PropZInt</td><td>Still show the formula with numbers</td></tr>
+      <tr><td><b>z* values</b></td><td>90%: 1.645 · 95%: 1.960 · 98%: 2.326 · 99%: 2.576</td><td>Desmos: <code>normaldist(0, 1).inversecdf(0.975)</code> · TI-84: <code>invNorm(0.975, 0, 1)</code> (95%; use (1 + C) ÷ 2)</td></tr>
     </tbody>
   </table>
   </div>
@@ -165,7 +167,7 @@
         <li>Define the parameter with both groups and the order of subtraction: "p₁ − p₂, the difference between the proportion of all city drivers and all rural drivers who wear seatbelts."</li>
         <li>Name the procedure exactly: two-sample z-interval for a difference in proportions.</li>
         <li>Check large counts with the observed successes and failures in <i>both</i> samples, with numbers.</li>
-        <li>Show the formula with values substituted, even if you use 2-PropZInt on a calculator.</li>
+        <li>Show the formula with values substituted, even if you use a calculator (Desmos <code>zproptest(x₁, n₁, x₂, n₂)</code> or TI-84 2-PropZInt). Calculator output alone does not earn credit: name the procedure, check conditions, and interpret in context.</li>
         <li>Interpret in context and with the parameter, not the statistic: the interval captures the <i>true</i> difference.</li>
       </ul>
     </div>
@@ -209,7 +211,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -293,6 +295,11 @@
       ["(" + N(r.a, 4) + " − " + N(r.b, 4) + ") ± " + N(r.me, 4), "(" + N(r.lo, 3) + ", " + N(r.hi, 3) + ")"]
     ]);
 
+    Lab.calcBox("calcDo-cb", [
+      ["z* for " + cl + " confidence", Lab.CMD.zstar(S.c)],
+      ["The whole interval (check your work)", Lab.CMD.prop2(S.x1, S.n1, S.x2, S.n2, { C: S.c })]
+    ]);
+
     var head, t = [];
     head = "<b>Conclude:</b> We are " + cl + " confident that the interval from " + N(r.lo, 3) + " to " + N(r.hi, 3) + " captures the true difference in the proportion who " + esc(S.s) + " (" + esc(S.g1) + " minus " + esc(S.g2) + ").";
     if (!ok) t.push('<span class="no">Caution:</span> at least one count is below 10, so the normal-based interval is not trustworthy for these data.');
@@ -359,7 +366,7 @@
    "2.576"
   ],
   "c": 2,
-  "w": "98% leaves 1% in each tail, so z* = invNorm(0.99) ≈ 2.326."
+  "w": "98% leaves 1% in each tail, so z* has area 0.99 to its left: Desmos normaldist(0, 1).inversecdf(0.99) · TI-84 invNorm(0.99, 0, 1) ≈ 2.326."
  },
  {
   "s": "A 95% interval for p₁ − p₂ is (0.03, 0.12). Which interpretation is correct?",

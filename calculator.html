@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AP Statistics Calculator Guide: Desmos and TI-84</title>
+<meta name="description" content="Every AP Statistics calculator procedure in Desmos (the Bluebook calculator) and on the TI-84, side by side.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/lab.css?v=2">
+<script src="assets/prefs.js?v=1"></script>
+<style>
+.guide { display: grid; gap: 10px; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: .92rem; }
+.toc a, .topnav a { color: var(--accent); }
+.tips ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: .95rem; }
+section { scroll-margin-top: 16px; }
+.ex { font-size: .9rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav"><span style="display:flex;gap:16px;flex-wrap:wrap"><a href="index.html">← All labs</a><a href="terms/index.html">All terms</a></span></div>
+
+<header>
+  <span class="kicker">AP Statistics · Calculator guide</span>
+  <h1>Desmos and TI-84, side by side</h1>
+  <p class="lede">The AP Statistics exam is digital, and Bluebook has the Desmos graphing calculator built in. A handheld TI-84 is still allowed. This page shows every procedure in the course both ways, with a worked example for each. The labs use the same commands.</p>
+  <nav class="toc" aria-label="Jump to a section"><a href="#tips">Ground rules</a><a href="#data">Describing data</a><a href="#prob">Probability</a><a href="#props">Proportions</a><a href="#chi">Chi-square</a><a href="#means">Means</a><a href="#reg">Regression</a><a href="#sim">Simulation</a></nav>
+</header>
+
+<section id="tips" aria-labelledby="tips-h">
+  <div class="sec-head"><h2 id="tips-h">Ground rules</h2></div>
+  <div class="two">
+    <div class="card tips">
+      <h3>Desmos in Bluebook</h3>
+      <ul>
+        <li>Type commands into the expression list, or open <b>Add Item ▸ Inference</b> (or type <code>inference</code>) to build a distribution or test from a menu.</li>
+        <li>Desmos labels each test <b>T₁</b>, T₂, …. Open the test's <b>Significance Test</b> section to set the null value and pick the Left, Both, or Right tail.</li>
+        <li>Read results by name: <code>T₁.score</code> (z, t, or χ²), <code>T₁.dof</code>, <code>T₁.p</code> (two-sided), <code>T₁.pleft</code>, <code>T₁.pright</code>, <code>T₁.conf(0.95).lower</code> and <code>.upper</code>.</li>
+        <li><code>.cdf(x)</code> is always the area to the <b>left</b> of x. Use <code>1 - …cdf(x)</code> for a right tail and <code>.cdf(a, b)</code> for an area between.</li>
+      </ul>
+    </div>
+    <div class="card tips">
+      <h3>What earns credit</h3>
+      <ul>
+        <li>Calculator syntax alone, from either calculator, earns no credit. Name the distribution and its parameters, for example "X ~ N(40, 5), P(X &gt; 48)", or name the procedure.</li>
+        <li>For inference, still state hypotheses, name the procedure, check conditions, report the test statistic, df, and p-value, and conclude in context.</li>
+        <li>Two-sample t procedures on both calculators use a decimal (Welch) df. The conservative df = smaller n − 1 is also accepted by hand. Pick one and be consistent.</li>
+        <li>Geometric distributions and chi-square goodness of fit are no longer in the course, so skip <code>geodist</code>, <code>chisqgof</code>, and χ²GOF-Test.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="data" aria-labelledby="data-h">
+  <div class="sec-head"><h2 id="data-h">Describing data (Unit 1)</h2><p>Example list: 12, 15, 15, 18, 20, 21, 22, 24, 25, 28, 30, 35, 42, 61.</p></div>
+  <div class="guide" id="g-data"></div>
+</section>
+
+<section id="prob" aria-labelledby="prob-h">
+  <div class="sec-head"><h2 id="prob-h">Probability distributions (Unit 2)</h2><p>Normal example: X ~ N(40, 5). Binomial example: X ~ B(10, 0.3).</p></div>
+  <div class="guide" id="g-prob"></div>
+</section>
+
+<section id="props" aria-labelledby="props-h">
+  <div class="sec-head"><h2 id="props-h">Inference for proportions (Unit 3)</h2><p>One sample: 45 successes in 80 trials, testing p₀ = 0.5. Two samples: 412 of 450 vs. 341 of 400.</p></div>
+  <div class="guide" id="g-props"></div>
+</section>
+
+<section id="chi" aria-labelledby="chi-h">
+  <div class="sec-head"><h2 id="chi-h">Chi-square tests for homogeneity or independence (Unit 3)</h2><p>Example table with 2 rows and 3 columns: [30, 20, 10] and [20, 25, 15].</p></div>
+  <div class="guide" id="g-chi"></div>
+</section>
+
+<section id="means" aria-labelledby="means-h">
+  <div class="sec-head"><h2 id="means-h">Inference for means (Unit 4)</h2><p>One sample: n = 12, x̄ = 6.71, s = 1.01. Two samples: (n = 32, x̄ = 82.4, s = 7.1) vs. (n = 30, x̄ = 78.9, s = 8.3).</p></div>
+  <div class="guide" id="g-means"></div>
+</section>
+
+<section id="reg" aria-labelledby="reg-h">
+  <div class="sec-head"><h2 id="reg-h">Regression (Unit 5)</h2></div>
+  <div class="guide" id="g-reg"></div>
+</section>
+
+<section id="sim" aria-labelledby="sim-h">
+  <div class="sec-head"><h2 id="sim-h">Simulation (Unit 2)</h2></div>
+  <div class="guide" id="g-sim"></div>
+</section>
+
+</div>
+<script src="assets/lab.js?v=2"></script>
+<script>
+(function () {
+  var C = Lab.CMD;
+  var L = [12, 15, 15, 18, 20, 21, 22, 24, 25, 28, 30, 35, 42, 61];
+  Lab.calcBox("g-data", [
+    ["One-variable statistics (mean, s, five-number summary)", C.onevar(L)],
+    ["Quartiles only", { d: "quartile(L, 1) and quartile(L, 3)", dn: "Matches the AP / TI-84 method. quantile(L, 0.25) interpolates and gives a different value.", t: "Q₁ and Q₃ in 1-Var Stats", tn: "STAT ▸ CALC ▸ 1:1-Var Stats, scroll down" }],
+    ["Graphs", { d: "histogram(L), dotplot(L), boxplot(L)", dn: "Check outliers with the 1.5 × IQR fences from your quartiles.", t: "2nd Y= (STAT PLOT) ▸ Plot1", tn: "Choose the histogram or modified-boxplot type, then ZOOM ▸ 9:ZoomStat" }]
+  ]);
+  Lab.calcBox("g-prob", [
+    ["Normal: area to the left, P(X < 48)", C.normcdf(-Infinity, 48, 40, 5)],
+    ["Normal: area to the right, P(X > 48)", C.normcdf(48, Infinity, 40, 5)],
+    ["Normal: area between, P(35 < X < 48)", C.normcdf(35, 48, 40, 5)],
+    ["Normal: value with 90% below it (90th percentile)", C.invnorm(0.9, 40, 5)],
+    ["Binomial: P(X = 3)", C.binom(10, 0.3, "=", 3)],
+    ["Binomial: P(X ≤ 3)", C.binom(10, 0.3, "<=", 3)],
+    ["Binomial: P(X ≥ 3)", C.binom(10, 0.3, ">=", 3)],
+    ["Binomial: P(2 ≤ X ≤ 5)", C.binom(10, 0.3, "between", 2, 5)]
+  ]);
+  Lab.calcBox("g-props", [
+    ["z* for 95% confidence", C.zstar(0.95)],
+    ["One-proportion z interval (95%)", C.prop1(45, 80, { C: 0.95 })],
+    ["One-proportion z test, Hₐ: p > 0.5", C.prop1(45, 80, { p0: 0.5, tail: "right" })],
+    ["p-value from a z statistic, z = 1.68, right tail", C.normcdf(1.68, Infinity, 0, 1)],
+    ["Two-proportion z interval (95%)", C.prop2(412, 450, 341, 400, { C: 0.95 })],
+    ["Two-proportion z test, Hₐ: p₁ ≠ p₂", C.prop2(412, 450, 341, 400, { tail: "two" })]
+  ]);
+  Lab.calcBox("g-chi", [
+    ["Chi-square test (expected counts, χ², df, p-value)", C.chisq([[30, 20, 10], [20, 25, 15]])],
+    ["p-value from a χ² statistic, χ² = 5.2, df = 2", C.chicdf(5.2, 2)]
+  ]);
+  var A = { n: 32, mean: 82.4, sd: 7.1 }, B = { n: 30, mean: 78.9, sd: 8.3 };
+  Lab.calcBox("g-means", [
+    ["t* for 95% confidence, df = 11", C.invt(0.95, 11)],
+    ["One-sample t interval (95%)", C.t1({ n: 12, mean: 6.71, sd: 1.01 }, { C: 0.95 })],
+    ["One-sample t test, Hₐ: μ > 6", C.t1({ n: 12, mean: 6.71, sd: 1.01 }, { mu0: 6, tail: "right" })],
+    ["Paired t test from raw data (differences after − before)", C.t1({ list: "L₂ − L₁", tiList: "L₃ (store L₂ − L₁ in L₃ first)", paired: true }, { mu0: 0, tail: "right" })],
+    ["p-value from a t statistic, t = 2.35, df = 11, right tail", C.tcdf(2.35, Infinity, 11)],
+    ["Two-sample t interval (95%)", C.t2(A, B, { C: 0.95 })],
+    ["Two-sample t test, Hₐ: μ₁ ≠ μ₂", C.t2(A, B, { tail: "two" })],
+    ["Probability for a sample mean, x̄ ~ N(50, 12/√36 = 2), P(x̄ > 54)", C.normcdf(54, Infinity, 50, 2)]
+  ]);
+  Lab.calcBox("g-reg", [
+    ["Least-squares line, r, and r²", C.linreg()],
+    ["Correlation only", { d: "corr(x₁, y₁)", t: "r in the LinReg(a+bx) output", tn: "DiagnosticOn must be set once (2nd 0 CATALOG)" }],
+    ["Residual plot", { d: "(x₁, e₁)", dn: "Desmos saves the residuals as e₁ when you run the regression.", t: "Plot1: Xlist L₁, Ylist RESID", tn: "RESID is in 2nd STAT (LIST) ▸ NAMES after LinReg" }]
+  ]);
+  Lab.calcBox("g-sim", [
+    ["Random integers from 1 to 6 (e.g. die rolls)", { d: "floor(6 · random(10)) + 1", dn: "random(n) gives n uniform numbers between 0 and 1. random([1, 2, 3, 4, 5, 6], 10) also works; it samples the list with replacement, which is right for dice.", t: "randInt(1, 6, 10)", tn: "MATH ▸ PROB ▸ 5:randInt" }],
+    ["A simple random sample of 5 labels from 1 to 100", { d: "shuffle([1...100])[1...5]", dn: "Shuffle the labels and keep the first 5, so no label repeats. random([1...100], 5) samples WITH replacement and can repeat a label.", t: "randIntNoRep(1, 100) then take the first 5", tn: "MATH ▸ PROB ▸ 8:randIntNoRep (TI-84 Plus CE and newer OS)" }]
+  ]);
+})();
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -101,7 +101,7 @@
   <div class="steps">
     <div class="card"><h3><span class="tag">Step 1</span> State</h3><div class="calc" id="s1"></div></div>
     <div class="card"><h3><span class="tag">Step 2</span> Plan</h3><div class="calc" id="s2"></div></div>
-    <div class="card"><h3><span class="tag">Step 3</span> Do</h3><div class="calc" id="s3"></div></div>
+    <div class="card"><h3><span class="tag">Step 3</span> Do</h3><div class="calc" id="s3"></div><div id="s3-cb" style="margin-top:10px;"></div></div>
     <div class="card"><h3><span class="tag">Step 4</span> Conclude</h3><p id="s4"></p></div>
   </div>
 </section>
@@ -112,7 +112,7 @@
   <div class="concepts">
     <div class="card"><span class="tag">Statistic</span><h3>Distance from H₀</h3><p>χ² = Σ (O − E)² / E adds up how far each observed count is from its expected count, relative to the expected count. χ² = 0 means a perfect match.</p></div>
     <div class="card"><span class="tag">Distribution</span><h3>Right-skewed, depends on df</h3><p>Chi-square distributions take only nonnegative values and are skewed right. Their mean equals df, and they become more symmetric as df grows.</p></div>
-    <div class="card"><span class="tag">p-value</span><h3>Always the right tail</h3><p>The p-value is P(χ² ≥ observed) using df = (r − 1)(c − 1). Large χ² values give small p-values.</p></div>
+    <div class="card"><span class="tag">p-value</span><h3>Always the right tail</h3><p>The p-value is P(χ² ≥ observed) using df = (r − 1)(c − 1). Large χ² values give small p-values. Desmos: <code>1 - chisqdist(df).cdf(χ²)</code> · TI-84: <code>χ²cdf(χ², 1E99, df)</code>.</p></div>
     <div class="card"><span class="tag">Follow-up</span><h3>Which cells matter most?</h3><p>Look at the largest components to see where the observed counts differ most from expected, and say whether each is above or below expected.</p></div>
     <div class="card"><span class="tag">Conclusion</span><h3>In context</h3><p>Homogeneity: convincing evidence the distributions differ among the populations. Independence: convincing evidence of an association between the variables.</p></div>
     <div class="card"><span class="tag">Scope</span><h3>Design limits claims</h3><p>A randomized experiment supports cause and effect. Random samples support generalizing to the populations. An association in observational data is not causation.</p></div>
@@ -133,7 +133,8 @@
       <tr><td><b>Plan</b></td><td>Name the test; random, 10%, all expected ≥ 5</td><td>Chi-square test for independence; smallest expected count 9.3</td></tr>
       <tr><td><b>Do</b></td><td>χ², df, p-value</td><td>χ² = 17.69, df = 4, p-value = 0.0014</td></tr>
       <tr><td><b>Conclude</b></td><td>Compare p to α; conclusion in context</td><td>Reject H₀. There is convincing evidence of an association…</td></tr>
-      <tr><td><b>Calculator</b></td><td>χ²-Test with matrix [A] of observed counts</td><td>Expected counts appear in matrix [B]</td></tr>
+      <tr><td><b>Calculator</b></td><td>Desmos: <code>chisqtest(col1, col2, …)</code>, one list per column; read <code>T₁.score</code>, <code>T₁.dof</code>, <code>T₁.p</code> · TI-84: χ²-Test with observed counts in matrix [A]</td><td>TI-84 expected counts appear in [B]. Still name the test, check conditions, and show a component</td></tr>
+      <tr><td><b>p-value only</b></td><td>Desmos: <code>1 - chisqdist(4).cdf(17.69)</code> · TI-84: <code>χ²cdf(17.69, 1E99, 4)</code></td><td>Right tail only</td></tr>
       <tr><td><b>Never</b></td><td>"Accept H₀" or use a two-tailed p-value</td><td>—</td></tr>
     </tbody>
   </table>
@@ -148,7 +149,7 @@
       <h3>How to earn the points</h3>
       <ul>
         <li>Show the formula and at least one component: (38 − 28.67)² ÷ 28.67 = 3.04.</li>
-        <li>Report χ², df, and the p-value together.</li>
+        <li>Report χ², df, and the p-value together. If you use Desmos <code>chisqtest</code> or the TI-84 χ²-Test, still name the test, check conditions, and show the formula: calculator output alone does not earn credit.</li>
         <li>Compare the p-value to α and state the decision about H₀.</li>
         <li>Write the conclusion in context using the language of the test (distributions differ / association).</li>
         <li>When asked which cells contributed most, name the cell and say whether the observed count was above or below expected.</li>
@@ -194,7 +195,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -343,6 +344,10 @@
       ["χ² = " + first.join(" + ") + (big.length > 3 ? " + …" : ""), "= " + N(R.stat, 3)],
       ["df = (" + T.rows.length + " − 1)(" + T.cols.length + " − 1)", "= " + R.df],
       ["p-value = P(χ² ≥ " + N(R.stat, 3) + ") with df = " + R.df, "= " + P(R.p)]]);
+    Lab.calcBox("s3-cb", [
+      ["The whole test", Lab.CMD.chisq(T.obs)],
+      ["p-value from χ² and df", Lab.CMD.chicdf(Math.round(R.stat * 1000) / 1000, R.df)]
+    ]);
     $("s4").innerHTML = "Because the p-value of " + P(R.p) + " is " + (rej ? "less than" : "greater than") + " α = " + S.al + ", we " + (rej ? "reject H₀" : "fail to reject H₀") + ". There " + (rej ? "is" : "is not") + " convincing evidence that " +
       (S.test === "hom" ? "the distribution of " + esc(T.cv.toLowerCase()) + " differs among " + esc(S.groups || "the groups") : "there is an association between " + esc(T.rv.toLowerCase()) + " and " + esc(T.cv.toLowerCase()) + " in the population") + ".";
 
@@ -382,7 +387,7 @@
    "About 0.96"
   ],
   "c": 1,
-  "w": "With df = (3 − 1)(3 − 1) = 4, P(χ² ≥ 10.2) ≈ 0.037."
+  "w": "With df = (3 − 1)(3 − 1) = 4, P(χ² ≥ 10.2) ≈ 0.037. Desmos: 1 − chisqdist(4).cdf(10.2) · TI-84: χ²cdf(10.2, 1E99, 4)."
  },
  {
   "s": "Which statement about chi-square distributions is true?",

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -97,6 +97,7 @@
         <div class="ctl"><label>Confidence level</label><div class="seg" id="wc" role="group" aria-label="Confidence level"></div></div>
       </div>
       <div class="calc" id="wcalc"></div>
+      <div id="wcalc-cb"></div>
     </div>
     <div class="card graph-card">
       <h3>Interval at three sample sizes <small id="w-sub"></small></h3>
@@ -193,7 +194,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -307,6 +308,8 @@
     $("w-sub").textContent = Math.round(W.c * 100) + "% · gray = contains 0";
     $("wcalc").innerHTML = rows(cs.map(function (c, i) { return ["n = " + ns[i] + ": (" + N(c.lo, 3) + ", " + N(c.hi, 3) + ")", "width " + N(c.hi - c.lo, 3)]; })
       .concat([["Quadrupling n halves the width; one-fourth of n doubles it.", ""]]));
+    var x1 = Math.round(W.p1 * W.n), x2 = Math.round(W.p2 * W.n);
+    $("wcalc-cb").innerHTML = Lab.calcHTML(Lab.CMD.prop2(x1, W.n, x2, W.n, { C: W.c }), "Current n on a calculator: x₁ = " + x1 + " and x₂ = " + x2 + " successes out of " + W.n + " each");
   }
   btns($("scen"), PRESETS, load);
   load(PRESETS[0]); renderW();

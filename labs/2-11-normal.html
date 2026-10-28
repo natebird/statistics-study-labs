@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Normal Distribution Study Lab</title>
-<meta name="description" content="Shade areas under a normal curve, convert to z-scores, and go both ways with normalcdf and invNorm.">
+<meta name="description" content="Shade areas under a normal curve, convert to z-scores, and go both ways with Desmos normaldist or TI-84 normalcdf and invNorm.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -119,14 +119,14 @@
   <div class="tbl-wrap">
   <table>
 
-    <thead><tr><th>Question</th><th>Area or value?</th><th>Command</th><th>Answer</th></tr></thead>
+    <thead><tr><th>Question</th><th>Area or value?</th><th>Desmos</th><th>TI-84</th><th>Answer</th></tr></thead>
     <tbody>
-      <tr><td>P(X &lt; 120)</td><td>Area to the left</td><td>normalcdf(−1E99, 120, 100, 15)</td><td><b>0.9088</b></td></tr>
-      <tr><td>P(X &gt; 120)</td><td>Area to the right</td><td>normalcdf(120, 1E99, 100, 15)</td><td><b>0.0912</b></td></tr>
-      <tr><td>P(85 &lt; X &lt; 115)</td><td>Area between</td><td>normalcdf(85, 115, 100, 15)</td><td><b>0.6827</b></td></tr>
-      <tr><td>90th percentile</td><td>Value with 0.90 to its left</td><td>invNorm(0.90, 100, 15)</td><td><b>119.22</b></td></tr>
-      <tr><td>Top 5% cutoff</td><td>Value with 0.05 to its right</td><td>invNorm(0.95, 100, 15) (or area 0.05, RIGHT)</td><td><b>124.67</b></td></tr>
-      <tr><td>Middle 50%</td><td>Q₁ and Q₃</td><td>invNorm(0.25, 100, 15), invNorm(0.75, 100, 15)</td><td><b>89.88 to 110.12</b></td></tr>
+      <tr><td>P(X &lt; 120)</td><td>Area to the left</td><td>normaldist(100, 15).cdf(120)</td><td>normalcdf(−1E99, 120, 100, 15)</td><td><b>0.9088</b></td></tr>
+      <tr><td>P(X &gt; 120)</td><td>Area to the right</td><td>1 − normaldist(100, 15).cdf(120)</td><td>normalcdf(120, 1E99, 100, 15)</td><td><b>0.0912</b></td></tr>
+      <tr><td>P(85 &lt; X &lt; 115)</td><td>Area between</td><td>normaldist(100, 15).cdf(85, 115)</td><td>normalcdf(85, 115, 100, 15)</td><td><b>0.6827</b></td></tr>
+      <tr><td>90th percentile</td><td>Value with 0.90 to its left</td><td>normaldist(100, 15).inversecdf(0.90)</td><td>invNorm(0.90, 100, 15)</td><td><b>119.22</b></td></tr>
+      <tr><td>Top 5% cutoff</td><td>Value with 0.05 to its right</td><td>normaldist(100, 15).inversecdf(0.95)</td><td>invNorm(0.95, 100, 15)</td><td><b>124.67</b></td></tr>
+      <tr><td>Middle 50%</td><td>Q₁ and Q₃</td><td>normaldist(100, 15).inversecdf(0.25), .inversecdf(0.75)</td><td>invNorm(0.25, 100, 15), invNorm(0.75, 100, 15)</td><td><b>89.88 to 110.12</b></td></tr>
     </tbody>
 
   </table>
@@ -143,7 +143,7 @@
 
         <li>Name the model with its parameters: "Let X = battery life; X is approximately N(μ = 40, σ = 5) hours."</li>
         <li>Write the probability statement and show the z-score: "P(X &gt; 48) = P(Z &gt; (48 − 40)/5) = P(Z &gt; 1.6) = 0.0548."</li>
-        <li>If you use calculator syntax, label the inputs: "normalcdf(lower = 48, upper = 1000, μ = 40, σ = 5)." Unlabeled syntax may not earn full credit.</li>
+        <li>If you use calculator syntax, label the inputs: "normalcdf(lower = 48, upper = 1000, μ = 40, σ = 5)" on the TI-84, or "1 − normaldist(μ = 40, σ = 5).cdf(48)" for Desmos. Unlabeled syntax may not earn full credit, so write the model and the z-score too.</li>
         <li>Sketch the curve with the mean, the boundary value, and the shaded region. It catches left/right mistakes.</li>
         <li>For a percentile, give the value in context: "A battery must last at least 46.4 hours to be in the top 10%."</li>
 
@@ -154,7 +154,7 @@
       <ul>
 
         <li>Using the area to the left when the question asks "more than" or "at least."</li>
-        <li>Plugging the area into invNorm as a right-tail area without telling the calculator, or giving a z-score when a value was asked for.</li>
+        <li>Plugging a right-tail area into invNorm or Desmos .inversecdf (both expect the area to the left), or giving a z-score when a value was asked for.</li>
         <li>Using σ = variance. If you are given σ² = 25, then σ = 5.</li>
         <li>Applying normal areas to a distribution that is clearly skewed.</li>
         <li>Rounding z to one decimal early. Keep at least two decimals, or let technology do the whole calculation.</li>
@@ -191,7 +191,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -227,7 +227,6 @@
   }
   function r(v) { return Math.round(v * 100) / 100; }
   function u() { return S.unit ? " " + S.unit : ""; }
-  var INF = "1E99";
   function render() {
     segs();
     var mu = S.mu, sd = S.sd, area = S.mode === "area";
@@ -287,17 +286,22 @@
       var zs = { left: "P(Z < " + N(z1, 2) + ")", right: "P(Z > " + N(z1, 2) + ")", between: "P(" + N(Math.min(z1, z2), 2) + " < Z < " + N(Math.max(z1, z2), 2) + ")", outside: "1 − P(" + N(Math.min(z1, z2), 2) + " < Z < " + N(Math.max(z1, z2), 2) + ")" }[S.side];
       w += '<div class="row"><span>' + zs + "</span><span>= " + N(P, 4) + "</span></div>";
       var A2 = two ? Math.min(a, b) : a, B2 = two ? Math.max(a, b) : a;
-      c += '<div class="row"><span>' + ({ left: "normalcdf(−" + INF + ", " + L(a) + ", " + L(mu) + ", " + L(sd) + ")", right: "normalcdf(" + L(a) + ", " + INF + ", " + L(mu) + ", " + L(sd) + ")", between: "normalcdf(" + L(A2) + ", " + L(B2) + ", " + L(mu) + ", " + L(sd) + ")", outside: "1 − normalcdf(" + L(A2) + ", " + L(B2) + ", " + L(mu) + ", " + L(sd) + ")" }[S.side]) + "</span><span>= " + N(P, 4) + "</span></div>";
-      c += '<div class="row"><span>Labeled: lower, upper, μ, σ</span><span></span></div>';
+      var R2 = function (v) { return Math.round(v * 100) / 100; }, cm;
+      if (S.side === "left") cm = Lab.CMD.normcdf(-Infinity, R2(a), R2(mu), R2(sd));
+      else if (S.side === "right") cm = Lab.CMD.normcdf(R2(a), Infinity, R2(mu), R2(sd));
+      else { cm = Lab.CMD.normcdf(R2(A2), R2(B2), R2(mu), R2(sd)); if (S.side === "outside") { cm.d = "1 \u2212 " + cm.d; cm.t = "1 \u2212 " + cm.t; } }
+      c += Lab.calcHTML(cm, "Shaded area = " + N(P, 4));
+      c += '<div class="row"><span>Label the inputs when you write it: lower, upper, μ, σ</span><span></span></div>';
     } else {
       var left = S.side === "left" ? P : S.side === "right" ? 1 - P : (1 + P) / 2;
       w += '<div class="row"><span>Area to the left of the ' + (S.side === "between" ? "upper " : "") + "cutoff</span><span>= " + N(left, 4) + "</span></div>";
       w += '<div class="row"><span>z with that area to its left</span><span>z = ' + N((S.side === "between" ? b - mu : a - mu) / sd, 3) + "</span></div>";
       w += '<div class="row"><span>x = μ + zσ = ' + L(mu) + " + (" + N((S.side === "between" ? b - mu : a - mu) / sd, 3) + ")(" + L(sd) + ")</span><span>= " + L(S.side === "between" ? b : a) + "</span></div>";
       if (S.side === "between") w += '<div class="row"><span>By symmetry, the lower cutoff = ' + L(mu) + " − " + N(Math.abs(z1), 3) + "(" + L(sd) + ")</span><span>= " + L(a) + "</span></div>";
-      if (S.side === "between") c += '<div class="row"><span>invNorm(' + N((1 - P) / 2, 4) + ", " + L(mu) + ", " + L(sd) + ")</span><span>= " + L(a) + "</span></div>" + '<div class="row"><span>invNorm(' + N((1 + P) / 2, 4) + ", " + L(mu) + ", " + L(sd) + ")</span><span>= " + L(b) + "</span></div>";
-      else c += '<div class="row"><span>invNorm(' + N(left, 4) + ", " + L(mu) + ", " + L(sd) + ")</span><span>= " + L(a) + "</span></div>";
-      c += '<div class="row"><span>invNorm uses the area to the LEFT (unless you set Tail: RIGHT)</span><span></span></div>';
+      var R2i = function (v) { return Math.round(v * 100) / 100; }, R4 = function (v) { return Math.round(v * 10000) / 10000; };
+      if (S.side === "between") c += Lab.calcHTML(Lab.CMD.invnorm(R4((1 - P) / 2), R2i(mu), R2i(sd)), "Lower cutoff = " + L(a)) + Lab.calcHTML(Lab.CMD.invnorm(R4((1 + P) / 2), R2i(mu), R2i(sd)), "Upper cutoff = " + L(b));
+      else c += Lab.calcHTML(Lab.CMD.invnorm(R4(left), R2i(mu), R2i(sd)), "Cutoff = " + L(a));
+      c += '<div class="row"><span>Both calculators want the area to the LEFT' + (S.side === "right" ? ": 1 − " + N(P, 4) + " = " + N(left, 4) : "") + '</span><span></span></div>';
     }
     $("calcZ").innerHTML = w; $("calcC").innerHTML = c;
     // story
@@ -325,9 +329,9 @@
   var Q = [
     { s: "Heights are approximately normal with mean 68 inches and SD 3 inches. About what percent of heights are between 62 and 74 inches?", o: ["68%", "95%", "99.7%", "47.5%"], c: 1, w: "62 and 74 are 2 SDs below and above the mean, so by the empirical rule about 95% fall between them." },
     { s: "A test score of 85 has a z-score of 1.5 in a distribution with SD 6. What is the mean?", o: ["76", "94", "79", "83.5"], c: 0, w: "z = (x − μ)/σ gives 1.5 = (85 − μ)/6, so 85 − μ = 9 and μ = 76." },
-    { s: "X is N(50, 10). Which command gives P(X > 65)?", o: ["normalcdf(−1E99, 65, 50, 10)", "normalcdf(65, 1E99, 50, 10)", "invNorm(0.65, 50, 10)", "normalcdf(65, 1E99, 10, 50)"], c: 1, w: "\"Greater than 65\" is the area to the right: lower bound 65, upper bound very large, then μ = 50 and σ = 10. Choice D has μ and σ reversed." },
+    { s: "X is N(50, 10). Which Desmos command gives P(X > 65)?", o: ["normaldist(50, 10).cdf(65)", "1 - normaldist(50, 10).cdf(65)", "normaldist(50, 10).inversecdf(0.65)", "1 - normaldist(10, 50).cdf(65)"], c: 1, w: "\"Greater than 65\" is the area to the right. .cdf(65) is the area to the left, so subtract it from 1. Choice D has μ and σ reversed, and C finds a value, not an area. On a TI-84 the same area is normalcdf(65, 1E99, 50, 10)." },
     { s: "X is N(50, 10). What is P(X > 65), to 4 decimal places?", o: ["0.9332", "0.0668", "0.1587", "0.0228"], c: 1, w: "z = 1.5, and the area to the right of z = 1.5 is 1 − 0.9332 = 0.0668." },
-    { s: "Battery life is N(40, 5) hours. What life is the 90th percentile?", o: ["46.4 hours", "33.6 hours", "45.0 hours", "49.0 hours"], c: 0, w: "invNorm(0.90) gives z ≈ 1.2816, so x = 40 + 1.2816(5) ≈ 46.4 hours. Choice B is the 10th percentile." },
+    { s: "Battery life is N(40, 5) hours. What life is the 90th percentile?", o: ["46.4 hours", "33.6 hours", "45.0 hours", "49.0 hours"], c: 0, w: "invNorm(0.90) on the TI-84 (Desmos: normaldist(0, 1).inversecdf(0.9)) gives z ≈ 1.2816, so x = 40 + 1.2816(5) ≈ 46.4 hours. Choice B is the 10th percentile." },
     { s: "In a normal distribution, which is closest to the proportion of values more than 2 standard deviations above the mean?", o: ["0.05", "0.025", "0.16", "0.0015"], c: 1, w: "About 95% are within 2 SDs, leaving 5% in the two tails together, so about 2.5% in the upper tail." },
     { s: "Two students took different tests. Ana scored 82 on a test with mean 70 and SD 8. Ben scored 90 on a test with mean 80 and SD 10. Who did better relative to their class?", o: ["Ana, z = 1.5 versus z = 1.0", "Ben, because 90 > 82", "Ben, z = 1.0 versus z = 0.8", "They did equally well"], c: 0, w: "Ana: z = (82 − 70)/8 = 1.5. Ben: z = (90 − 80)/10 = 1.0. Ana is farther above her mean in SD units." },
     { s: "For the standard normal distribution, P(Z = 1) is:", o: ["0.8413", "0.2420", "0", "0.1587"], c: 2, w: "Z is continuous, so any single exact value has probability 0. 0.2420 is the height of the density curve at z = 1, not a probability." }

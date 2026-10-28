@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -80,7 +80,7 @@
 
   <div class="story" id="story" aria-live="polite"></div>
 
-  <div class="card calc-card"><h3>Show your work</h3><div class="calc" id="calc"></div></div>
+  <div class="card calc-card"><h3>Show your work</h3><div class="calc" id="calc"></div><div id="calc-cmd" style="margin-top:12px"></div></div>
 </section>
 
 <!-- CONCEPTS -->
@@ -89,7 +89,7 @@
   <div class="concepts">
     <div class="card"><span class="tag">Definition</span><h3>Probability, assuming H₀</h3><p>The p-value is the probability of getting a statistic at least as extreme as the observed one, in the direction of Hₐ, assuming H₀ is true.</p></div>
     <div class="card"><span class="tag">Evidence</span><h3>Small p-value, strong evidence</h3><p>A small p-value means the data would rarely happen if H₀ were true, which is evidence against H₀ and for Hₐ.</p></div>
-    <div class="card"><span class="tag">Direction</span><h3>One tail or two</h3><p>For Hₐ: p > p₀ use the upper tail; for p < p₀, the lower tail; for p ≠ p₀, double the tail beyond |z|.</p></div>
+    <div class="card"><span class="tag">Direction</span><h3>One tail or two</h3><p>For Hₐ: p > p₀ use the upper tail; for p < p₀, the lower tail; for p ≠ p₀, double the tail beyond |z|. Upper tail: Desmos <code>1 - normaldist(0, 1).cdf(z)</code>, TI-84 <code>normalcdf(z, 1E99, 0, 1)</code>.</p></div>
     <div class="card"><span class="tag">Decision</span><h3>Compare with α</h3><p>If p-value < α, reject H₀ (statistically significant). If p-value ≥ α, fail to reject H₀. Never "accept" H₀.</p></div>
     <div class="card"><span class="tag">What it is NOT</span><h3>Not P(H₀ is true)</h3><p>The p-value does not give the probability that a hypothesis is true or that results are due to chance. It assumes H₀ is true.</p></div>
     <div class="card"><span class="tag">Simulation</span><h3>p-values without formulas</h3><p>Simulate many samples assuming H₀ and find the proportion that are at least as extreme as the observed result.</p></div>
@@ -104,13 +104,13 @@
   </div>
   <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Alternative</th><th>z</th><th>p-value</th><th>At α = 0.05</th></tr></thead>
+    <thead><tr><th>Alternative</th><th>z</th><th>p-value</th><th>At α = 0.05</th><th>Calculator (Desmos · TI-84)</th></tr></thead>
     <tbody>
-      <tr><td>Hₐ: p &gt; p₀</td><td>1.50</td><td>P(Z ≥ 1.50) = <b>0.0668</b></td><td>Fail to reject</td></tr>
-      <tr><td>Hₐ: p &gt; p₀</td><td>2.00</td><td>P(Z ≥ 2.00) = <b>0.0228</b></td><td>Reject</td></tr>
-      <tr><td>Hₐ: p &lt; p₀</td><td>−1.80</td><td>P(Z ≤ −1.80) = <b>0.0359</b></td><td>Reject</td></tr>
-      <tr><td>Hₐ: p ≠ p₀</td><td>2.00</td><td>2 × 0.0228 = <b>0.0455</b></td><td>Reject</td></tr>
-      <tr><td>Hₐ: p ≠ p₀</td><td>−1.80</td><td>2 × 0.0359 = <b>0.0719</b></td><td>Fail to reject</td></tr>
+      <tr><td>Hₐ: p &gt; p₀</td><td>1.50</td><td>P(Z ≥ 1.50) = <b>0.0668</b></td><td>Fail to reject</td><td><code>1 - normaldist(0, 1).cdf(1.5)</code> · <code>normalcdf(1.5, 1E99, 0, 1)</code></td></tr>
+      <tr><td>Hₐ: p &gt; p₀</td><td>2.00</td><td>P(Z ≥ 2.00) = <b>0.0228</b></td><td>Reject</td><td><code>1 - normaldist(0, 1).cdf(2)</code> · <code>normalcdf(2, 1E99, 0, 1)</code></td></tr>
+      <tr><td>Hₐ: p &lt; p₀</td><td>−1.80</td><td>P(Z ≤ −1.80) = <b>0.0359</b></td><td>Reject</td><td><code>normaldist(0, 1).cdf(-1.8)</code> · <code>normalcdf(-1E99, -1.8, 0, 1)</code></td></tr>
+      <tr><td>Hₐ: p ≠ p₀</td><td>2.00</td><td>2 × 0.0228 = <b>0.0455</b></td><td>Reject</td><td>2 × (<code>1 - normaldist(0, 1).cdf(2)</code>) · 2 × <code>normalcdf(2, 1E99, 0, 1)</code></td></tr>
+      <tr><td>Hₐ: p ≠ p₀</td><td>−1.80</td><td>2 × 0.0359 = <b>0.0719</b></td><td>Fail to reject</td><td>2 × <code>normaldist(0, 1).cdf(-1.8)</code> · 2 × <code>normalcdf(-1E99, -1.8, 0, 1)</code></td></tr>
     </tbody>
   </table>
   </div>
@@ -127,7 +127,7 @@
         <li>Link the decision to the comparison: "Because the p-value of 0.015 < α = 0.05, we reject H₀."</li>
         <li>State the conclusion in context about the population: "There is convincing evidence that more than 10% of students at the school are left-handed."</li>
         <li>For a simulation-based p-value, count the dots at least as extreme and divide by the number of simulated samples.</li>
-        <li>Show the area you found: "P(Z ≥ 2.16) = 0.0154."</li>
+        <li>Show the area you found: "P(Z ≥ 2.16) = 0.0154." Desmos <code>1 - normaldist(0, 1).cdf(2.16)</code> or TI-84 <code>normalcdf(2.16, 1E99, 0, 1)</code> finds it, but the calculator command alone does not earn credit: label the distribution, the boundary, and the direction.</li>
       </ul>
     </div>
     <div class="card">
@@ -170,7 +170,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -269,6 +269,13 @@
       ["z = (" + N(S.ph, 3) + " − " + N(S.p0, 2) + ") ÷ " + N(sd, 4), N(z, 3)],
       ["p-value = " + areaTxt, fmtP(p), true]
     ]);
+    var zr = Math.round(z * 1000) / 1000, za = Math.abs(zr);
+    var cmds = [S.alt === "gt" ? ["Calculator: p-value = P(Z ≥ " + N(zr, 3) + ")", Lab.CMD.normcdf(zr, Infinity, 0, 1)]
+      : S.alt === "lt" ? ["Calculator: p-value = P(Z ≤ " + N(zr, 3) + ")", Lab.CMD.normcdf(-Infinity, zr, 0, 1)]
+      : ["Calculator: one tail P(Z ≥ " + N(za, 3) + "); the two-sided p-value is 2 × this", Lab.CMD.normcdf(za, Infinity, 0, 1)]];
+    var xs = Math.round(S.ph * S.n);
+    if (Math.abs(xs / S.n - S.ph) < 0.0005) cmds.push(["Calculator: the whole test, with x = " + xs + " successes out of " + S.n, Lab.CMD.prop1(xs, S.n, { p0: S.p0, tail: S.alt === "gt" ? "right" : S.alt === "lt" ? "left" : "two" })]);
+    Lab.calcBox("calc-cmd", cmds);
     var dirw = S.alt === "gt" ? "as large as or larger than" : S.alt === "lt" ? "as small as or smaller than" : "at least as far from " + N(S.p0, 2) + " (in either direction) as";
     var head = "<b>Interpretation:</b> Assuming the true proportion is " + N(S.p0, 2) + ", there is about a " + fmtP(p) + " probability of getting a sample proportion " + dirw + " " + N(S.ph, 3) + " by chance alone in a random sample of " + S.n + ".", t = [];
     if (rej) t.push("Because the p-value (" + fmtP(p) + ") is less than α = " + S.al + ", we <b>reject H₀</b>. The result is statistically significant: there is convincing evidence for Hₐ: p " + sym(S.alt) + " " + N(S.p0, 2) + ".");

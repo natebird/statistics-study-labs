@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -93,6 +93,7 @@
     <div class="card calc-card">
       <h3>Center and spread</h3>
       <div class="calc" id="calcA"></div>
+      <div id="calcA-cb" style="margin-top:10px;"></div>
     </div>
     <div class="card calc-card">
       <h3>Is a normal model OK?</h3>
@@ -110,7 +111,7 @@
     <div class="card"><span class="tag">Shape</span><h3>Large counts → normal</h3><p>The shape is approximately normal when n₁p₁, n₁(1 − p₁), n₂p₂, and n₂(1 − p₂) are all at least 10.</p></div>
     <div class="card"><span class="tag">Independence</span><h3>Two conditions</h3><p>The samples must be independent of each other (two separate random samples or random assignment), and each sample should be at most 10% of its population when sampling without replacement.</p></div>
     <div class="card"><span class="tag">Sample size</span><h3>Bigger n, less variability</h3><p>σ shrinks as n₁ and n₂ grow. To cut σ in half you need about four times as many observations in each group.</p></div>
-    <div class="card"><span class="tag">Using it</span><h3>Probability of a difference</h3><p>With the normal model, find P(p̂₁ − p̂₂ > c) by computing z = (c − μ)/σ and using a normal table or normalcdf.</p></div>
+    <div class="card"><span class="tag">Using it</span><h3>Probability of a difference</h3><p>With the normal model, find P(p̂₁ − p̂₂ &gt; c) by computing z = (c − μ)/σ and using a normal table or a calculator. Desmos: <code>1 - normaldist(μ, σ).cdf(c)</code> · TI-84: <code>normalcdf(c, 1E99, μ, σ)</code>.</p></div>
   </div>
 </section>
 
@@ -145,7 +146,7 @@
         <li>Describe all three features with numbers and context: "The sampling distribution of p̂₁ − p̂₂ is approximately normal with mean 0.10 and standard deviation 0.069."</li>
         <li>Check the large counts condition with all four products, and show the numbers.</li>
         <li>State the 10% condition for each population when sampling without replacement.</li>
-        <li>For a probability, show the z-score: z = (0.15 − 0.10) ÷ 0.069 = 0.72, then P(Z &gt; 0.72) = 0.236. Label normalcdf inputs if you use a calculator.</li>
+        <li>For a probability, show the z-score: z = (0.15 − 0.10) ÷ 0.069 = 0.72, then P(Z &gt; 0.72) = 0.236. On a calculator, Desmos: <code>1 - normaldist(0.1, 0.069).cdf(0.15)</code> · TI-84: <code>normalcdf(0.15, 1E99, 0.1, 0.069)</code>. Either way, label the inputs (mean, SD, boundary): calculator syntax alone does not earn credit.</li>
         <li>Say why the samples are independent of each other: two separate random samples, or random assignment to two groups.</li>
       </ul>
     </div>
@@ -189,7 +190,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -274,8 +275,12 @@
       ["Variances add, then take the square root", ""],
       ["σ = √(" + N(S.p1 * (1 - S.p1) / S.n1, 6) + " + " + N(S.p2 * (1 - S.p2) / S.n2, 6) + ")", "= " + N(T.sd, 4)]
     ]);
+    var cut = S.last ? Math.round(S.last.d * 1000) / 1000 : 0, up = !S.last || cut >= T.mu;
+    var pr = up ? Lab.normCdf(cut, Infinity, T.mu, T.sd) : Lab.normCdf(-Infinity, cut, T.mu, T.sd);
+    var cmdP = Lab.CMD.normcdf(up ? cut : -Infinity, up ? Infinity : cut, Math.round(T.mu * 1e4) / 1e4, Math.round(T.sd * 1e4) / 1e4);
     var c = [["n₁p₁", S.n1 * S.p1], ["n₁(1 − p₁)", S.n1 * (1 - S.p1)], ["n₂p₂", S.n2 * S.p2], ["n₂(1 − p₂)", S.n2 * (1 - S.p2)]];
     var ok = c.every(function (x) { return x[1] >= 10; });
+    $("calcA-cb").innerHTML = Lab.calcHTML(cmdP, "Normal model: P(p̂₁ − p̂₂ " + (up ? "≥ " : "≤ ") + N(cut, 3) + ")" + (S.last ? " (latest difference)" : "") + (pr < 0.0001 ? " < 0.0001" : " ≈ " + P(pr)) + (ok ? "" : ". Large counts fails, so this is only rough."));
     $("calcB").innerHTML = rows(c.map(function (x) { return [x[0] + " = " + N(x[1], 1), x[1] >= 10 ? '<span class="ok">≥ 10 ✓</span>' : '<span class="no">&lt; 10 ✗</span>']; }).concat([
       ["Large counts condition", ok ? '<span class="ok">Met: approximately normal</span>' : '<span class="no">Not met: may be skewed</span>'],
       ["10% condition: each sample ≤ 10% of its population", "needed for the σ formula"]
@@ -372,7 +377,7 @@
    "0.977"
   ],
   "c": 0,
-  "w": "z = (0 − 0.10) ÷ 0.05 = −2. The area to the left of −2 is about 0.023."
+  "w": "z = (0 − 0.10) ÷ 0.05 = −2. The area to the left of −2 is about 0.023. Desmos: normaldist(0.1, 0.05).cdf(0) · TI-84: normalcdf(−1E99, 0, 0.1, 0.05)."
  },
  {
   "s": "A researcher samples 50 students from each of two small schools of 300 students each. Which concern is most important for the SD formula?",

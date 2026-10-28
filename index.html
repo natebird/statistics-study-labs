@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/lab.css?v=1">
+<link rel="stylesheet" href="assets/lab.css?v=2">
 <script src="assets/prefs.js?v=1"></script>
 <style>
 .labs { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
@@ -34,7 +34,7 @@ footer { color: var(--muted); font-size: .86rem; border-top: 1px solid var(--rul
   <span class="kicker">AP Statistics</span>
   <h1>AP Statistics Study Labs</h1>
   <p class="lede">Interactive study labs for the revised (2026–27) AP Statistics course, one for each of its 55 topics. Each lab has data you can edit, graphs and simulations that react, a running explanation of what changed and why, worked examples, FRQ tips, practice questions, and the key terms for that topic.</p>
-  <nav class="jump" aria-label="Jump to a unit"><a href="#unit-1">Unit 1</a> <a href="#unit-2">Unit 2</a> <a href="#unit-3">Unit 3</a> <a href="#unit-4">Unit 4</a> <a href="#unit-5">Unit 5</a> <a href="terms/index.html">All terms</a></nav>
+  <nav class="jump" aria-label="Jump to a unit"><a href="#unit-1">Unit 1</a> <a href="#unit-2">Unit 2</a> <a href="#unit-3">Unit 3</a> <a href="#unit-4">Unit 4</a> <a href="#unit-5">Unit 5</a> <a href="terms/index.html">All terms</a> <a href="calculator.html">Calculator guide (Desmos and TI-84)</a></nav>
 </header>
 
 <section aria-labelledby="terms-h">
@@ -87,9 +87,9 @@ footer { color: var(--muted); font-size: .86rem; border-top: 1px solid var(--rul
     <a class="card lab-card" href="labs/2-6-conditional-probability.html"><span class="num">Topic 2.6</span><h3>Conditional Probability</h3><p>Use a tree diagram and a table of hypothetical counts to find P(A and B), P(B), and P(A | B), and see why P(A | B) and P(B | A) can be very different.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/2-7-independence-unions.html"><span class="num">Topic 2.7</span><h3>Independent Events and Unions of Events</h3><p>Set P(A), P(B), and P(A and B), then check independence and find P(A or B) with the general addition rule.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/2-8-random-variables.html"><span class="num">Topic 2.8</span><h3>Random Variables and Probability Distributions</h3><p>Build a discrete probability distribution, check that it is valid, and find probabilities like P(X ≤ 2) from the table and graph.</p><span class="go">Open lab →</span></a>
-    <a class="card lab-card" href="labs/2-9-parameters-random-variables.html"><span class="num">Topic 2.9</span><h3>Parameters of Random Variables</h3><p>Find the mean (expected value) and standard deviation of a discrete random variable, then see how they change when you transform or combine variables.</p><span class="go">Open lab →</span></a>
-    <a class="card lab-card" href="labs/2-10-binomial.html"><span class="num">Topic 2.10</span><h3>The Binomial Distribution</h3><p>Check the binomial conditions, then set n and p to find exact, at-most, and at-least probabilities with binompdf and binomcdf.</p><span class="go">Open lab →</span></a>
-    <a class="card lab-card" href="labs/2-11-normal.html"><span class="num">Topic 2.11</span><h3>The Normal Distribution</h3><p>Shade areas under a normal curve, convert to z-scores, and go both ways with normalcdf and invNorm.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-9-parameters-random-variables.html"><span class="num">Topic 2.9</span><h3>Parameters of Random Variables</h3><p>Find the mean (expected value) and standard deviation of a discrete random variable, then see how they change under a linear transformation.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-10-binomial.html"><span class="num">Topic 2.10</span><h3>The Binomial Distribution</h3><p>Check the binomial conditions, then set n and p to find exact, at-most, and at-least probabilities with Desmos binomialdist or TI-84 binompdf and binomcdf.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-11-normal.html"><span class="num">Topic 2.11</span><h3>The Normal Distribution</h3><p>Shade areas under a normal curve, convert to z-scores, and go both ways with Desmos normaldist or TI-84 normalcdf and invNorm.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/2-12-sampling-distributions-clt.html"><span class="num">Topic 2.12</span><h3>Sampling Distributions and the Central Limit Theorem</h3><p>Draw thousands of random samples from skewed, uniform, or yes/no populations and watch the sampling distribution of the mean become approximately normal.</p><span class="go">Open lab →</span></a>
   </div>
 </section>
@@ -127,7 +127,7 @@ footer { color: var(--muted); font-size: .86rem; border-top: 1px solid var(--rul
     <a class="card lab-card" href="labs/4-3-justify-ci-one-mean.html"><span class="num">Topic 4.3</span><h3>Justifying a Claim with a Mean Interval</h3><p>Use a t interval for a mean or mean difference to decide whether a claimed value is plausible, and see how sample size and confidence level change the answer.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/4-4-setup-test-one-mean.html"><span class="num">Topic 4.4</span><h3>Setting Up a Test for a Mean or Mean Difference</h3><p>Practice choosing the parameter, hypotheses, procedure, and conditions for a one-sample or paired t test, and see which t values would count as evidence for the alternative.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/4-5-test-one-mean.html"><span class="num">Topic 4.5</span><h3>Carrying Out a Test for a Mean or Mean Difference</h3><p>Run a one-sample or paired t test from raw data or summary statistics: compute t and the p-value, see the area on the t curve, and write all four steps.</p><span class="go">Open lab →</span></a>
-    <a class="card lab-card" href="labs/4-6-sampling-dist-diff-means.html"><span class="num">Topic 4.6</span><h3>Sampling Distributions for a Difference in Means</h3><p>Simulate thousands of differences in sample means and see why the mean is μ₁ − μ₂, the variances add, and the shape becomes normal.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-6-sampling-dist-diff-means.html"><span class="num">Topic 4.6</span><h3>Sampling Distributions for a Difference in Means</h3><p>Simulate thousands of differences in sample means and see why the mean is μ₁ − μ₂, how the standard deviation √(σ₁²/n₁ + σ₂²/n₂) behaves, and when the shape is normal.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/4-7-ci-two-means.html"><span class="num">Topic 4.7</span><h3>Confidence Interval for a Difference in Means</h3><p>Build a two-sample t interval step by step, compare calculator and conservative df, and watch 50 intervals show what confidence means.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/4-8-justify-ci-two-means.html"><span class="num">Topic 4.8</span><h3>Justifying a Claim with a Two-Mean Interval</h3><p>Decide whether a claim about μ₁ − μ₂ is supported, plausible, or contradicted by a confidence interval, and see what makes the interval narrower.</p><span class="go">Open lab →</span></a>
     <a class="card lab-card" href="labs/4-9-setup-test-two-means.html"><span class="num">Topic 4.9</span><h3>Setting Up a Test for a Difference in Means</h3><p>Tell paired data from two independent samples, write hypotheses about μ₁ − μ₂, and check the Random, 10%, and Normal/Large conditions.</p><span class="go">Open lab →</span></a>

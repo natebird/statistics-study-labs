@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -182,8 +182,8 @@
   <table>
     <thead><tr><th>Procedure</th><th>Parameter</th><th>Interval</th><th>Calculator</th></tr></thead>
     <tbody>
-      <tr><td><b>One-sample t interval</b></td><td>μ, the population mean</td><td>x̄ ± t* · s/√n, df = n − 1</td><td>STAT → TESTS → TInterval</td></tr>
-      <tr><td><b>Paired t interval</b></td><td>μ<sub>d</sub>, the population mean difference</td><td>x̄<sub>d</sub> ± t* · s<sub>d</sub>/√n, df = n − 1 (n = pairs)</td><td>TInterval on the list of differences</td></tr>
+      <tr><td><b>One-sample t interval</b></td><td>μ, the population mean</td><td>x̄ ± t* · s/√n, df = n − 1</td><td>Desmos: <code>ttest(L₁)</code> or <code>ttest(n, x̄, s)</code>, then <code>T₁.conf(0.95)</code> · TI-84: STAT → TESTS → TInterval</td></tr>
+      <tr><td><b>Paired t interval</b></td><td>μ<sub>d</sub>, the population mean difference</td><td>x̄<sub>d</sub> ± t* · s<sub>d</sub>/√n, df = n − 1 (n = pairs)</td><td>Desmos: <code>ttest(L₁ - L₂)</code> · TI-84: TInterval on L₃ = L₁ − L₂</td></tr>
     </tbody>
   </table>
   </div>
@@ -198,7 +198,7 @@
       <ul>
         <li><b>Name the procedure and parameter:</b> "One-sample t interval for μ = the true mean sleep time of all students at the school."</li>
         <li><b>Check all three conditions with evidence</b>, not just the word: "n = 12 &lt; 30, but a dotplot of the data shows no strong skew or outliers."</li>
-        <li><b>Do:</b> write the formula with numbers: 6.71 ± 2.201 (1.010/√12) = (6.07, 7.35), df = 11.</li>
+        <li><b>Do:</b> write the formula with numbers: 6.71 ± 2.201 (1.010/√12) = (6.07, 7.35), df = 11. Desmos or TI-84 output alone does not earn this point.</li>
         <li><b>Conclude in context</b>: "We are 95% confident that the interval from 6.07 to 7.35 hours captures the true mean…"</li>
         <li>For paired data, say what the difference means (after − before) and that n is the number of pairs.</li>
       </ul>
@@ -243,7 +243,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -378,11 +378,14 @@
     // work
     var xs = paired ? "x̄<sub>d</sub>" : "x̄", ss = paired ? "s<sub>d</sub>" : "s", r = "";
     r += '<div class="row"><span>df = n − 1 = ' + st.n + " − 1</span><span>= " + df + "</span></div>";
-    r += '<div class="row"><span>t* = invT(' + N((1 + C) / 2, 3) + ", " + df + ")</span><span>= " + N(ts, 3) + "</span></div>";
+    r += '<div class="row"><span>t* (area ' + N((1 + C) / 2, 3) + " to the left, df = " + df + ")</span><span>= " + N(ts, 3) + "</span></div>";
+    r += Lab.calcHTML(Lab.CMD.invt(C, df), "Calculator: t*");
     r += '<div class="row"><span>SE = ' + ss + "/√n = " + N(st.s, 4) + "/√" + st.n + "</span><span>= " + N(se, 4) + "</span></div>";
     r += '<div class="row"><span>ME = t* × SE = ' + N(ts, 3) + " × " + N(se, 4) + "</span><span>= " + N(me, 4) + "</span></div>";
     r += '<div class="row"><span>' + xs + " ± ME = " + N(st.x, 4) + " ± " + N(me, 4) + "</span><span>(" + N(lo, 3) + ", " + N(hi, 3) + ")</span></div>";
-    r += '<div class="row"><span>Calculator</span><span>TInterval: ' + (st.data ? (paired ? "L3 = L1 − L2, " : "") + "Data, C-Level " + N(C, 2) : "Stats, x̄ = " + N(st.x, 3) + ", Sx = " + N(st.s, 3) + ", n = " + st.n + ", C-Level " + N(C, 2)) + "</span></div>";
+    var tc = Lab.CMD.t1(st.data ? (paired ? { list: "L₁ − L₂", tiList: "L₃ (L₃ = L₁ − L₂)", paired: true } : { list: "L₁", tiList: "L₁" }) : { n: st.n, mean: st.x, sd: st.s }, { C: C });
+    if (st.data) tc.dn = "Enter the data in a table as " + (paired ? "L₁ and L₂ first. " : "L₁ first. ") + (tc.dn || "");
+    r += Lab.calcHTML(tc, "Calculator: the whole interval");
     $("calc").innerHTML = r;
 
     // story

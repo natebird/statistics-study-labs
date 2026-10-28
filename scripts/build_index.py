@@ -57,7 +57,7 @@ page = f'''<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/lab.css?v=1">
+<link rel="stylesheet" href="assets/lab.css?v=2">
 <script src="assets/prefs.js?v=1"></script>
 <style>
 .labs {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }}
@@ -83,7 +83,7 @@ footer {{ color: var(--muted); font-size: .86rem; border-top: 1px solid var(--ru
   <span class="kicker">AP Statistics</span>
   <h1>AP Statistics Study Labs</h1>
   <p class="lede">Interactive study labs for the revised (2026–27) AP Statistics course, one for each of its 55 topics. Each lab has data you can edit, graphs and simulations that react, a running explanation of what changed and why, worked examples, FRQ tips, practice questions, and the key terms for that topic.</p>
-  <nav class="jump" aria-label="Jump to a unit">{jump} <a href="terms/index.html">All terms</a></nav>
+  <nav class="jump" aria-label="Jump to a unit">{jump} <a href="terms/index.html">All terms</a> <a href="calculator.html">Calculator guide (Desmos and TI-84)</a></nav>
 </header>
 
 <section aria-labelledby="terms-h">

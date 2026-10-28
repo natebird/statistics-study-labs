@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Binomial Distribution Study Lab</title>
-<meta name="description" content="Check the binomial conditions, then set n and p to find exact, at-most, and at-least probabilities with binompdf and binomcdf.">
+<meta name="description" content="Check the binomial conditions, then set n and p to find exact, at-most, and at-least probabilities with Desmos binomialdist or TI-84 binompdf and binomcdf.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -121,19 +121,19 @@
 <section aria-labelledby="tbl-h">
   <div class="sec-head">
     <h2 id="tbl-h">3. Calculator commands</h2>
-    <p>binompdf gives one exact value; binomcdf gives "at most." Everything else is built from those two.</p>
+    <p>Desmos <code>binomialdist(n, p).pdf(k)</code> and TI-84 binompdf give one exact value; <code>.cdf(k)</code> and binomcdf give "at most." Everything else is built from those two. The examples use n = 10, p = 0.3.</p>
   </div>
   <div class="tbl-wrap">
   <table>
 
-    <thead><tr><th>Event</th><th>Command</th><th>Example: n = 10, p = 0.3</th><th>Answer</th></tr></thead>
+    <thead><tr><th>Event</th><th>Desmos</th><th>TI-84</th><th>Answer</th></tr></thead>
     <tbody>
-      <tr><td>Exactly k: P(X = 3)</td><td>binompdf(n, p, k)</td><td>binompdf(10, 0.3, 3)</td><td><b>0.2668</b></td></tr>
-      <tr><td>At most k: P(X ≤ 3)</td><td>binomcdf(n, p, k)</td><td>binomcdf(10, 0.3, 3)</td><td><b>0.6496</b></td></tr>
-      <tr><td>Fewer than k: P(X &lt; 3)</td><td>binomcdf(n, p, k − 1)</td><td>binomcdf(10, 0.3, 2)</td><td><b>0.3828</b></td></tr>
-      <tr><td>At least k: P(X ≥ 3)</td><td>1 − binomcdf(n, p, k − 1)</td><td>1 − binomcdf(10, 0.3, 2)</td><td><b>0.6172</b></td></tr>
-      <tr><td>More than k: P(X &gt; 3)</td><td>1 − binomcdf(n, p, k)</td><td>1 − binomcdf(10, 0.3, 3)</td><td><b>0.3504</b></td></tr>
-      <tr><td>Between: P(2 ≤ X ≤ 4)</td><td>binomcdf(n, p, 4) − binomcdf(n, p, 1)</td><td>0.8497 − 0.1493</td><td><b>0.7004</b></td></tr>
+      <tr><td>Exactly k: P(X = 3)</td><td>binomialdist(10, 0.3).pdf(3)</td><td>binompdf(10, 0.3, 3)</td><td><b>0.2668</b></td></tr>
+      <tr><td>At most k: P(X ≤ 3)</td><td>binomialdist(10, 0.3).cdf(3)</td><td>binomcdf(10, 0.3, 3)</td><td><b>0.6496</b></td></tr>
+      <tr><td>Fewer than k: P(X &lt; 3)</td><td>binomialdist(10, 0.3).cdf(2)</td><td>binomcdf(10, 0.3, 2)</td><td><b>0.3828</b></td></tr>
+      <tr><td>At least k: P(X ≥ 3)</td><td>1 − binomialdist(10, 0.3).cdf(2)</td><td>1 − binomcdf(10, 0.3, 2)</td><td><b>0.6172</b></td></tr>
+      <tr><td>More than k: P(X &gt; 3)</td><td>1 − binomialdist(10, 0.3).cdf(3)</td><td>1 − binomcdf(10, 0.3, 3)</td><td><b>0.3504</b></td></tr>
+      <tr><td>Between: P(2 ≤ X ≤ 4)</td><td>binomialdist(10, 0.3).cdf(4) − binomialdist(10, 0.3).cdf(1)</td><td>binomcdf(10, 0.3, 4) − binomcdf(10, 0.3, 1)</td><td><b>0.7004</b></td></tr>
     </tbody>
 
   </table>
@@ -150,7 +150,7 @@
 
         <li>Define X and name the distribution with its parameters: "X = number of defective chips; X is binomial with n = 20 and p = 0.05."</li>
         <li>Check the conditions in context, especially independence and the 10% condition when sampling without replacement.</li>
-        <li>Write the probability statement, then the work: "P(X ≥ 2) = 1 − P(X ≤ 1) = 1 − binomcdf(20, 0.05, 1) = 0.264." Label the calculator inputs if you use calculator syntax.</li>
+        <li>Write the probability statement, then the work: "P(X ≥ 2) = 1 − P(X ≤ 1) = 1 − binomcdf(20, 0.05, 1) = 0.264" (Desmos: 1 − binomialdist(20, 0.05).cdf(1)). Calculator output alone doesn't earn credit: label the inputs (n, p, k) whether you use Desmos or TI-84 syntax.</li>
         <li>Interpret μ = np as the long-run average count: "Over many batches of 20, the average number of defective chips is 1."</li>
         <li>Answer the question asked: if they ask whether a result is surprising, compare its probability to a small cutoff and explain.</li>
 
@@ -160,11 +160,11 @@
       <h3>Common mistakes</h3>
       <ul>
 
-        <li>Using binomcdf for "at least." binomcdf always means "at most," so P(X ≥ k) = 1 − binomcdf(n, p, k − 1).</li>
+        <li>Using .cdf or binomcdf for "at least." Both always mean "at most," so P(X ≥ k) = 1 − binomialdist(n, p).cdf(k − 1) in Desmos, or 1 − binomcdf(n, p, k − 1) on the TI-84.</li>
         <li>Off-by-one errors with "more than" and "fewer than."</li>
         <li>Calling a count binomial when the number of trials is not fixed, such as "flip until the first head."</li>
         <li>Forgetting the 10% condition when drawing people or items without replacement.</li>
-        <li>Writing only "binomcdf(20, .05, 1)" with no labels. Readers need to know what n, p, and k are.</li>
+        <li>Writing only "binomcdf(20, .05, 1)" or "binomialdist(20, 0.05).cdf(1)" with no labels. Readers need to know what n, p, and k are.</li>
 
       </ul>
     </div>
@@ -198,7 +198,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -224,12 +224,11 @@
   function load(p) { S = { ctx: p.ctx, n: p.n, p: p.p, type: p.ev[0], k: p.ev[1], k2: p.ev[2] != null ? p.ev[2] : p.ev[1] + 2, c: p.c, why: p.why }; render(); }
   function inEv(x) { var a = Math.min(S.k, S.k2), b = Math.max(S.k, S.k2); return { eq: x === S.k, le: x <= S.k, lt: x < S.k, ge: x >= S.k, gt: x > S.k, bt: x >= a && x <= b }[S.type]; }
   function sym() { var a = Math.min(S.k, S.k2), b = Math.max(S.k, S.k2); return { eq: "X = " + S.k, le: "X ≤ " + S.k, lt: "X < " + S.k, ge: "X ≥ " + S.k, gt: "X > " + S.k, bt: a + " ≤ X ≤ " + b }[S.type]; }
-  function cmd() {
-    var n = S.n, p = N(S.p, 2), a = Math.min(S.k, S.k2), b = Math.max(S.k, S.k2), c = "binomcdf(" + n + ", " + p + ", ", d = "binompdf(" + n + ", " + p + ", ";
-    switch (S.type) {
-      case "eq": return d + S.k + ")"; case "le": return c + S.k + ")"; case "lt": return c + (S.k - 1) + ")";
-      case "ge": return "1 − " + c + (S.k - 1) + ")"; case "gt": return "1 − " + c + S.k + ")"; default: return c + b + ") − " + c + (a - 1) + ")";
-    }
+  function binomCmd() {
+    var a = Math.min(S.k, S.k2), b = Math.max(S.k, S.k2);
+    var kind = { eq: "=", le: "<=", lt: "<", ge: ">=", gt: ">", bt: "between" }[S.type];
+    if (kind === "between" && a === 0) return Lab.CMD.binom(S.n, +N(S.p, 2), "<=", b);
+    return kind === "between" ? Lab.CMD.binom(S.n, +N(S.p, 2), kind, a, b) : Lab.CMD.binom(S.n, +N(S.p, 2), kind, S.k);
   }
   function render() {
     $("n").value = S.n; $("p").value = S.p; $("n-o").textContent = S.n; $("p-o").textContent = N(S.p, 2);
@@ -262,7 +261,7 @@
     r += '<div class="row"><span>Total</span><span>= ' + N(pe, 4) + "</span></div>";
     $("calcF").innerHTML = r;
     $("calcC").innerHTML = '<div class="row"><span>P(' + sym() + ")</span><span></span></div>" +
-      '<div class="row"><span>' + cmd() + "</span><span>= " + N(pe, 4) + "</span></div>" +
+      Lab.calcHTML(binomCmd(), "P(" + sym() + ") = " + N(pe, 4)) +
       '<div class="row"><span>μ = np = ' + n + "(" + N(p, 2) + ")</span><span>= " + N(mu, 2) + "</span></div>" +
       '<div class="row"><span>σ = √(np(1 − p)) = √(' + n + " · " + N(p, 2) + " · " + N(1 - p, 2) + ")</span><span>= " + N(sd, 3) + "</span></div>";
     story(binom, pe, mu, sd, shape);
@@ -290,12 +289,12 @@
 
   var Q = [
     { s: "Which situation describes a binomial random variable?", o: ["The number of cards drawn from a deck until an ace appears", "The number of heads in 15 flips of a fair coin", "The time until a light bulb burns out", "The number of rolls of a die needed to get two 6s"], c: 1, w: "15 independent flips, each heads or tails, with p = 0.5 every time. A and D have no fixed number of trials (you stop when the goal is reached), and C is a continuous measurement, not a count of successes." },
-    { s: "X is binomial with n = 8 and p = 0.3. What is P(X = 2)?", o: ["0.0441", "0.2965", "0.5518", "0.0900"], c: 1, w: "P(X = 2) = 8C2 (0.3)² (0.7)⁶ = 28 × 0.09 × 0.1176 ≈ 0.2965, which is binompdf(8, 0.3, 2)." },
-    { s: "X is binomial with n = 20 and p = 0.1. Which command gives P(X ≥ 3)?", o: ["binomcdf(20, 0.1, 3)", "1 − binomcdf(20, 0.1, 3)", "1 − binomcdf(20, 0.1, 2)", "binompdf(20, 0.1, 3)"], c: 2, w: "At least 3 is the complement of at most 2: P(X ≥ 3) = 1 − P(X ≤ 2) = 1 − binomcdf(20, 0.1, 2)." },
+    { s: "X is binomial with n = 8 and p = 0.3. What is P(X = 2)?", o: ["0.0441", "0.2965", "0.5518", "0.0900"], c: 1, w: "P(X = 2) = 8C2 (0.3)² (0.7)⁶ = 28 × 0.09 × 0.1176 ≈ 0.2965, which is binompdf(8, 0.3, 2) on the TI-84 or binomialdist(8, 0.3).pdf(2) in Desmos." },
+    { s: "X is binomial with n = 20 and p = 0.1. Which Desmos command gives P(X ≥ 3)?", o: ["binomialdist(20, 0.1).cdf(3)", "1 - binomialdist(20, 0.1).cdf(3)", "1 - binomialdist(20, 0.1).cdf(2)", "binomialdist(20, 0.1).pdf(3)"], c: 2, w: "At least 3 is the complement of at most 2: P(X ≥ 3) = 1 − P(X ≤ 2). Since .cdf(k) is P(X ≤ k), that is 1 - binomialdist(20, 0.1).cdf(2). Choice B leaves out X = 3. On a TI-84 the same value is 1 − binomcdf(20, 0.1, 2)." },
     { s: "A basketball player makes 80% of her free throws. In 25 attempts, what are the mean and standard deviation of the number made?", o: ["μ = 20, σ = 4", "μ = 20, σ = 2", "μ = 5, σ = 2", "μ = 20, σ = 0.4"], c: 1, w: "μ = np = 25(0.8) = 20. σ = √(25 × 0.8 × 0.2) = √4 = 2. Choice A gives the variance, np(1 − p) = 4, instead of its square root." },
     { s: "X is binomial with n = 15 and p = 0.1. The distribution of X is:", o: ["Skewed to the right", "Skewed to the left", "Approximately normal", "Uniform"], c: 0, w: "With p small, most of the probability is at 0, 1, 2, with a long tail to the right. np = 1.5 is far below 10, so the shape is not approximately normal." },
     { s: "A random sample of 30 students is selected without replacement from a school of 1,200. Why can we treat the selections as independent?", o: ["Because the sample is random", "Because 30 is less than 10% of 1,200", "Because n is greater than 30", "Because np ≥ 10"], c: 1, w: "When sampling without replacement, the 10% condition (n ≤ 0.10N) makes the trials approximately independent. 30 ≤ 120." },
-    { s: "A quiz has 10 true/false questions. A student guesses on every one. Which is closest to P(student gets at least 8 right)?", o: ["0.0547", "0.0439", "0.9453", "0.1719"], c: 0, w: "P(X ≥ 8) = 1 − binomcdf(10, 0.5, 7) = 0.0439 + 0.0098 + 0.0010 ≈ 0.0547." },
+    { s: "A quiz has 10 true/false questions. A student guesses on every one. Which is closest to P(student gets at least 8 right)?", o: ["0.0547", "0.0439", "0.9453", "0.1719"], c: 0, w: "P(X ≥ 8) = 1 − binomcdf(10, 0.5, 7) (Desmos: 1 − binomialdist(10, 0.5).cdf(7)) = 0.0439 + 0.0098 + 0.0010 ≈ 0.0547." },
     { s: "Which change makes the standard deviation of a binomial count with n = 50 as large as possible?", o: ["p = 0.1", "p = 0.3", "p = 0.5", "p = 0.9"], c: 2, w: "σ = √(np(1 − p)) and p(1 − p) is largest when p = 0.5, giving σ = √12.5 ≈ 3.54." }
   ];
   Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));

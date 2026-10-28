@@ -496,10 +496,134 @@
     return '<pre class="stem">' + out.join("\n") + "\n\nKey: " + (o.key || (lo + " | 2 = " + num((o.split ? Math.floor(lo / 2) : lo) * su + 2 * lu, 2))) + "</pre>";
   }
 
+  /* ===================== Calculator instructions: Desmos (Bluebook) and TI-84 ===================== */
+  /* Every command builder returns { d: Desmos syntax, t: TI-84 syntax, dn?: Desmos note, tn?: TI note }.
+     Syntax follows help.desmos.com (normaldist, tdist, chisqdist, binomialdist, .cdf, .pdf, .inversecdf,
+     ttest, zproptest, chisqtest, stats, quartile) and the TI-84 Plus DISTR and STAT menus.
+     Render one or more with Lab.calcBox(rows) or a single one with Lab.calcHTML(cmd). */
+  function cv(v) { return typeof v === "number" ? (v === Infinity ? "\u221E" : v === -Infinity ? "\u2212\u221E" : num(v, 4).replace(/,/g, "")) : String(v); }
+  function tiv(v) { return v === Infinity ? "1E99" : v === -Infinity ? "\u22121E99" : cv(v); }
+  var CMD = {
+    /* P(lo < X < hi) for X ~ N(mu, sd). Use -Infinity / Infinity for one-sided areas. */
+    normcdf: function (lo, hi, mu, sd) {
+      mu = mu == null ? 0 : mu; sd = sd == null ? 1 : sd;
+      var D = "normaldist(" + cv(mu) + ", " + cv(sd) + ")", d;
+      if (lo === -Infinity && hi === Infinity) d = "1";
+      else if (lo === -Infinity) d = D + ".cdf(" + cv(hi) + ")";
+      else if (hi === Infinity) d = "1 \u2212 " + D + ".cdf(" + cv(lo) + ")";
+      else d = D + ".cdf(" + cv(lo) + ", " + cv(hi) + ")";
+      return { d: d, t: "normalcdf(" + tiv(lo) + ", " + tiv(hi) + ", " + cv(mu) + ", " + cv(sd) + ")", tn: "2nd VARS (DISTR) \u25B8 2:normalcdf" };
+    },
+    /* value with the given area to its LEFT */
+    invnorm: function (area, mu, sd) {
+      mu = mu == null ? 0 : mu; sd = sd == null ? 1 : sd;
+      return { d: "normaldist(" + cv(mu) + ", " + cv(sd) + ").inversecdf(" + cv(area) + ")", t: "invNorm(" + cv(area) + ", " + cv(mu) + ", " + cv(sd) + ")", tn: "2nd VARS (DISTR) \u25B8 3:invNorm", dn: "inversecdf takes the area to the left" };
+    },
+    /* P(lo < T < hi) for a t distribution with df degrees of freedom */
+    tcdf: function (lo, hi, df) {
+      var D = "tdist(" + cv(df) + ")", d;
+      if (lo === -Infinity) d = D + ".cdf(" + cv(hi) + ")";
+      else if (hi === Infinity) d = "1 \u2212 " + D + ".cdf(" + cv(lo) + ")";
+      else d = D + ".cdf(" + cv(lo) + ", " + cv(hi) + ")";
+      return { d: d, t: "tcdf(" + tiv(lo) + ", " + tiv(hi) + ", " + cv(df) + ")", tn: "2nd VARS (DISTR) \u25B8 6:tcdf" };
+    },
+    /* t* for confidence level C (0..1), or any left area with left: true */
+    invt: function (C, df, left) {
+      var a = left ? C : (1 + C) / 2;
+      return { d: "tdist(" + cv(df) + ").inversecdf(" + cv(a) + ")", t: "invT(" + cv(a) + ", " + cv(df) + ")", tn: "2nd VARS (DISTR) \u25B8 4:invT", dn: left ? null : "area to the left of t* is (1 + C) \u00F7 2 = " + cv(a) };
+    },
+    /* z* for confidence level C */
+    zstar: function (C) {
+      var a = (1 + C) / 2;
+      return { d: "normaldist(0, 1).inversecdf(" + cv(a) + ")", t: "invNorm(" + cv(a) + ", 0, 1)", tn: "2nd VARS (DISTR) \u25B8 3:invNorm", dn: "area to the left of z* is (1 + C) \u00F7 2 = " + cv(a) };
+    },
+    /* right-tail area P(chi-square >= x) */
+    chicdf: function (x, df) {
+      return { d: "1 \u2212 chisqdist(" + cv(df) + ").cdf(" + cv(x) + ")", t: "\u03C7\u00B2cdf(" + cv(x) + ", 1E99, " + cv(df) + ")", tn: "2nd VARS (DISTR) \u25B8 8:\u03C7\u00B2cdf" };
+    },
+    /* binomial: kind is "=", "<=", "<", ">=", ">", or "between" (a..b inclusive) */
+    binom: function (n, p, kind, a, b) {
+      var D = "binomialdist(" + cv(n) + ", " + cv(p) + ")", d, t;
+      if (kind === "=") { d = D + ".pdf(" + a + ")"; t = "binompdf(" + n + ", " + cv(p) + ", " + a + ")"; }
+      else if (kind === "<=") { d = D + ".cdf(" + a + ")"; t = "binomcdf(" + n + ", " + cv(p) + ", " + a + ")"; }
+      else if (kind === "<") { d = D + ".cdf(" + (a - 1) + ")"; t = "binomcdf(" + n + ", " + cv(p) + ", " + (a - 1) + ")"; }
+      else if (kind === ">=") { d = a <= 0 ? "1" : "1 \u2212 " + D + ".cdf(" + (a - 1) + ")"; t = a <= 0 ? "1" : "1 \u2212 binomcdf(" + n + ", " + cv(p) + ", " + (a - 1) + ")"; }
+      else if (kind === ">") { d = "1 \u2212 " + D + ".cdf(" + a + ")"; t = "1 \u2212 binomcdf(" + n + ", " + cv(p) + ", " + a + ")"; }
+      else { d = D + ".cdf(" + b + ") \u2212 " + D + ".cdf(" + (a - 1) + ")"; t = "binomcdf(" + n + ", " + cv(p) + ", " + b + ") \u2212 binomcdf(" + n + ", " + cv(p) + ", " + (a - 1) + ")"; }
+      return { d: d, t: t, tn: kind === "=" ? "2nd VARS (DISTR) \u25B8 A:binompdf" : "2nd VARS (DISTR) \u25B8 B:binomcdf", dn: (kind === ">=" || kind === "<" || kind === "between") ? ".cdf(k) is P(X \u2264 k), so \u201Cat least " + a + "\u201D uses k = " + (a - 1) : null };
+    },
+    /* one-variable summary statistics for a list */
+    onevar: function (list) {
+      var L = list ? "[" + list.map(cv).join(", ") + "]" : "L\u2081";
+      return { d: list ? "stats(L)" : "stats(L\u2081)", dn: (list ? "First type L = " + L + ". " : "") + "stats gives the five-number summary; also mean(L), stdev(L) (sample SD, s), quartile(L, 1), quartile(L, 3). Use quartile, not quantile.", t: "1-Var Stats L\u2081", tn: "Enter data in STAT \u25B8 1:Edit, then STAT \u25B8 CALC \u25B8 1:1-Var Stats. Use Sx (sample SD)." };
+    },
+    /* one-proportion z test or interval: x successes, n trials; p0 for a test, C for an interval; tail "left" | "right" | "two" */
+    prop1: function (x, n, opt) {
+      opt = opt || {};
+      var T = "zproptest(" + x + ", " + n + ")";
+      if (opt.C != null) return { d: T + " (Desmos labels it T\u2081), then T\u2081.conf(" + cv(opt.C) + ").lower and T\u2081.conf(" + cv(opt.C) + ").upper", t: "1-PropZInt: x = " + x + ", n = " + n + ", C-Level = " + cv(opt.C), tn: "STAT \u25B8 TESTS \u25B8 A:1-PropZInt", dn: "Or open the Confidence Interval section of the test and set the level." };
+      return { d: T + " (Desmos labels it T\u2081), then set the null to " + cv(opt.p0) + " and the " + tailWord(opt.tail) + " tail in the Significance Test section; read T\u2081.score and " + pProp(opt.tail, "T\u2081"), t: "1-PropZTest: p\u2080 = " + cv(opt.p0) + ", x = " + x + ", n = " + n + ", prop " + tiTail(opt.tail, "p\u2080"), tn: "STAT \u25B8 TESTS \u25B8 5:1-PropZTest" };
+    },
+    /* two-proportion z test or interval */
+    prop2: function (x1, n1, x2, n2, opt) {
+      opt = opt || {};
+      var T = "zproptest(" + x1 + ", " + n1 + ", " + x2 + ", " + n2 + ")";
+      if (opt.C != null) return { d: T + " (Desmos labels it T\u2081), then T\u2081.conf(" + cv(opt.C) + ").lower and T\u2081.conf(" + cv(opt.C) + ").upper", t: "2-PropZInt: x1 = " + x1 + ", n1 = " + n1 + ", x2 = " + x2 + ", n2 = " + n2 + ", C-Level = " + cv(opt.C), tn: "STAT \u25B8 TESTS \u25B8 B:2-PropZInt" };
+      return { d: T + " (Desmos labels it T\u2081), then set the null to 0 and the " + tailWord(opt.tail) + " tail in the Significance Test section; read T\u2081.score and " + pProp(opt.tail, "T\u2081"), t: "2-PropZTest: x1 = " + x1 + ", n1 = " + n1 + ", x2 = " + x2 + ", n2 = " + n2 + ", p1 " + tiTail(opt.tail, "p2"), tn: "STAT \u25B8 TESTS \u25B8 6:2-PropZTest", dn: "The test statistic uses the pooled proportion." };
+    },
+    /* one-sample (or paired, on differences) t test or interval from summary stats {n, mean, sd} or a list name */
+    t1: function (st, opt) {
+      opt = opt || {};
+      var T = st.list ? "ttest(" + st.list + ")" : "ttest(" + st.n + ", " + cv(st.mean) + ", " + cv(st.sd) + ")";
+      var tiIn = st.list ? "Inpt: Data, List: " + st.tiList : "Inpt: Stats, x\u0304 = " + cv(st.mean) + ", Sx = " + cv(st.sd) + ", n = " + st.n;
+      var dn = st.list ? (st.paired ? "For paired data, run the test on the list of differences, e.g. ttest(L\u2081 \u2212 L\u2082)." : null) : "Summary statistics go in the order n, x\u0304, s.";
+      if (opt.C != null) return { d: T + " (Desmos labels it T\u2081), then T\u2081.conf(" + cv(opt.C) + ").lower and T\u2081.conf(" + cv(opt.C) + ").upper", t: "TInterval: " + tiIn + ", C-Level = " + cv(opt.C), tn: "STAT \u25B8 TESTS \u25B8 8:TInterval", dn: dn };
+      return { d: T + " (Desmos labels it T\u2081), then set the null to " + cv(opt.mu0) + " and the " + tailWord(opt.tail) + " tail in the Significance Test section; read T\u2081.score, T\u2081.dof, and " + pProp(opt.tail, "T\u2081"), t: "T-Test: \u03BC\u2080 = " + cv(opt.mu0) + ", " + tiIn + ", \u03BC " + tiTail(opt.tail, "\u03BC\u2080"), tn: "STAT \u25B8 TESTS \u25B8 2:T-Test", dn: dn };
+    },
+    /* two-sample t (unpooled) from summary stats a = {n, mean, sd}, b = {...} */
+    t2: function (a, b, opt) {
+      opt = opt || {};
+      var T = "ttest(" + a.n + ", " + cv(a.mean) + ", " + cv(a.sd) + ", " + b.n + ", " + cv(b.mean) + ", " + cv(b.sd) + ")";
+      var tiIn = "Inpt: Stats, x\u03041 = " + cv(a.mean) + ", Sx1 = " + cv(a.sd) + ", n1 = " + a.n + ", x\u03042 = " + cv(b.mean) + ", Sx2 = " + cv(b.sd) + ", n2 = " + b.n;
+      var dn = "Each sample is n, x\u0304, s. Desmos and the TI-84 both use the Welch (decimal) df.";
+      if (opt.C != null) return { d: T + " (Desmos labels it T\u2081), then T\u2081.conf(" + cv(opt.C) + ").lower and T\u2081.conf(" + cv(opt.C) + ").upper", t: "2-SampTInt: " + tiIn + ", C-Level = " + cv(opt.C) + ", Pooled: No", tn: "STAT \u25B8 TESTS \u25B8 0:2-SampTInt", dn: dn };
+      return { d: T + " (Desmos labels it T\u2081), then set the null to " + cv(opt.d0 || 0) + " and the " + tailWord(opt.tail) + " tail in the Significance Test section; read T\u2081.score, T\u2081.dof, and " + pProp(opt.tail, "T\u2081"), t: "2-SampTTest: " + tiIn + ", \u03BC1 " + tiTail(opt.tail, "\u03BC2") + ", Pooled: No", tn: "STAT \u25B8 TESTS \u25B8 4:2-SampTTest", dn: dn };
+    },
+    /* chi-square test for a two-way table given as rows (array of arrays) */
+    chisq: function (rows) {
+      var cols = rows[0].map(function (_, j) { return "[" + rows.map(function (r) { return cv(r[j]); }).join(", ") + "]"; });
+      return { d: "chisqtest(" + cols.join(", ") + ") (Desmos labels it T\u2081); read T\u2081.score, T\u2081.dof, and T\u2081.p", dn: "Enter one list per column of the table (each list runs down the rows).", t: "\u03C7\u00B2-Test: Observed [A], Expected [B]", tn: "Enter the table in 2nd x\u207B\u00B9 (MATRIX) \u25B8 EDIT \u25B8 [A] (" + rows.length + " \u00D7 " + rows[0].length + "), then STAT \u25B8 TESTS \u25B8 C:\u03C7\u00B2-Test. Expected counts are stored in [B]." };
+    },
+    /* least-squares regression on lists */
+    linreg: function () {
+      return { d: "y\u2081 ~ m x\u2081 + b", dn: "Put the data in a table (x\u2081, y\u2081). The output shows m, b, r, and r\u00B2; residuals are saved as e\u2081. corr(x\u2081, y\u2081) gives r.", t: "LinReg(a+bx) L\u2081, L\u2082", tn: "STAT \u25B8 CALC \u25B8 8:LinReg(a+bx). Turn on DiagnosticOn (Catalog) to see r and r\u00B2; residuals are in 2nd STAT \u25B8 RESID." };
+    }
+  };
+  function tailWord(t) { return t === "left" ? "Left" : t === "right" ? "Right" : "Both"; }
+  function pProp(t, v) { return t === "left" ? v + ".pleft" : t === "right" ? v + ".pright" : v + ".p"; }
+  function tiTail(t, rhs) { return (t === "left" ? "< " : t === "right" ? "> " : "\u2260 ") + rhs; }
+  /* commands use a plain hyphen-minus so they can be copied into Desmos */
+  function ascii(s) { return String(s).replace(/\u2212/g, "-"); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  /* calcHTML(cmd, label): one Desmos | TI-84 pair as HTML */
+  function calcHTML(c, label) {
+    return '<div class="calcbox">' + (label ? '<div class="cb-label">' + label + "</div>" : "") +
+      '<div class="cb-col"><span class="cb-tool">Desmos</span><code>' + esc(ascii(c.d)) + "</code>" + (c.dn ? '<span class="cb-note">' + esc(c.dn) + "</span>" : "") + "</div>" +
+      '<div class="cb-col"><span class="cb-tool">TI-84</span><code>' + esc(ascii(c.t)) + "</code>" + (c.tn ? '<span class="cb-note">' + esc(c.tn) + "</span>" : "") + "</div></div>";
+  }
+  /* calcBox(el, rows): rows = [[label, cmd], ...]; fills el (element or id) and returns the HTML */
+  function calcBox(el, rows) {
+    var h = rows.map(function (r) { return calcHTML(r[1], r[0]); }).join("");
+    if (typeof el === "string") el = document.getElementById(el);
+    if (el) el.innerHTML = h;
+    return h;
+  }
+
   window.Lab = { TOPICS: TOPICS, READY: READY, UNIT_TITLES: UNIT_TITLES, unitOf: unitOf,
     el: el, frame: frame, line: line, fn: fn, vline: vline, hline: hline, tag: tag, dot: dot, arrow: arrow, rect: rect, fmt: fmt, animate: animate, quiz: quiz, nav: nav, reduceMotion: reduceMotion,
     num: num, pct: pct, niceTicks: niceTicks, niceStep: niceStep, rng: rng,
     sorted: sorted, sum: sum, mean: mean, median: median, quartiles: quartiles, variance: variance, sd: sd, summary: summary, zscore: zscore, percentileRank: percentileRank, counts: counts,
     normPdf: normPdf, normCdf: normCdf, invNorm: invNorm, tPdf: tPdf, tCdf: tCdf, invT: invT, chiPdf: chiPdf, chiCdf: chiCdf, choose: choose, binomPdf: binomPdf, binomCdf: binomCdf,
+    CMD: CMD, calcHTML: calcHTML, calcBox: calcBox,
     axisFrame: axisFrame, dotplot: dotplot, bins: bins, histogram: histogram, boxplot: boxplot, bars: bars, pie: pie, curve: curve, stemplot: stemplot, PALETTE: PALETTE };
 })();

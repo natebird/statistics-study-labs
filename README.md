@@ -83,6 +83,10 @@ A searchable glossary of every key term in the course, with flashcards (progress
 
 Terms live in `assets/glossary/unit-N.js`. Each term is stored once, in the topic where the course introduces it, and an `also` list places it in later topics that reuse it.
 
+## Calculator guide
+
+[calculator.html](calculator.html) shows every procedure in the course in Desmos (the calculator built into Bluebook) and on the TI-84, side by side. The labs use the same commands through `Lab.CMD` in `assets/lab.js`.
+
 ## Using it
 
 Open `index.html` in any browser, or visit the site. There is no build step and nothing to install. Every page is plain HTML, CSS, and JavaScript.

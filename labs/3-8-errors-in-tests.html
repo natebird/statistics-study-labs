@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -83,7 +83,7 @@
   <div class="story" id="story" aria-live="polite"></div>
 
   <div class="lab">
-    <div class="card calc-card"><h3>Show the work</h3><div class="calc" id="calc"></div></div>
+    <div class="card calc-card"><h3>Show the work</h3><div class="calc" id="calc"></div><div id="calc-cmd" style="margin-top:12px"></div></div>
     <div class="card calc-card">
       <h3>The two errors in this context</h3>
       <div class="errgrid" id="grid"></div>
@@ -133,6 +133,7 @@
         <li>If the decision was "reject H₀," only a Type I error is possible; if "fail to reject," only Type II.</li>
         <li>To increase power without raising the Type I error rate, say "increase the sample size."</li>
         <li>Interpret power: "If the true late rate is 8%, there is about a 0.81 probability the test (with n = 400 and α = 0.05) will find convincing evidence that the rate is above 5%."</li>
+        <li>If asked to calculate power, show both steps with labeled distributions. Cutoff under H₀ ~ N(0.05, 0.0109): Desmos <code>normaldist(0.05, 0.0109).inversecdf(0.95)</code> or TI-84 <code>invNorm(0.95, 0.05, 0.0109)</code> gives 0.0679. Power under N(0.08, 0.0136): Desmos <code>1 - normaldist(0.08, 0.0136).cdf(0.0679)</code> or TI-84 <code>normalcdf(0.0679, 1E99, 0.08, 0.0136)</code> ≈ 0.81. Commands alone do not earn credit.</li>
       </ul>
     </div>
     <div class="card">
@@ -175,7 +176,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -290,6 +291,16 @@
       L.push(["β = 1 − power", N(beta, 4), true]);
     } else L.push(["H₀ is true, so P(reject) = α", N(S.al, 2), true]);
     rows("calc", L);
+    var cmds = [];
+    if (S.alt === "gt") cmds.push(["Calculator: cutoff p̂ with area " + N(1 - S.al, 2) + " below it under H₀", Lab.CMD.invnorm(1 - S.al, S.p0, s0)]);
+    else if (S.alt === "lt") cmds.push(["Calculator: cutoff p̂ with area " + N(S.al, 2) + " below it under H₀", Lab.CMD.invnorm(S.al, S.p0, s0)]);
+    else cmds.push(["Calculator: upper cutoff (area " + N(1 - S.al / 2, 3) + " below it under H₀); the lower cutoff is the same distance below p₀", Lab.CMD.invnorm(1 - S.al / 2, S.p0, s0)]);
+    if (!h0true) {
+      if (S.alt === "gt") cmds.push(["Calculator: power = P(p̂ > " + N(cHi, 4) + ") when p = " + N(S.pa, 2) + "; β = 1 − power", Lab.CMD.normcdf(cHi, Infinity, S.pa, sa)]);
+      else if (S.alt === "lt") cmds.push(["Calculator: power = P(p̂ < " + N(cLo, 4) + ") when p = " + N(S.pa, 2) + "; β = 1 − power", Lab.CMD.normcdf(-Infinity, cLo, S.pa, sa)]);
+      else cmds.push(["Calculator: β = P(" + N(cLo, 4) + " < p̂ < " + N(cHi, 4) + ") when p = " + N(S.pa, 2) + "; power = 1 − β", Lab.CMD.normcdf(cLo, cHi, S.pa, sa)]);
+    }
+    Lab.calcBox("calc-cmd", cmds);
     var e = S.pre;
     $("grid").innerHTML = '<div class="hd"></div><div class="hd">H₀ is true</div><div class="hd">H₀ is false</div>' +
       '<div class="hd">Reject H₀</div><div class="e1"><b>Type I error</b> (prob. α)<br>' + e.e1 + '</div><div class="okc"><b>Correct</b> (prob. = power)</div>' +

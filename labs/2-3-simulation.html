@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -85,6 +85,7 @@
     <div class="card calc-card">
       <h3>Describe the simulation</h3>
       <ol class="steps" id="design"></ol>
+      <div id="calcTool"></div>
     </div>
   </div>
 
@@ -99,7 +100,7 @@
     <div class="card"><span class="tag">Law of large numbers</span><h3>More trials, better estimate</h3><p>As the number of trials grows, the simulated relative frequency gets closer to the true probability. It does not mean outcomes "even out" in the short run.</p></div>
     <div class="card"><span class="tag">Design</span><h3>Four steps</h3><p>(1) Assign random numbers to outcomes so the chances match. (2) Describe one trial. (3) Say what you record. (4) Repeat many times and divide.</p></div>
     <div class="card"><span class="tag">Random digits</span><h3>Make the chances match</h3><p>For a 70% chance, use 70 of the 100 two-digit numbers (00–69) for "success." Each number must be equally likely, so 1-digit labels give 10% steps.</p></div>
-    <div class="card"><span class="tag">Replacement</span><h3>Repeats allowed?</h3><p>If each outcome is independent (free throws, dice), repeated digits are fine. If you are choosing different people, skip repeated labels so no one is picked twice.</p></div>
+    <div class="card"><span class="tag">Replacement</span><h3>Repeats allowed?</h3><p>If each outcome is independent (free throws, dice), repeated digits are fine. If you are choosing different people, skip repeated labels so no one is picked twice. On a calculator, Desmos random(list, n) and TI-84 randInt allow repeats; Desmos shuffle and TI-84 randIntNoRep do not.</p></div>
   </div>
 </section>
 
@@ -116,7 +117,8 @@
       <tr><td>A 72% free-throw shooter takes 10 shots</td><td>00–71 = make, 72–99 = miss</td><td>Read 10 two-digit numbers</td><td>Number of makes</td></tr>
       <tr><td>Choose 4 students from a class of 25 (8 are seniors)</td><td>Label students 01–25; 01–08 = seniors</td><td>Read two-digit numbers, skip 00, 26–99, and repeats, until 4 are chosen</td><td>Number of seniors chosen</td></tr>
       <tr><td>6 equally likely prizes in cereal boxes</td><td>Digits 1–6 = the prizes; skip 0, 7, 8, 9</td><td>Read digits until all 6 prizes appear</td><td>Number of boxes bought</td></tr>
-      <tr><td>Roll a fair die</td><td>Calculator: randInt(1, 6)</td><td>One call per roll</td><td>The face showing</td></tr>
+      <tr><td>Roll a fair die 10 times</td><td>Desmos: random([1...6], 10) · TI-84: randInt(1, 6, 10)</td><td>One command (repeats allowed)</td><td>The faces showing</td></tr>
+      <tr><td>Choose 5 different people from 100 (labeled 1–100)</td><td>Desmos: shuffle([1...100])[1...5] · TI-84: randIntNoRep(1, 100), first 5</td><td>One command (no repeats)</td><td>Who is chosen</td></tr>
     </tbody>
   </table>
   </div>
@@ -175,7 +177,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -191,6 +193,7 @@
       },
       exact: function (p) { return Lab.binomCdf(10, p / 100, 4); }, values: function () { var a = []; for (var i = 0; i <= 10; i++) a.push(i); return a; }, evVal: function (v) { return v <= 4; }, xLabel: "Makes in 10 shots",
       design: function (p) { return ["Let the two-digit numbers 00–" + d2(p - 1) + " represent a made shot and " + d2(p) + "–99 a miss, so P(make) = " + (p / 100) + ".", "One trial: read 10 two-digit numbers (repeats are fine; each shot is independent).", "Record the number of makes. The event happens if there are 4 or fewer.", "Repeat many times. Estimated probability = trials with 4 or fewer makes ÷ total trials."]; },
+      calc: function (p) { return { d: "random([0...99], 10)", dn: "Each value 0–" + (p - 1) + " is a make. Press the rerandomize button for a new trial.", t: "randInt(0, 99, 10)", tn: "MATH \u25B8 PROB \u25B8 randInt. Each value 0–" + (p - 1) + " is a make; press ENTER again for a new trial." }; },
       verdict: function (est) { return est < 0.05 ? "Making 4 or fewer is unusual for this shooter, so a night that bad suggests something besides chance (fatigue, injury, nerves)." : "A night this bad happens fairly often by chance alone for this shooter, so it is not strong evidence that something is wrong."; } },
     { name: "Collect all the prizes", title: "Cereal box prizes", par: { label: "Number of boxes bought", min: 5, max: 25, step: 1, val: 10, fmt: function (v) { return v + " boxes"; } },
       q: function (b) { return "Each cereal box has one of 5 prizes, all equally likely. If you buy " + b + " boxes, what is the probability you get all 5 prizes?"; },
@@ -202,13 +205,15 @@
       exact: function (b) { var s = 0; for (var k = 0; k <= 5; k++) s += (k % 2 ? -1 : 1) * Lab.choose(5, k) * Math.pow((5 - k) / 5, b); return s; },
       values: null, evVal: null, xLabel: "Boxes needed to collect all 5",
       design: function (b) { return ["Let digits 1–5 represent the five prizes. Skip 0 and 6–9, so each prize is equally likely.", "One trial: read digits until every prize 1–5 has appeared at least once.", "Record how many boxes (usable digits) it took. The event happens if that is " + b + " or fewer.", "Repeat many times. Estimated probability = trials needing " + b + " or fewer boxes ÷ total trials."]; },
+      calc: function (b) { return { d: "random([1...5], " + b + ")", dn: "One value per box (repeats allowed). The event happens if all of 1–5 appear. Press the rerandomize button for a new trial.", t: "randInt(1, 5, " + b + ")", tn: "MATH \u25B8 PROB \u25B8 randInt. The event happens if all of 1–5 appear." }; },
       verdict: function (est) { return "With this many boxes you would collect all five prizes about " + Lab.pct(est, 0) + " of the time."; } },
     { name: "At least one 6 in four rolls", title: "A gambler's bet", par: { label: "Number of rolls", min: 1, max: 10, step: 1, val: 4, fmt: function (v) { return v + (v === 1 ? " roll" : " rolls"); } },
       q: function (k) { return "Roll a fair die " + k + " time" + (k > 1 ? "s" : "") + ". What is the probability of getting at least one 6? (A 17th-century gambler bet on this with 4 rolls.)"; },
       trial: function (r, k) { var ds = [], six = 0; for (var i = 0; i < k; i++) { var x = r.int(1, 6); if (x === 6) six++; ds.push([String(x), x === 6]); }
         return { v: six, ev: six >= 1, html: "<div class='digits'>" + ds.map(function (d) { return "<span" + (d[1] ? " class='y'" : "") + ">" + d[0] + "</span>"; }).join("") + "</div><p class='note'>" + six + " six" + (six === 1 ? "" : "es") + (six ? " — the event happened." : ".") + "</p>" }; },
       exact: function (k) { return 1 - Math.pow(5 / 6, k); }, values: function (k) { var a = []; for (var i = 0; i <= k; i++) a.push(i); return a; }, evVal: function (v) { return v >= 1; }, xLabel: "Number of 6s",
-      design: function (k) { return ["Use randInt(1, 6) for each roll; 6 represents rolling a six.", "One trial: generate " + k + " random integers from 1 to 6.", "Record the number of 6s. The event happens if there is at least one.", "Repeat many times. Estimated probability = trials with at least one 6 ÷ total trials."]; },
+      design: function (k) { return ["Use a random integer from 1 to 6 for each roll; 6 represents rolling a six.", "One trial: generate " + k + " random integers from 1 to 6.", "Record the number of 6s. The event happens if there is at least one.", "Repeat many times. Estimated probability = trials with at least one 6 ÷ total trials."]; },
+      calc: function (k) { return { d: "random([1...6], " + k + ")", dn: "One value per roll (repeats allowed). Press the rerandomize button for a new trial.", t: "randInt(1, 6, " + k + ")", tn: "MATH \u25B8 PROB \u25B8 randInt. Press ENTER again for a new trial." }; },
       verdict: function (est) { return est > 0.5 ? "The bet wins more often than it loses." : "The bet loses more often than it wins."; } },
     { name: "Pick a committee", title: "A fair committee?", par: { label: "Seniors in the class of 25", min: 2, max: 20, step: 1, val: 8, fmt: function (v) { return v + " seniors"; } },
       q: function (s) { return "A committee of 4 is chosen at random from a class of 25 students, " + s + " of them seniors. What is the probability that no seniors are chosen?"; },
@@ -220,6 +225,7 @@
       },
       exact: function (s) { return Lab.choose(25 - s, 4) / Lab.choose(25, 4); }, values: function () { return [0, 1, 2, 3, 4]; }, evVal: function (v) { return v === 0; }, xLabel: "Seniors on the committee",
       design: function (s) { return ["Label the students 01–25, with the seniors as 01–" + d2(s) + ".", "One trial: read two-digit numbers, skipping 00, 26–99, and any repeat, until 4 different students are chosen.", "Record the number of seniors chosen. The event happens if it is 0.", "Repeat many times. Estimated probability = trials with no seniors ÷ total trials."]; },
+      calc: function (s) { return { d: "shuffle([1...25])[1...4]", dn: "No repeats: the first 4 of a shuffled list. Students 1–" + s + " are seniors.", t: "randIntNoRep(1, 25)", tn: "MATH \u25B8 PROB \u25B8 randIntNoRep; take the first 4. Or use randInt(1, 25) and skip repeats." }; },
       verdict: function (est) { return est < 0.05 ? "A committee with no seniors would be surprising if the choice were truly random." : "A committee with no seniors could easily happen by chance."; } }
   ];
   var SC, P, R, res, run;
@@ -239,6 +245,7 @@
     var ex = SC.exact(P), n = res.length, k = n ? Math.round(run[n - 1] * n) : 0, est = n ? k / n : NaN;
     $("r-n").textContent = n.toLocaleString(); $("r-k").textContent = k.toLocaleString(); $("r-est").textContent = n ? N(est, 3) : "n/a"; $("r-true").textContent = N(ex, 3);
     $("design").innerHTML = SC.design(P).map(function (s) { return "<li>" + s + "</li>"; }).join("");
+    Lab.calcBox("calcTool", [["One trial on a calculator", SC.calc(P)]]);
 
     // running chart
     var xmax = Math.max(10, n), xt = Lab.niceTicks(0, xmax, 5);

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -148,15 +148,15 @@
 <section aria-labelledby="tbl-h">
   <div class="sec-head">
     <h2 id="tbl-h">3. Quick reference</h2>
-    <p>Finding the p-value from t for each alternative. Calculator: tcdf(lower, upper, df), or STAT → TESTS → T-Test.</p>
+    <p>Finding the p-value from t for each alternative. Desmos: <code>tdist(df).cdf(t)</code> or <code>ttest(n, x̄, s)</code> (read <code>T₁.p</code>, <code>T₁.pleft</code>, or <code>T₁.pright</code>). TI-84: <code>tcdf(lower, upper, df)</code>, or STAT → TESTS → T-Test.</p>
   </div>
   <div class="tbl-wrap">
   <table>
     <thead><tr><th>Hₐ</th><th>p-value</th><th>Calculator</th><th>Example (t = 2.10, df = 15)</th></tr></thead>
     <tbody>
-      <tr><td><b>μ &gt; μ₀</b></td><td>Area to the right of t</td><td>tcdf(t, 1E99, df)</td><td>tcdf(2.10, 1E99, 15) ≈ 0.0265</td></tr>
-      <tr><td><b>μ &lt; μ₀</b></td><td>Area to the left of t</td><td>tcdf(−1E99, t, df)</td><td>tcdf(−1E99, 2.10, 15) ≈ 0.9735</td></tr>
-      <tr><td><b>μ ≠ μ₀</b></td><td>2 × area beyond |t|</td><td>2 · tcdf(|t|, 1E99, df)</td><td>2 × 0.0265 ≈ 0.0530</td></tr>
+      <tr><td><b>μ &gt; μ₀</b></td><td>Area to the right of t</td><td>Desmos: 1 − tdist(df).cdf(t)<br>TI-84: tcdf(t, 1E99, df)</td><td>Desmos: 1 − tdist(15).cdf(2.1)<br>TI-84: tcdf(2.1, 1E99, 15)<br>≈ 0.0265</td></tr>
+      <tr><td><b>μ &lt; μ₀</b></td><td>Area to the left of t</td><td>Desmos: tdist(df).cdf(t)<br>TI-84: tcdf(−1E99, t, df)</td><td>Desmos: tdist(15).cdf(2.1)<br>TI-84: tcdf(−1E99, 2.1, 15)<br>≈ 0.9735</td></tr>
+      <tr><td><b>μ ≠ μ₀</b></td><td>2 × area beyond |t|</td><td>Desmos: 2(1 − tdist(df).cdf(|t|))<br>TI-84: 2 · tcdf(|t|, 1E99, df)</td><td>2 × 0.0265 ≈ 0.0530</td></tr>
     </tbody>
   </table>
   </div>
@@ -180,7 +180,7 @@
     <div class="card">
       <h3>How to earn the points</h3>
       <ul>
-        <li>Show the formula with numbers: t = (32.4 − 30) ÷ (5.1/√25) = 2.35, df = 24. Calculator output alone earns little credit.</li>
+        <li>Show the formula with numbers: t = (32.4 − 30) ÷ (5.1/√25) = 2.35, df = 24. Desmos or TI-84 output alone earns little credit: name the test and check conditions too.</li>
         <li>Give the p-value and interpret it if asked: "Assuming the true mean delivery time is 30 minutes, there is about a 0.014 probability of getting a sample mean of 32.4 minutes or more by chance."</li>
         <li>Link the decision to α explicitly: "Because 0.014 &lt; 0.05, we reject H₀."</li>
         <li>Conclude about Hₐ, in context, with uncertainty: "We have convincing evidence that the true mean delivery time is greater than 30 minutes."</li>
@@ -226,7 +226,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -345,6 +345,8 @@
     // four steps
     var param = S.param || (paired ? "the true mean difference" : "the true mean"), un = u ? " " + u : "";
     var alt = param + " is " + REL[ha] + " " + N(mu0, 3) + un;
+    var tcmd = Lab.CMD.t1(st.data ? (paired ? { list: "L₁ − L₂", tiList: "L₃ (L₃ = L₁ − L₂)", paired: true } : { list: "L₁", tiList: "L₁" }) : { n: st.n, mean: st.x, sd: st.s }, { mu0: mu0, tail: ha === "gt" ? "right" : ha === "lt" ? "left" : "two" });
+    if (st.data) tcmd.dn = "Enter the data in a table as " + (paired ? "L₁ and L₂ first. " : "L₁ first. ") + (tcmd.dn || "");
     var steps = [
       ["State", "H₀: " + sym + " = " + N(mu0, 3) + "<br>Hₐ: " + sym + " " + SYM[ha] + " " + N(mu0, 3) + "<br>where " + sym + " = " + param + (paired ? " (d = " + (S.diff || "list 1 − list 2") + ")" : "") + ". Use α = " + a + "."],
       ["Plan", (paired ? "Paired t test for a mean difference." : "One-sample t test for a mean.") + "<br>" +
@@ -352,8 +354,9 @@
         (ten ? "✓ 10%: " + st.n + " is less than 10% of the population (or random assignment)." : "? 10%: need the population to be at least " + 10 * st.n + ".") + "<br>" +
         (shapeOK ? "✓ " : "✗ ") + "Normal/Large: " + shapeTxt],
       ["Do", "t = (" + N(st.x, 3) + " − " + N(mu0, 3) + ") ÷ (" + N(st.s, 3) + "/√" + st.n + ") = " + N(st.x - mu0, 3) + " ÷ " + N(se, 4) + " = <b>" + N(t, 3) + "</b><br>df = " + df +
-        "<br>p-value = " + (ha === "gt" ? "P(t ≥ " + N(t, 3) + ") = tcdf(" + N(t, 3) + ", 1E99, " + df + ")" : ha === "lt" ? "P(t ≤ " + N(t, 3) + ") = tcdf(−1E99, " + N(t, 3) + ", " + df + ")" : "2 × P(t ≥ " + N(Math.abs(t), 3) + ") = 2 · tcdf(" + N(Math.abs(t), 3) + ", 1E99, " + df + ")") + " <b>" + pEq(p) + "</b>" +
-        "<br><span class='note'>Calculator: T-Test, " + (st.data ? "Data" + (paired ? " (list of differences)" : "") : "Stats: x̄ = " + N(st.x, 3) + ", Sx = " + N(st.s, 3) + ", n = " + st.n) + ", μ₀ = " + N(mu0, 3) + ", μ " + SYM[ha] + " μ₀</span>"],
+        "<br>p-value = " + (ha === "gt" ? "P(t ≥ " + N(t, 3) + ")" : ha === "lt" ? "P(t ≤ " + N(t, 3) + ")" : "2 × P(t ≥ " + N(Math.abs(t), 3) + ")") + " with df = " + df + " <b>" + pEq(p) + "</b>" +
+        Lab.calcHTML(ha === "gt" ? Lab.CMD.tcdf(t, Infinity, df) : ha === "lt" ? Lab.CMD.tcdf(-Infinity, t, df) : Lab.CMD.tcdf(Math.abs(t), Infinity, df), ha === "ne" ? "Calculator: one tail, then double it" : "Calculator: p-value from t") +
+        Lab.calcHTML(tcmd, "Calculator: the whole test")],
       ["Conclude", "Because the p-value (" + pWord(p) + ") is " + (rej ? "less than " : "at least ") + "α = " + a + ", we " + (rej ? "<b>reject H₀</b>. We have convincing evidence that " : "<b>fail to reject H₀</b>. We do not have convincing evidence that ") + alt + "."]
     ];
     $("steps").innerHTML = steps.map(function (s) { return '<div class="card"><span class="tag">' + s[0] + "</span><div>" + s[1] + "</div></div>"; }).join("");
@@ -387,8 +390,8 @@
 
   var Q = [
     { s: "A random sample of 16 values has x̄ = 52.4 and s = 6. For H₀: μ = 50 vs. Hₐ: μ > 50, what is the test statistic?", o: ["t = 0.40", "t = 1.60", "t = 6.40", "t = 0.10"], c: 1, w: "t = (52.4 − 50) ÷ (6/√16) = 2.4 ÷ 1.5 = 1.60. Choice A forgets to divide s by √n." },
-    { s: "For the test in the previous question (t = 1.60, df = 15), which calculator command gives the p-value?", o: ["tcdf(1.60, 1E99, 15)", "tcdf(−1E99, 1.60, 15)", "2·tcdf(1.60, 1E99, 15)", "normalcdf(1.60, 1E99, 0, 1)"], c: 0, w: "Hₐ: μ > 50 is right-tailed, so the p-value is the area to the right of t = 1.60 under the t curve with df = 15 (about 0.065)." },
-    { s: "A two-sided t test gives t = −2.30 with df = 20. The p-value is about:", o: ["0.016", "0.032", "0.968", "0.984"], c: 1, w: "One tail: tcdf(−1E99, −2.30, 20) ≈ 0.016. For ≠, double it: about 0.032." },
+    { s: "For the test in the previous question (t = 1.60, df = 15), which TI-84 command gives the p-value?", o: ["tcdf(1.60, 1E99, 15)", "tcdf(−1E99, 1.60, 15)", "2·tcdf(1.60, 1E99, 15)", "normalcdf(1.60, 1E99, 0, 1)"], c: 0, w: "Hₐ: μ > 50 is right-tailed, so the p-value is the area to the right of t = 1.60 under the t curve with df = 15 (about 0.065). In Desmos: 1 − tdist(15).cdf(1.6)." },
+    { s: "A two-sided t test gives t = −2.30 with df = 20. The p-value is about:", o: ["0.016", "0.032", "0.968", "0.984"], c: 1, w: "One tail: tdist(20).cdf(−2.3) in Desmos or tcdf(−1E99, −2.30, 20) on the TI-84 ≈ 0.016. For ≠, double it: about 0.032." },
     { s: "A test of H₀: μ = 100 vs. Hₐ: μ ≠ 100 gives p-value = 0.08. At α = 0.05, the correct conclusion is:", o: ["Reject H₀; there is convincing evidence that μ ≠ 100.", "Fail to reject H₀; there is convincing evidence that μ = 100.", "Fail to reject H₀; there is not convincing evidence that μ ≠ 100.", "Accept H₀; μ = 100."], c: 2, w: "0.08 ≥ 0.05, so we fail to reject H₀. That means the evidence for Hₐ is not convincing; it does not prove H₀ (B and D)." },
     { s: "Which is a correct interpretation of a p-value of 0.03 in a test of H₀: μ = 20 vs. Hₐ: μ > 20, where x̄ = 21.5?", o: ["There is a 3% chance that μ = 20.", "Assuming μ = 20, there is a 3% chance of getting a sample mean of 21.5 or more by chance.", "There is a 3% chance that the alternative hypothesis is false.", "3% of the data are above 21.5."], c: 1, w: "A p-value is computed assuming H₀ is true. It gives the probability of a result at least as extreme as the one observed, in the direction of Hₐ." },
     { s: "Twelve subjects were measured before and after a treatment. The differences (after − before) have x̄d = 2.1 and sd = 3.0. What are the test statistic and df for H₀: μd = 0?", o: ["t = 2.42, df = 11", "t = 2.42, df = 22", "t = 0.70, df = 11", "t = 8.40, df = 11"], c: 0, w: "t = 2.1 ÷ (3.0/√12) = 2.1 ÷ 0.866 ≈ 2.42, with df = 12 − 1 = 11 because there are 12 pairs." },

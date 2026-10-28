@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -92,7 +92,7 @@
     <div class="card"><span class="tag">Do</span><h3>Test statistic</h3><p>z = (statistic − parameter) ÷ (SD of statistic) = (p̂ − p₀) ÷ √(p₀(1 − p₀)/n). It counts how many SDs p̂ is from p₀.</p></div>
     <div class="card"><span class="tag">Do</span><h3>p-value</h3><p>Find the area under the standard normal beyond z in the direction of Hₐ; double it for ≠.</p></div>
     <div class="card"><span class="tag">Conclude</span><h3>Link, decide, context</h3><p>"Because the p-value of 0.015 is less than α = 0.05, we reject H₀. There is convincing evidence that …"</p></div>
-    <div class="card"><span class="tag">Calculator</span><h3>1-PropZTest</h3><p>The calculator gives z and p, but on the FRQ you must still show the formula with numbers and state the conditions.</p></div>
+    <div class="card"><span class="tag">Calculator</span><h3>zproptest (Desmos) · 1-PropZTest (TI-84)</h3><p>In Desmos, <code>zproptest(x, n)</code>, then set the null to p₀ and the Left/Both/Right tail; read <code>T₁.score</code> and <code>T₁.p</code> (or <code>.pleft</code> / <code>.pright</code>). On the TI-84, STAT ▸ TESTS ▸ 1-PropZTest. Either gives z and p, but on the FRQ you must still show the formula with numbers and state the conditions.</p></div>
   </div>
 </section>
 
@@ -124,7 +124,7 @@
       <ul>
         <li>Every step counts. Missing conditions or context costs points even with correct calculations.</li>
         <li>Show the test statistic formula with values substituted before giving z.</li>
-        <li>Write the p-value as a probability statement: P(Z ≥ 2.18) = 0.0147.</li>
+        <li>Write the p-value as a probability statement: P(Z ≥ 2.18) = 0.0147 (Desmos <code>1 - normaldist(0, 1).cdf(2.18)</code>, TI-84 <code>normalcdf(2.18, 1E99, 0, 1)</code>). The command alone is not enough.</li>
         <li>In the conclusion, explicitly compare: "p-value 0.0147 < α = 0.05."</li>
         <li>Use "convincing evidence" (or "not convincing evidence") and finish with the population parameter in context.</li>
       </ul>
@@ -169,7 +169,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -271,7 +271,13 @@
     if (!(S.r && ten && lc)) cond += '<p class="warn">A condition is not met. Proceed with caution: the p-value below may not be accurate.</p>';
     html += card("Plan", "Procedure and conditions", cond);
     var areaTxt = S.alt === "gt" ? "P(Z ≥ " + N(z, 2) + ")" : S.alt === "lt" ? "P(Z ≤ " + N(z, 2) + ")" : "2P(Z ≥ " + N(Math.abs(z), 2) + ")";
-    html += card("Do", "Calculations", "<p>p̂ = " + S.x + " ÷ " + S.n + " = " + N(ph, 4) + "</p><p>z = (" + N(ph, 4) + " − " + N(S.p0, 3) + ") ÷ √(" + N(S.p0, 3) + " × " + N(1 - S.p0, 3) + " ÷ " + S.n + ") = (" + N(ph - S.p0, 4) + ") ÷ " + N(sd, 4) + " = <b>" + N(z, 2) + "</b></p><p>p-value = " + areaTxt + " = <b>" + fmtP(p) + "</b></p>");
+    var zr = Math.round(z * 1000) / 1000;
+    html += card("Do", "Calculations", "<p>p̂ = " + S.x + " ÷ " + S.n + " = " + N(ph, 4) + "</p><p>z = (" + N(ph, 4) + " − " + N(S.p0, 3) + ") ÷ √(" + N(S.p0, 3) + " × " + N(1 - S.p0, 3) + " ÷ " + S.n + ") = (" + N(ph - S.p0, 4) + ") ÷ " + N(sd, 4) + " = <b>" + N(z, 2) + "</b></p><p>p-value = " + areaTxt + " = <b>" + fmtP(p) + "</b></p>" +
+      (S.alt === "ne" ? Lab.calcHTML(Lab.CMD.normcdf(Math.abs(zr), Infinity, 0, 1), "Calculator: one tail P(Z ≥ " + N(Math.abs(zr), 3) + "); the two-sided p-value is 2 × this")
+        : Lab.calcHTML(S.alt === "gt" ? Lab.CMD.normcdf(zr, Infinity, 0, 1) : Lab.CMD.normcdf(-Infinity, zr, 0, 1), "Calculator: p-value = P(Z " + (S.alt === "gt" ? "≥ " : "≤ ") + N(zr, 3) + ")")) +
+      '<div style="margin-top:8px"></div>' +
+      Lab.calcHTML(Lab.CMD.prop1(S.x, S.n, { p0: S.p0, tail: S.alt === "gt" ? "right" : S.alt === "lt" ? "left" : "two" }), "Calculator: the whole test (z and p-value in one step)") +
+      '<p class="note">Calculator output alone does not earn credit. Still name the test, check conditions, show the z formula with numbers, and conclude in context.</p>');
     var concl = rej ? "Because the p-value of " + fmtP(p) + " &lt; α = " + S.al + ", we reject H₀. There is convincing evidence that the true proportion of " + desc + " is " + (S.alt === "gt" ? "greater than" : S.alt === "lt" ? "less than" : "different from") + " " + N(S.p0, 3) + "."
       : "Because the p-value of " + fmtP(p) + " ≥ α = " + S.al + ", we fail to reject H₀. There is not convincing evidence that the true proportion of " + desc + " is " + (S.alt === "gt" ? "greater than" : S.alt === "lt" ? "less than" : "different from") + " " + N(S.p0, 3) + ".";
     html += card("Conclude", "Decision in context", "<p>" + concl + "</p>" + (rej ? "" : "<p class='note'>This does not show that p = " + N(S.p0, 3) + "; it only means the data are consistent with it.</p>") + (S.r ? "" : "<p class='warn'>Since the sample wasn't random, this conclusion should not be applied to the whole population.</p>"));

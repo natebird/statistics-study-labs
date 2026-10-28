@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -187,7 +187,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -302,7 +302,9 @@
       "Hₐ says the mean is <b>different</b> from " + cur.v + ", so t values far out in either direction count. The p-value will include both tails.");
     t.push("The red region holds the most extreme " + N(a * 100, 0) + "% of t values when H₀ is true. An observed t landing there would give a p-value below α = " + a + ".");
     if (cur.conds.some(function (x) { return x[0] !== "ok"; })) t.push("<b>Condition problem:</b> one condition fails, so any p-value from this test should be treated with caution.");
-    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+    var aL = dir === "ne" ? 1 - a / 2 : 1 - a;
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
+      Lab.calcHTML(Lab.CMD.invt(aL, df, true), "Calculator: the cutoff t = " + N(crit, 3) + " (area " + N(aL, 3) + " to its left, df = " + df + ")");
   }
   SC.forEach(function (s, k) {
     var b = document.createElement("button"); b.type = "button"; b.textContent = s.name;

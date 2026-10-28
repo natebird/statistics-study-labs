@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -191,7 +191,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -408,6 +408,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
     r += '<div class="row"><span>Form: how much better a curve fits than a line (drop in squared misses)</span><span>' + (D.q ? Lab.pct(Math.max(0, D.imp), 0) : "n/a") + " → " + D.form + "</span></div>";
     r += '<div class="row"><span>Strength: how tightly the points follow the ' + (D.curved ? "curve" : "line") + " (0 to 1)</span><span>" + N(D.sv, 2) + " → " + D.strength + "</span></div>";
     r += '<div class="row"><span>Unusual: points much farther from the pattern than the rest; gaps that split the data</span><span>' + D.unOK.join(", ") + "</span></div>";
+    r += Lab.calcHTML(Lab.CMD.linreg(), "Calculator: graph the data and find r (should give r ≈ " + N(D.r, 3) + ")");
     $("calc").innerHTML = r;
   }
 

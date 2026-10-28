@@ -244,3 +244,15 @@ select { font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid v
 .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 .sr { position: absolute; left: -9999px; }
 .nc { text-transform: none; }
+
+/* Calculator instructions: Desmos (Bluebook) and TI-84 side by side */
+.calcbox { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.calcbox + .calcbox { margin-top: 8px; }
+.cb-label { grid-column: 1 / -1; font-size: .84rem; font-weight: 600; padding: 7px 12px; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.cb-col { display: grid; gap: 4px; padding: 9px 12px; align-content: start; min-width: 0; }
+.cb-col + .cb-col { border-left: 1px solid var(--rule); }
+.cb-tool { font-family: var(--mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.calcbox code { font-family: var(--mono); font-size: .86rem; color: var(--ink); overflow-wrap: anywhere; }
+.cb-note { font-size: .78rem; color: var(--muted); }
+@media (max-width: 620px) { .calcbox { grid-template-columns: 1fr; } .cb-col + .cb-col { border-left: 0; border-top: 1px solid var(--rule); } }
+code { font-family: var(--mono); font-size: .88em; }

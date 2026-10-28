@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -96,6 +96,11 @@
     <h3>Standard deviation, one row per value</h3>
     <div class="tbl-wrap" id="devWrap"></div>
   </div>
+  <div class="card calc-card">
+    <h3>Check it on a calculator</h3>
+    <div id="calcTool"></div>
+    <p class="note">Either calculator gives x̄, s, and the five-number summary at once. Write the values with labels; the output alone earns no credit.</p>
+  </div>
 
   <div class="sec-head" style="margin-top:8px;">
     <h3 style="font-size:1.2rem;">Change the units: linear transformations</h3>
@@ -169,7 +174,7 @@
         <li>Interpret the standard deviation as a typical distance: "The commute times typically vary by about 12.9 minutes from the mean of 26.3 minutes."</li>
         <li>Justify your choice of center: "The median is a better measure of center because the distribution is strongly right-skewed and the median is resistant to the high outlier."</li>
         <li>Show the outlier rule with numbers: "Q₃ + 1.5(IQR) = 30 + 1.5(12) = 48. Since 61 &gt; 48, 61 is an outlier."</li>
-        <li>Calculator work alone ("1-Var Stats") earns no credit. Write the values you found with labels.</li>
+        <li>Calculator output alone (Desmos <code>stats(L)</code> or TI-84 1-Var Stats) earns no credit. Write the values you found with labels.</li>
       </ul>
     </div>
     <div class="card">
@@ -212,7 +217,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -302,6 +307,7 @@
     t += '</tbody><tfoot><tr><td>Σ = ' + N(Lab.sum(d)) + '</td><td>Σ = 0</td><td>Σ = ' + N(ss, 3) + "</td></tr>";
     t += '<tr><td colspan="3">s² = ' + N(ss, 3) + " ÷ (" + s.n + " − 1) = " + N(s.sd * s.sd, 3) + " &nbsp;→&nbsp; s = √" + N(s.sd * s.sd, 3) + " = " + N(s.sd, 3) + "</td></tr></tfoot></table>";
     $("devWrap").innerHTML = t;
+    Lab.calcBox("calcTool", [["1-Var Stats for these " + s.n + " values", Lab.CMD.onevar(d)]]);
 
     story(s);
     renderT();

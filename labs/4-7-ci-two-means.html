@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -41,7 +41,7 @@
 <section aria-labelledby="lab-h">
   <div class="sec-head">
     <h2 id="lab-h">1. Build a two-sample t interval</h2>
-    <p>Enter the summary statistics for two independent groups and choose a confidence level. Every step of the interval is worked out below, the same way a 2-SampTInt does it.</p>
+    <p>Enter the summary statistics for two independent groups and choose a confidence level. Every step of the interval is worked out below, the same way Desmos <code>ttest</code> or a TI-84 2-SampTInt does it.</p>
     <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">(x̄₁ − x̄₂) ± t* · √( s₁²/n₁ + s₂²/n₂ )</span> <span class="formula">estimate ± margin of error</span></div>
   </div>
 
@@ -122,7 +122,7 @@
 <section aria-labelledby="tbl-h">
   <div class="sec-head">
     <h2 id="tbl-h">3. Quick reference</h2>
-    <p>Critical values t* change with df. These are the values a table would give for a few df.</p>
+    <p>Critical values t* change with df. These are the values a table would give for a few df. For any df, Desmos <code>tdist(df).inversecdf(0.975)</code> or TI-84 <code>invT(0.975, df)</code> gives the 95% t*.</p>
   </div>
   <div class="tbl-wrap">
   <table id="tstarTable"></table>
@@ -140,14 +140,14 @@
         <li><b>Check conditions</b> with numbers: "n₁ = 32 ≥ 30 and n₂ = 30 ≥ 30," or "the dotplot of each sample shows no strong skew or outliers."</li>
         <li><b>Do:</b> write the formula with values plugged in, df, and the interval. "(82.4 − 78.9) ± 2.002√(7.1²/32 + 8.3²/30) = (−0.44, 7.44), df ≈ 57.2."</li>
         <li><b>Conclude</b> with the interpretation in context and the order of subtraction.</li>
-        <li>Calculator-only work ("2-SampTInt") can earn credit only if you name the procedure and give the inputs and the interval.</li>
+        <li>Calculator-only work (Desmos <code>ttest</code> with six summary values, or TI-84 2-SampTInt) can earn credit only if you name the procedure, check conditions, and give the inputs and the interval.</li>
       </ul>
     </div>
     <div class="card">
       <h3>Common mistakes</h3>
       <ul>
         <li>Using z* instead of t* for means.</li>
-        <li>Pooling the standard deviations. On AP Statistics, set Pooled: No.</li>
+        <li>Pooling the standard deviations. On the TI-84, set Pooled: No; Desmos <code>ttest(n₁, x̄₁, s₁, n₂, x̄₂, s₂)</code> already uses the unpooled (Welch) df.</li>
         <li>Using a two-sample interval for paired data (same subjects measured twice). That calls for a one-sample t interval on the differences.</li>
         <li>Interpreting the interval as covering 95% of the individual differences or of the sample data.</li>
         <li>Forgetting to say which way you subtracted. A negative interval means group 2's mean is likely larger.</li>
@@ -183,7 +183,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -277,11 +277,11 @@
     $("calcWork").innerHTML = rows([
       ["Point estimate: " + N(S.x1) + " − " + N(S.x2), "= " + N(t.est, 3)],
       ["SE = √(" + N(S.s1) + "²/" + S.n1 + " + " + N(S.s2) + "²/" + S.n2 + ") = √(" + N(v1, 4) + " + " + N(v2, 4) + ")", "= " + N(t.se, 4)],
-      ["t* = invT(" + N((1 + C) / 2, 3) + ", df = " + N(t.df, 2) + ")", "= " + N(w.ts, 3)],
+      ["t* (area " + N((1 + C) / 2, 3) + " to the left, df = " + N(t.df, 2) + ")", "= " + N(w.ts, 3)]
+    ]) + Lab.calcHTML(Lab.CMD.invt(C, t.df), "Calculator: t*") + rows([
       ["Margin of error = " + N(w.ts, 3) + " × " + N(t.se, 4), "= " + N(w.me, 3)],
-      ["Interval = " + N(t.est, 3) + " ± " + N(w.me, 3), "(" + N(w.lo, 3) + ", " + N(w.hi, 3) + ")"],
-      ["Calculator: 2-SampTInt, Stats, x̄1=" + N(S.x1) + ", Sx1=" + N(S.s1) + ", n1=" + S.n1 + ", x̄2=" + N(S.x2) + ", Sx2=" + N(S.s2) + ", n2=" + S.n2 + ", C-Level=" + C + ", Pooled: No", "", "code"]
-    ]);
+      ["Interval = " + N(t.est, 3) + " ± " + N(w.me, 3), "(" + N(w.lo, 3) + ", " + N(w.hi, 3) + ")"]
+    ]) + Lab.calcHTML(Lab.CMD.t2({ n: S.n1, mean: S.x1, sd: S.s1 }, { n: S.n2, mean: S.x2, sd: S.s2 }, { C: C }), "Calculator: the whole interval");
     $("calcDf").innerHTML = rows([
       ["Calculator (Welch) df = (a + b)² ÷ (a²/(n₁−1) + b²/(n₂−1)), with a = s₁²/n₁, b = s₂²/n₂", "= " + N(t.df, 2)],
       ["t* with calculator df", N(w.ts, 3)],

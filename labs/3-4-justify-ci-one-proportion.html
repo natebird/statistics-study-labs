@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -80,7 +80,7 @@
 
   <div class="story" id="story" aria-live="polite"></div>
 
-  <div class="card calc-card"><h3>Show your work</h3><div class="calc" id="calc"></div></div>
+  <div class="card calc-card"><h3>Show your work</h3><div class="calc" id="calc"></div><div id="calc-cmd" style="margin-top:12px"></div></div>
 
   <div class="sec-head" style="margin-top:8px;">
     <h3 style="font-size:1.2rem;">Judge the statement</h3>
@@ -135,6 +135,7 @@
         <li>For a directional claim, say "all values in the interval are greater than 0.50."</li>
         <li>Avoid "proves" or "accept." Say "does not provide convincing evidence against the claim."</li>
         <li>Keep the conclusion about the population parameter, in context.</li>
+        <li>If you build the interval on a calculator (Desmos <code>zproptest(x, n)</code> then <code>T₁.conf(0.95).lower</code> and <code>.upper</code>; TI-84 1-PropZInt), still name the procedure, check conditions, and show p̂ ± z*·SE with numbers. Calculator output alone does not earn credit.</li>
       </ul>
     </div>
     <div class="card">
@@ -177,7 +178,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -269,6 +270,11 @@
       ["Claimed value", N(S.p0, 2)],
       [S.ct === "eq" ? "Is " + N(S.p0, 2) + " inside the interval?" : S.ct === "gt" ? "Is every value in the interval above " + N(S.p0, 2) + "?" : "Is every value in the interval below " + N(S.p0, 2) + "?",
         S.ct === "eq" ? (inside ? "yes" : "no") : S.ct === "gt" ? (lo > S.p0 ? "yes" : "no") : (hi < S.p0 ? "yes" : "no"), true]
+    ]);
+    var xs = Math.round(S.ph * S.n);
+    Lab.calcBox("calc-cmd", [
+      ["Calculator: z* for " + C + " confidence", Lab.CMD.zstar(S.C)],
+      ["Calculator: the interval, with x = p̂ × n ≈ " + xs + " successes", Lab.CMD.prop1(xs, S.n, { C: S.C })]
     ]);
     var who = S.ctx.charAt(0).toLowerCase() + S.ctx.slice(1), head, t = [];
     var ivs = "the interval from " + N(lo, 3) + " to " + N(hi, 3);

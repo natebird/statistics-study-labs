@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -146,6 +146,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
       <tr><td><b>r²</b></td><td>R-Sq (often as a percent)</td><td>About __% of the variation in y is accounted for by the linear relationship with x.</td></tr>
       <tr><td><b>s</b></td><td>S</td><td>Actual y-values typically differ from predicted values by about s.</td></tr>
       <tr><td><b>r</b></td><td>Not shown directly: r = ±√r², with the sign of the slope</td><td>Strength and direction of the linear association.</td></tr>
+      <tr><td><b>From raw data</b></td><td>Desmos: <code>y₁ ~ m x₁ + b</code> shows m, b, r, r²; residuals are saved as <code>e₁</code>. TI-84: <code>LinReg(a+bx) L₁, L₂</code> (DiagnosticOn for r, r²)</td><td>Watch the letters: Desmos <i>m</i> is the slope and <i>b</i> the intercept; on the TI-84, <i>b</i> is the slope and <i>a</i> the intercept.</td></tr>
       <tr><td>SE Coef, T, P</td><td>Other columns</td><td>Used for inference about the slope, which is not in the revised course.</td></tr>
     </tbody>
   </table>
@@ -160,7 +161,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
       <h3>How to earn the points</h3>
       <ul>
         <li>When given summary statistics, show both formulas with numbers: "b = 0.87(6.2 ÷ 3.1) = 1.74; a = 70 − 1.74(5) = 61.3."</li>
-        <li>Write the final equation with ŷ or "predicted" and the variable names.</li>
+        <li>Write the final equation with ŷ or "predicted" and the variable names. A Desmos or TI-84 regression gives the numbers, but you still have to write and interpret the equation in context.</li>
         <li>Read the slope and intercept from the Coef column of computer output; do not use the SE Coef or T values.</li>
         <li>Interpret r² in context: "About 82% of the variation in exam scores is accounted for by the linear relationship with hours studied."</li>
         <li>To find r from output, take √r² and give it the sign of the slope.</li>
@@ -206,7 +207,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -385,6 +386,7 @@ svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webk
     r += '<div class="row"><span>r² = r × r</span><span>' + N(f.r, 4) + "² = " + N(f.r2, 4) + "</span></div>";
     r += '<div class="row"><span>s = √(Σ residual² ÷ (n − 2))</span><span>√(' + N(f.sse, 3) + " ÷ " + (n - 2) + ") = " + N(f.s, 3) + "</span></div>";
     r += '<div class="row"><span>Equation</span><span>' + eqStr(f.b0, f.b1, 3) + "</span></div>";
+    r += Lab.calcHTML(Lab.CMD.linreg(), "Calculator: should give slope ≈ " + N(f.b1, 4) + ", intercept ≈ " + N(f.b0, 3) + ", r ≈ " + N(f.r, 4));
     $("calc").innerHTML = r;
 
     // computer output (regression table)

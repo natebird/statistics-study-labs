@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -166,6 +166,7 @@
         <li>Say <b>plausible</b> or <b>not plausible</b>, and then state the conclusion about the parameter in context.</li>
         <li>For a claim like "at least 500 hours," notice the direction: an interval entirely below 500 contradicts it; an interval containing 500 does not.</li>
         <li>If the question asks about a two-sided test, mention that a C% interval matches a test at α = 1 − C.</li>
+        <li>An interval read off Desmos or the TI-84 still needs the procedure named, the conditions checked, and the interval written out before you compare the claim to it.</li>
       </ul>
     </div>
     <div class="card">
@@ -207,7 +208,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -276,9 +277,11 @@
     $("r-gap").textContent = inside ? "inside" : N(claim < I.lo ? I.lo - claim : claim - I.hi, 3) + " outside";
 
     var r = "";
-    r += '<div class="row"><span>t* = invT(' + N((1 + I.C) / 2, 3) + ", " + (I.n - 1) + ")</span><span>= " + N(I.ts, 3) + "</span></div>";
+    r += '<div class="row"><span>t* (area ' + N((1 + I.C) / 2, 3) + " to the left, df = " + (I.n - 1) + ")</span><span>= " + N(I.ts, 3) + "</span></div>";
+    r += Lab.calcHTML(Lab.CMD.invt(I.C, I.n - 1), "Calculator: t*");
     r += '<div class="row"><span>ME = ' + N(I.ts, 3) + " × " + N(I.s, 3) + "/√" + I.n + "</span><span>= " + N(I.me, 3) + "</span></div>";
     r += '<div class="row"><span>Interval = ' + N(I.x, 3) + " ± " + N(I.me, 3) + "</span><span>(" + N(I.lo, 3) + ", " + N(I.hi, 3) + ")</span></div>";
+    r += Lab.calcHTML(Lab.CMD.t1({ n: I.n, mean: I.x, sd: I.s }, { C: I.C }), "Calculator: the interval");
     r += '<div class="row"><span>Is ' + N(claim, 3) + " between " + N(I.lo, 3) + " and " + N(I.hi, 3) + "?</span><span>" + (inside ? "Yes" : "No") + "</span></div>";
     r += '<div class="row"><span>Matching test</span><span>two-sided, α = ' + N(1 - I.C, 2) + "</span></div>";
     $("calc").innerHTML = r;

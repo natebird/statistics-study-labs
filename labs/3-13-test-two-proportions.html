@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -89,7 +89,7 @@
   <div class="steps">
     <div class="card"><h3><span class="tag">Step 1</span> State</h3><div class="calc" id="s1"></div></div>
     <div class="card"><h3><span class="tag">Step 2</span> Plan</h3><div class="calc" id="s2"></div></div>
-    <div class="card"><h3><span class="tag">Step 3</span> Do</h3><div class="calc" id="s3"></div></div>
+    <div class="card"><h3><span class="tag">Step 3</span> Do</h3><div class="calc" id="s3"></div><div id="s3-cb" style="margin-top:10px;"></div></div>
     <div class="card"><h3><span class="tag">Step 4</span> Conclude</h3><p id="s4"></p></div>
   </div>
 </section>
@@ -117,12 +117,12 @@
   <table>
     <thead><tr><th>Hₐ</th><th>p-value</th><th>Calculator</th></tr></thead>
     <tbody>
-      <tr><td>p₁ − p₂ &gt; 0</td><td>P(Z ≥ z)</td><td>normalcdf(z, 1E99, 0, 1)</td></tr>
-      <tr><td>p₁ − p₂ &lt; 0</td><td>P(Z ≤ z)</td><td>normalcdf(−1E99, z, 0, 1)</td></tr>
-      <tr><td>p₁ − p₂ ≠ 0</td><td>2 · P(Z ≥ |z|)</td><td>2 · normalcdf(|z|, 1E99, 0, 1)</td></tr>
+      <tr><td>p₁ − p₂ &gt; 0</td><td>P(Z ≥ z)</td><td>Desmos: <code>1 - normaldist(0, 1).cdf(z)</code> · TI-84: <code>normalcdf(z, 1E99, 0, 1)</code></td></tr>
+      <tr><td>p₁ − p₂ &lt; 0</td><td>P(Z ≤ z)</td><td>Desmos: <code>normaldist(0, 1).cdf(z)</code> · TI-84: <code>normalcdf(-1E99, z, 0, 1)</code></td></tr>
+      <tr><td>p₁ − p₂ ≠ 0</td><td>2 · P(Z ≥ |z|)</td><td>Desmos: <code>2(1 - normaldist(0, 1).cdf(|z|))</code> · TI-84: <code>2 · normalcdf(|z|, 1E99, 0, 1)</code></td></tr>
       <tr><td>p-value &lt; α</td><td>Reject H₀</td><td>Convincing evidence for Hₐ</td></tr>
       <tr><td>p-value ≥ α</td><td>Fail to reject H₀</td><td>Not convincing evidence for Hₐ</td></tr>
-      <tr><td>All steps</td><td>2-PropZTest</td><td>Still write the formula, z, and p-value</td></tr>
+      <tr><td>All steps</td><td>Desmos: <code>zproptest(x₁, n₁, x₂, n₂)</code>, set the tail, read <code>T₁.score</code> and the p-value · TI-84: 2-PropZTest</td><td>Still name the test, check conditions, write the formula, z, and p-value, and conclude in context</td></tr>
     </tbody>
   </table>
   </div>
@@ -136,7 +136,7 @@
       <h3>How to earn the points</h3>
       <ul>
         <li>Show the test statistic with numbers: z = (0.47 − 0.39 − 0) ÷ √(0.43(0.57)(1/300 + 1/300)) = 1.98.</li>
-        <li>Give the p-value and how you got it (normal curve, area, direction).</li>
+        <li>Give the p-value and how you got it (normal curve, area, direction). If you use Desmos <code>zproptest</code> or TI-84 2-PropZTest, still name the test and show z with numbers: calculator output alone does not earn credit.</li>
         <li>Compare the p-value to α explicitly: "Because 0.024 &lt; 0.05, we reject H₀."</li>
         <li>Write the conclusion about the parameters in context: "There is convincing evidence that the true proportion…"</li>
         <li>If asked, interpret the p-value: "Assuming there is no difference, the probability of observing a difference of 0.08 or more by chance is 0.024."</li>
@@ -182,7 +182,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -261,6 +261,12 @@
       ["SE = √( " + N(pc, 4) + "(" + N(1 - pc, 4) + ")(1/" + S.n1 + " + 1/" + S.n2 + ") )", "= " + N(se, 4)],
       ["z = (" + N(a, 4) + " − " + N(b, 4) + " − 0) ÷ " + N(se, 4), "= " + N(z, 2)],
       ["p-value = " + (S.ha === "gt" ? "P(Z ≥ " + N(z, 2) + ")" : S.ha === "lt" ? "P(Z ≤ " + N(z, 2) + ")" : "2 × P(Z ≥ " + N(Math.abs(z), 2) + ")"), "= " + P(p)]]);
+    var zr = Math.round(z * 100) / 100, tail = S.ha === "gt" ? "right" : S.ha === "lt" ? "left" : "two";
+    var cmdZ = S.ha === "gt" ? Lab.CMD.normcdf(zr, Infinity) : S.ha === "lt" ? Lab.CMD.normcdf(-Infinity, zr) : Lab.CMD.normcdf(Math.abs(zr), Infinity);
+    Lab.calcBox("s3-cb", [
+      ["p-value from z" + (S.ha === "ne" ? " (one tail; multiply by 2)" : ""), cmdZ],
+      ["The whole test", Lab.CMD.prop2(S.x1, S.n1, S.x2, S.n2, { tail: tail })]
+    ]);
     var dir = { ne: "is different from", gt: "is greater than", lt: "is less than" }[S.ha];
     var concl = "Because the p-value of " + P(p) + " is " + (rej ? "less than" : "greater than") + " α = " + S.al + ", we " + (rej ? "reject H₀" : "fail to reject H₀") + ". There " + (rej ? "is" : "is not") + " convincing evidence that the true proportion who " + esc(S.s) + " for " + esc(S.g1) + " " + dir + " the true proportion for " + esc(S.g2) + ".";
     $("s4").innerHTML = concl;
@@ -299,7 +305,7 @@
    "0.964"
   ],
   "c": 1,
-  "w": "The one-tail area below −2.10 is about 0.018. For a two-sided test, double it: 0.036."
+  "w": "The one-tail area below −2.10 is about 0.018 (Desmos: normaldist(0, 1).cdf(−2.1) · TI-84: normalcdf(−1E99, −2.1, 0, 1)). For a two-sided test, double it: 0.036."
  },
  {
   "s": "A two-proportion test gives p-value = 0.08 with α = 0.05. Which conclusion is correct?",

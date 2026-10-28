@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -157,7 +157,7 @@
       <ul>
         <li>Writing hypotheses with sample statistics: "H₀: x̄₁ = x̄₂."</li>
         <li>Choosing the direction of Hₐ after seeing which sample mean is bigger.</li>
-        <li>Using a two-sample test for paired data, or a paired test for independent groups.</li>
+        <li>Using a two-sample test for paired data, or a paired test for independent groups. The calculator command follows the setup: paired data use one list of differences (Desmos <code>ttest(L₁ - L₂)</code>; TI-84 T-Test on L₃ = L₁ − L₂), while two independent groups use six summary values (Desmos <code>ttest(n₁, x̄₁, s₁, n₂, x̄₂, s₂)</code>; TI-84 2-SampTTest, Pooled: No).</li>
         <li>Checking "n₁ + n₂ ≥ 30." Each sample must be checked on its own.</li>
         <li>Saying "the population is normal" when you only looked at a sample graph. Say the sample shows no strong skew or outliers.</li>
       </ul>
@@ -192,7 +192,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";

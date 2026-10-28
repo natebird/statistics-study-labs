@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -83,6 +83,7 @@
   <div class="card calc-card">
     <h3>Show your work: normal calculation</h3>
     <div class="calc" id="calc"></div>
+    <div id="calc-cmd" style="margin-top:12px"></div>
   </div>
 </section>
 
@@ -94,7 +95,7 @@
     <div class="card"><span class="tag">Spread</span><h3>σ<sub>p̂</sub> = √(p(1 − p)/n)</h3><p>Spread shrinks as n grows: 4 times the sample size gives half the spread. It is largest when p = 0.5.</p></div>
     <div class="card"><span class="tag">Shape</span><h3>Large Counts</h3><p>If np ≥ 10 and n(1 − p) ≥ 10, the sampling distribution is approximately normal. Otherwise it is skewed toward the side farther from 0 or 1.</p></div>
     <div class="card"><span class="tag">10% condition</span><h3>When sampling without replacement</h3><p>Check n ≤ 0.1N. Then the observations are close enough to independent that the σ formula works.</p></div>
-    <div class="card"><span class="tag">Probability</span><h3>Use the normal model</h3><p>Standardize: z = (p̂ − p) ÷ σ<sub>p̂</sub>, then find the area, or use normalcdf with mean p and SD σ<sub>p̂</sub>.</p></div>
+    <div class="card"><span class="tag">Probability</span><h3>Use the normal model</h3><p>Standardize: z = (p̂ − p) ÷ σ<sub>p̂</sub>, then find the area, or use mean p and SD σ<sub>p̂</sub> directly: Desmos <code>1 - normaldist(p, σ).cdf(cutoff)</code> or TI-84 <code>normalcdf(cutoff, 1E99, p, σ)</code> for a right tail.</p></div>
     <div class="card"><span class="tag">Three distributions</span><h3>Population, sample, sampling distribution</h3><p>The population has one p. A sample has its own p̂. The sampling distribution shows how p̂ varies over all samples of size n.</p></div>
   </div>
 </section>
@@ -128,7 +129,7 @@
       <ul>
         <li>Describe a sampling distribution with shape, center, and spread, each justified: "approximately normal because 60(0.4) = 24 ≥ 10 and 60(0.6) = 36 ≥ 10."</li>
         <li>Show the σ formula with numbers plugged in, not just the result.</li>
-        <li>For a probability, label the distribution: "Using N(0.4, 0.0632), P(p̂ > 0.5) = 0.057." Calculator syntax alone does not earn credit.</li>
+        <li>For a probability, label the distribution: "Using N(0.4, 0.0632), P(p̂ > 0.5) = 0.057." Calculator syntax alone (Desmos <code>1 - normaldist(0.4, 0.0632).cdf(0.5)</code> or TI-84 <code>normalcdf(0.5, 1E99, 0.4, 0.0632)</code>) does not earn credit.</li>
         <li>Name both conditions and what each does: Large Counts for shape, 10% for the standard deviation formula.</li>
         <li>Interpret in context: "There is about a 5.7% chance that more than half of a random sample of 60 students will say yes."</li>
       </ul>
@@ -173,7 +174,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -266,8 +267,9 @@
       ["Mean: μ<sub>p̂</sub> = p", N(p, 2)],
       ["SD: σ<sub>p̂</sub> = √(" + N(p, 2) + " × " + N(1 - p, 2) + " ÷ " + n + ")", N(sig, 4)],
       ["z = (" + N(S.cut, 2) + " − " + N(p, 2) + ") ÷ " + N(sig, 4), N(z, 2)],
-      ["P(p̂ ≥ " + N(S.cut, 2) + ") = normalcdf(lower " + N(S.cut, 2) + ", upper ∞, μ " + N(p, 2) + ", σ " + N(sig, 4) + ")", N(nrm, 4), true]
+      ["P(p̂ ≥ " + N(S.cut, 2) + ") = area to the right of " + N(S.cut, 2) + " under N(" + N(p, 2) + ", " + N(sig, 4) + ")", N(nrm, 4), true]
     ]);
+    Lab.calcBox("calc-cmd", [["Calculator: P(p̂ ≥ " + N(S.cut, 2) + ") using N(" + N(p, 2) + ", " + N(sig, 4) + ")", Lab.CMD.normcdf(S.cut, Infinity, p, sig)]]);
     var head, t = [];
     if (lc) head = "<b>Approximately normal.</b> With np = " + N(np, 1) + " and n(1 − p) = " + N(nq, 1) + " both at least 10, the histogram is mound-shaped and the normal curve fits well.";
     else head = "<b>Not approximately normal.</b> np = " + N(np, 1) + " and n(1 − p) = " + N(nq, 1) + "; at least one is under 10, so the distribution is " + (p < 0.5 ? "skewed right" : "skewed left") + " and the normal model is not trustworthy. Increase n.";

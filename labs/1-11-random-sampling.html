@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <script src="../assets/prefs.js?v=1"></script>
 <style>
 .calc-card { display: grid; gap: 10px; align-content: start; }
@@ -79,6 +79,7 @@
     <div class="card calc-card">
       <h3>How this sample was chosen</h3>
       <div class="calc" id="how"></div>
+      <div id="calcTool"></div>
     </div>
     <div class="card calc-card">
       <h3>Compare the methods</h3>
@@ -111,7 +112,7 @@
   <table>
     <thead><tr><th>Method</th><th>Sample procedure for 20 of the 100 students</th><th>Best when</th></tr></thead>
     <tbody>
-      <tr><td><b>SRS</b></td><td>Label students 1–100. Use a random number generator to pick integers from 1 to 100, ignoring repeats, until 20 different students are chosen.</td><td>You have a full list and no useful groups</td></tr>
+      <tr><td><b>SRS</b></td><td>Label students 1–100. Use a random number generator to pick integers from 1 to 100, ignoring repeats, until 20 different students are chosen. (Desmos: shuffle([1...100])[1...20] · TI-84: randIntNoRep(1, 100), first 20)</td><td>You have a full list and no useful groups</td></tr>
       <tr><td><b>Stratified</b></td><td>Separate students by grade (25 per grade). Within each grade, label 1–25 and randomly choose 5 different students. Combine for 20.</td><td>Groups differ on the variable (sleep differs by grade)</td></tr>
       <tr><td><b>Cluster</b></td><td>Label homerooms 1–10. Randomly choose 2 different homerooms and survey every student in them.</td><td>Groups are mixed and easy to reach together</td></tr>
       <tr><td><b>Systematic</b></td><td>List students 1–100. Randomly choose a start from 1 to 5, then take every 5th student after it.</td><td>The list has no pattern related to the variable</td></tr>
@@ -173,7 +174,7 @@
 <script src="../assets/glossary/unit-4.js"></script>
 <script src="../assets/glossary/unit-5.js"></script>
 <script src="../assets/glossary.js?v=1"></script>
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (function () {
   "use strict";
@@ -278,7 +279,16 @@
     $("story").innerHTML = "<p>" + head + "</p><ul>" + li.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
   }
 
+  // calculator commands for the random part of each method
+  var NOREP = function (n, k, what) { return { d: "shuffle([1..." + n + "])[1..." + k + "]", dn: "The first " + k + " labels of a shuffled list, so no repeats" + (what ? ". " + what : "."), t: "randIntNoRep(1, " + n + ")", tn: "MATH \u25B8 PROB \u25B8 randIntNoRep; take the first " + k + ". Or use randInt(1, " + n + ") and skip repeats." + (what ? " " + what : "") }; };
+  var CALC = {
+    srs: ["Choose 20 different labels from 1–100", NOREP(100, 20)],
+    strat: ["Choose 5 different labels from 1–25", NOREP(25, 5, "Repeat once in each grade.")],
+    clust: ["Choose 2 different homerooms from 1–10", NOREP(10, 2)],
+    sys: ["Choose the random start from 1–5", { d: "random([1...5], 1)", t: "randInt(1, 5)", tn: "MATH \u25B8 PROB \u25B8 randInt" }]
+  };
   function render() {
+    if (CALC[S.m]) Lab.calcBox("calcTool", [CALC[S.m]]); else $("calcTool").innerHTML = "";
     drawGrid(); drawDist(); table(); story();
     $("r-mu").textContent = N(MU, 2) + " h";
     if (S.sample) {
