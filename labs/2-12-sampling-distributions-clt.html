@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sampling Distributions and the Central Limit Theorem Study Lab</title>
+<meta name="description" content="Draw thousands of random samples from skewed, uniform, or yes/no populations and watch the sampling distribution of the mean become approximately normal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 5px 10px; font-family: var(--mono); font-size: .84rem; text-align: right; }
+.mini th { font-family: var(--body); text-transform: none; letter-spacing: 0; font-size: .82rem; }
+.mini td:first-child, .mini th:first-child { text-align: left; }
+.mini tfoot td { background: var(--paper); font-weight: 600; }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 60px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+.popseg { display: flex; flex-wrap: wrap; gap: 8px; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.12</span>
+  <h1>Sampling Distributions and the Central Limit Theorem Study Lab</h1>
+  <p class="lede">A statistic like a sample mean changes from sample to sample. Its sampling distribution shows every value it could take and how often. Pick a population, any shape, set the sample size, and draw thousands of samples to see the center, spread, and shape that the central limit theorem predicts.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+
+  <div class="sec-head">
+    <h2 id="lab-h">1. Simulate a sampling distribution</h2>
+    <p>Each sample is a simple random sample of size n. The mean of each sample becomes one dot in the sampling distribution.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">μ<sub>x̄</sub> = μ</span> <span class="formula">σ<sub>x̄</sub> = σ ÷ √n</span> <span class="formula">For a yes/no population: μ<sub>p̂</sub> = p, σ<sub>p̂</sub> = √(p(1 − p) ÷ n)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:12px;">
+    <div class="tag">Population</div>
+    <div class="popseg" id="pops"></div>
+    <div class="controls" style="grid-template-columns: 2fr 3fr;">
+      <div class="ctl"><label for="n">Sample size n <output id="n-o"></output></label><input type="range" id="n" min="1" max="100" step="1" value="5"><span class="hint">Changing n clears the samples.</span></div>
+      <div class="ctl"><span class="note" style="font-weight:500">Draw samples</span><div class="scenarios"><button type="button" id="d1">1 sample</button><button type="button" id="d100">100 samples</button><button type="button" class="primary" id="d1000">1,000 samples</button><button type="button" id="clr">Clear</button></div></div>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="card graph-card">
+      <h3>Population <small id="popSub"></small></h3>
+      <svg class="chart" id="pop" role="img" aria-label="Histogram of the population"></svg>
+      <p class="note" id="lastSample"></p>
+    </div>
+    <div class="card graph-card">
+      <h3 id="sdTitle">Sampling distribution <small id="sdSub"></small></h3>
+      <svg class="chart" id="sd" role="img" aria-label="Histogram of the simulated sample means with the predicted normal curve"></svg>
+      <label class="note" style="display:inline-flex; gap:6px; align-items:center;"><input type="checkbox" id="overlay" checked> Show the normal curve the CLT predicts</label>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Samples drawn</div><div class="v" id="r-k"></div></div>
+    <div class="stat"><div class="k" id="k-mean">Mean of the sample means</div><div class="v" id="r-m"></div></div>
+    <div class="stat"><div class="k" id="k-sd">SD of the sample means</div><div class="v" id="r-s"></div></div>
+    <div class="stat"><div class="k" id="k-th">Predicted σ ÷ √n</div><div class="v" id="r-th"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>What the formulas predict</h3>
+      <div class="calc" id="calcP"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Use it: a probability about the statistic</h3>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl"><label for="cut">P(sample statistic &gt; c), c = <output id="cut-o"></output></label><input type="range" id="cut" min="0" max="100" step="0.5"></div>
+      </div>
+      <div class="calc" id="calcU"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+
+    <div class="card"><span class="tag">Variability</span><h3>Statistics vary, parameters do not</h3><p>The population mean μ is one fixed number. Every random sample gives a different x̄. The sampling distribution describes that sample-to-sample variability.</p></div>
+    <div class="card"><span class="tag">Center</span><h3>Unbiased: μ<sub>x̄</sub> = μ</h3><p>The sample means are centered at the population mean for every sample size. On average, x̄ neither overestimates nor underestimates μ.</p></div>
+    <div class="card"><span class="tag">Spread</span><h3>σ<sub>x̄</sub> = σ/√n</h3><p>Larger samples give less variable means. To cut the standard deviation in half, you need four times the sample size. This formula assumes the sample is no more than 10% of the population.</p></div>
+    <div class="card"><span class="tag">Shape</span><h3>The central limit theorem</h3><p>When n is large, the sampling distribution of x̄ is approximately normal, whatever the population's shape. A common rule of thumb is n ≥ 30. The more skewed the population, the larger n needs to be.</p></div>
+    <div class="card"><span class="tag">Normal population</span><h3>Normal in, normal out</h3><p>If the population itself is normal, the sampling distribution of x̄ is exactly normal for any sample size, even n = 2.</p></div>
+    <div class="card"><span class="tag">Proportions</span><h3>p̂ is a mean of 0s and 1s</h3><p>Code "yes" as 1 and "no" as 0, and p̂ is a sample mean. Its distribution is approximately normal when np ≥ 10 and n(1 − p) ≥ 10.</p></div>
+
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Three distributions, don't mix them up</h2>
+    <p>Every sampling-distribution question involves these three. Ask yourself which one the question is about.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+
+    <thead><tr><th>Distribution</th><th>What each value is</th><th>Center</th><th>Spread</th><th>Shape</th></tr></thead>
+    <tbody>
+      <tr><td><b>Population</b></td><td>One individual</td><td>μ</td><td>σ</td><td>Whatever it is</td></tr>
+      <tr><td><b>One sample</b> (data)</td><td>One individual in the sample</td><td>x̄</td><td>s</td><td>Roughly resembles the population</td></tr>
+      <tr><td><b>Sampling distribution of x̄</b></td><td>The mean of one whole sample</td><td>μ<sub>x̄</sub> = μ</td><td>σ<sub>x̄</sub> = σ/√n</td><td>Normal if population is normal; approximately normal if n is large (CLT)</td></tr>
+      <tr><td><b>Sampling distribution of p̂</b></td><td>The proportion in one whole sample</td><td>μ<sub>p̂</sub> = p</td><td>σ<sub>p̂</sub> = √(p(1 − p)/n)</td><td>Approximately normal if np ≥ 10 and n(1 − p) ≥ 10</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+
+        <li>Name the distribution you are describing: "The sampling distribution of x̄ for samples of size 40 …"</li>
+        <li>Give all three features: center (μ<sub>x̄</sub> = 52), spread (σ<sub>x̄</sub> = 12/√40 = 1.90), and shape with a reason ("approximately normal by the CLT since n = 40 ≥ 30").</li>
+        <li>State the 10% condition when you use σ/√n for sampling without replacement: "40 is less than 10% of all students."</li>
+        <li>For a probability about x̄, standardize with σ<sub>x̄</sub>, not σ: z = (x̄ − μ)/(σ/√n).</li>
+        <li>Explain what a larger sample changes: less variability, same center, and a shape closer to normal.</li>
+
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+
+        <li>Saying the <i>sample</i> becomes normal as n grows. The CLT is about the distribution of sample <i>means</i>; a single big sample looks like the population.</li>
+        <li>Using σ instead of σ/√n when finding a probability for a sample mean.</li>
+        <li>Thinking a larger sample removes bias. Size reduces variability; only good random sampling removes bias.</li>
+        <li>Using the CLT with a small sample from a strongly skewed population.</li>
+        <li>Confusing "number of samples drawn" with "sample size n." Only n appears in σ/√n.</li>
+
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.12. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  var R = Lab.rng(2026);
+  function make(kind) {
+    var g = Lab.rng(11), a = [], i, v;
+    for (i = 0; i < 6000; i++) {
+      if (kind === "normal") v = g.normal(50, 12);
+      else if (kind === "right") v = 5 + (-Math.log(1 - g()) * 14);
+      else if (kind === "left") v = 100 - (-Math.log(1 - g()) * 12);
+      else if (kind === "uniform") v = g() * 100;
+      else if (kind === "bimodal") v = g() < 0.5 ? g.normal(28, 7) : g.normal(72, 7);
+      else v = g() < 0.3 ? 1 : 0;
+      if (kind !== "binary") v = Math.max(0, Math.min(100, v));
+      a.push(Math.round(v * 10) / 10);
+    }
+    return a;
+  }
+  var POPS = [
+    { id: "right", name: "Strongly right-skewed (wait times)", unit: "minutes", label: "Wait time (minutes)" },
+    { id: "left", name: "Left-skewed (easy test scores)", unit: "points", label: "Score (points)" },
+    { id: "uniform", name: "Uniform", unit: "", label: "Value" },
+    { id: "bimodal", name: "Bimodal", unit: "", label: "Value" },
+    { id: "normal", name: "Normal", unit: "", label: "Value" },
+    { id: "binary", name: "Yes/No, 30% yes", unit: "", label: "Response (1 = yes, 0 = no)" }
+  ];
+  var S = { pop: POPS[0], data: null, n: 5, means: [], last: null };
+  function popParams() { return { mu: Lab.mean(S.data), sd: Lab.sd(S.data, true) }; }
+  function setPop(p) {
+    S.pop = p; S.data = make(p.id); S.means = []; S.last = null;
+    var P = popParams(); $("cut").min = 0; $("cut").max = p.id === "binary" ? 1 : 100; $("cut").step = p.id === "binary" ? 0.01 : 0.5;
+    S.cut = p.id === "binary" ? 0.4 : Math.round((P.mu + 5) * 2) / 2;
+    Array.prototype.forEach.call($("pops").children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-id") === p.id)); });
+    render();
+  }
+  function draw(k) {
+    for (var j = 0; j < k; j++) {
+      var s = 0, smp = []; for (var i = 0; i < S.n; i++) { var v = S.data[Math.floor(R() * S.data.length)]; s += v; smp.push(v); }
+      S.means.push(s / S.n); S.last = smp;
+    }
+    if (S.means.length > 20000) S.means = S.means.slice(-20000);
+    render();
+  }
+  var bin = S.pop.id === "binary";
+  function bars(svg, vals, lo, hi, w, label, color, ymaxDensity, overlay, mark) {
+    var nb = Math.round((hi - lo) / w), cnt = new Array(nb).fill(0);
+    vals.forEach(function (v) { var i = Math.min(nb - 1, Math.max(0, Math.floor((v - lo) / w))); cnt[i]++; });
+    var dens = cnt.map(function (c) { return vals.length ? c / vals.length / w : 0; });
+    var top = Math.max(ymaxDensity || 0, Math.max.apply(null, dens.concat([1e-9])));
+    var F = Lab.frame(svg, { x: [lo, hi], y: [0, top * 1.12], xLabel: label, yLabel: "Density", xTicks: Lab.niceTicks(lo, hi, 5).filter(function (t) { return t >= lo - 1e-9 && t <= hi + 1e-9; }), yTicks: [], fmtX: function (v) { return N(v, 2); }, height: 280 });
+    cnt.forEach(function (c, i) { if (c) Lab.rect(F, lo + i * w, 0, lo + (i + 1) * w, dens[i], color, .8); });
+    if (overlay) Lab.fn(F, overlay, "var(--c1)", 2.5, null, 160);
+    if (mark != null) { Lab.vline(F, mark, "var(--ink)", 1.5, "4 3"); }
+    return F;
+  }
+  function render() {
+    bin = S.pop.id === "binary";
+    var P = popParams(), n = S.n, se = P.sd / Math.sqrt(n), k = S.means.length;
+    $("n").value = n; $("n-o").textContent = n;
+    var sym = bin ? "p̂" : "x̄";
+    $("sdTitle").firstChild.textContent = "Sampling distribution of " + sym + " ";
+    $("popSub").textContent = bin ? "p = " + N(P.mu, 3) : "μ = " + N(P.mu, 2) + ", σ = " + N(P.sd, 2);
+    $("sdSub").textContent = k ? k.toLocaleString() + " samples of size " + n : "no samples yet";
+    // population graph
+    if (bin) {
+      var ones = S.data.filter(function (v) { return v === 1; }).length;
+      Lab.bars($("pop"), [["No (0)", S.data.length - ones], ["Yes (1)", ones]], { relative: true, yLabel: "Proportion", yMax: 1, height: 280 });
+    } else bars($("pop"), S.data, 0, 100, 4, S.pop.label, "var(--ghost)", 0, null, S.last ? Lab.mean(S.last) : null);
+    // sampling distribution
+    var mu = P.mu, w = bin ? 1 / n : Math.max(0.5, Math.min(4, se / 3));
+    var lo = bin ? 0 : 0, hi = bin ? 1 : 100;
+    if (bin) { lo = -w / 2; hi = 1 + w / 2; }
+    var normal = function (x) { return Lab.normPdf(x, mu, se); };
+    var ymax = Math.min(normal(mu) * 1.05, 1e9);
+    bars($("sd"), S.means, lo, hi, w, "Sample " + (bin ? "proportion p̂" : "mean x̄"), "var(--accent)", $("overlay").checked ? ymax : 0, $("overlay").checked ? normal : null, k ? S.means[k - 1] : null);
+    $("lastSample").textContent = S.last ? "Last sample (n = " + n + "): " + (S.last.length <= 20 ? S.last.map(function (v) { return N(v, 1); }).join(", ") : S.last.slice(0, 20).map(function (v) { return N(v, 1); }).join(", ") + ", …") + " → " + sym + " = " + N(Lab.mean(S.last), 3) + (bin ? "" : " (dashed line)") : "Draw a sample to see it here.";
+    // readouts
+    $("k-mean").textContent = "Mean of the " + sym + " values"; $("k-sd").textContent = "SD of the " + sym + " values";
+    $("k-th").textContent = bin ? "Predicted √(p(1 − p)/n)" : "Predicted σ ÷ √n";
+    $("r-k").textContent = k.toLocaleString();
+    $("r-m").textContent = k ? N(Lab.mean(S.means), 3) : "–";
+    $("r-s").textContent = k > 1 ? N(Lab.sd(S.means, true), 3) : "–";
+    $("r-th").textContent = N(se, 3);
+    // predictions
+    var c = "";
+    if (bin) {
+      c += '<div class="row"><span>Center: μ<sub>p̂</sub> = p</span><span>= ' + N(mu, 3) + "</span></div>";
+      c += '<div class="row"><span>Spread: σ<sub>p̂</sub> = √(' + N(mu, 3) + "(" + N(1 - mu, 3) + ") ÷ " + n + ")</span><span>= " + N(se, 4) + "</span></div>";
+      c += '<div class="row"><span>Shape check: np = ' + N(n * mu, 1) + ", n(1 − p) = " + N(n * (1 - mu), 1) + "</span><span>" + (n * mu >= 10 && n * (1 - mu) >= 10 ? "both ≥ 10 → approx. normal" : "not both ≥ 10 → not normal yet") + "</span></div>";
+    } else {
+      c += '<div class="row"><span>Center: μ<sub>x̄</sub> = μ</span><span>= ' + N(mu, 2) + "</span></div>";
+      c += '<div class="row"><span>Spread: σ<sub>x̄</sub> = ' + N(P.sd, 2) + " ÷ √" + n + "</span><span>= " + N(se, 3) + "</span></div>";
+      c += '<div class="row"><span>Shape</span><span>' + (S.pop.id === "normal" ? "normal (population is normal)" : n >= 30 ? "approx. normal (CLT, n ≥ 30)" : "may still show the population's shape") + "</span></div>";
+    }
+    c += '<div class="row"><span>10% condition</span><span>n = ' + n + " ≤ 10% of " + S.data.length.toLocaleString() + "</span></div>";
+    $("calcP").innerHTML = c;
+    // use it
+    $("cut").value = S.cut; $("cut-o").textContent = N(S.cut, 2);
+    var z = (S.cut - mu) / se, pt = Lab.normCdf(S.cut, Infinity, mu, se), sim = k ? S.means.filter(function (v) { return v > S.cut; }).length / k : NaN;
+    $("calcU").innerHTML = '<div class="row"><span>z = (' + N(S.cut, 2) + " − " + N(mu, 2) + ") ÷ " + N(se, 3) + "</span><span>= " + N(z, 2) + "</span></div>" +
+      '<div class="row"><span>Normal model: normalcdf(' + N(S.cut, 2) + ", 1E99, " + N(mu, 2) + ", " + N(se, 3) + ")</span><span>= " + N(pt, 4) + "</span></div>" +
+      '<div class="row"><span>Simulation: share of your ' + k.toLocaleString() + " " + sym + " values above " + N(S.cut, 2) + "</span><span>" + (k ? "= " + N(sim, 4) : "draw samples") + "</span></div>" +
+      '<div class="row"><span>' + (k >= 500 && Math.abs(sim - pt) > 0.03 ? "The normal model and the simulation disagree: the sampling distribution is not normal enough at this n." : "When the shape is close to normal, these two numbers agree.") + "</span><span></span></div>";
+    story(P, se, k);
+  }
+  function skew(a) { var m = Lab.mean(a), s = Lab.sd(a, true); if (!(s > 0)) return 0; var t = 0; a.forEach(function (v) { t += Math.pow((v - m) / s, 3); }); return t / a.length; }
+  function story(P, se, k) {
+    var sym = bin ? "p̂" : "x̄", t = [], head;
+    if (!k) { $("story").innerHTML = "<p><b>Draw some samples.</b> Start with 1,000 samples of size " + S.n + ", then change n and draw again. Watch the center, the spread, and the shape.</p>"; return; }
+    var sk = k > 100 ? skew(S.means) : 0, shape = Math.abs(sk) < 0.25 ? "approximately normal" : sk > 0 ? "skewed right" : "skewed left";
+    head = "<b>With n = " + S.n + ", the " + sym + " values are " + shape + ".</b>";
+    t.push("Center: the " + sym + " values average " + N(Lab.mean(S.means), 3) + ", right next to the population " + (bin ? "proportion p = " : "mean μ = ") + N(P.mu, 3) + ". The statistic is unbiased.");
+    if (k > 1) t.push("Spread: their SD is " + N(Lab.sd(S.means, true), 3) + ", close to the predicted " + N(se, 3) + ". " + (S.n > 1 ? "That is much smaller than the population SD of " + N(P.sd, 2) + ", because averaging cancels out extreme values." : "With n = 1 the sample mean is just one individual, so it varies as much as the population."));
+    if (S.pop.id === "normal") t.push("The population is normal, so the sampling distribution is normal for every n.");
+    else if (bin) t.push(S.n * P.mu >= 10 && S.n * (1 - P.mu) >= 10 ? "np and n(1 − p) are both at least 10, so the normal model works." : "np = " + N(S.n * P.mu, 1) + " is under 10, so the distribution of p̂ is still lumpy and skewed. Increase n.");
+    else if (S.n < 30 && shape !== "approximately normal") t.push("The population's skew still shows. Increase n toward 30 or more and the central limit theorem takes over.");
+    else if (S.n >= 30) t.push("This is the central limit theorem: even though the population is " + S.pop.name.split(" (")[0].toLowerCase() + ", the means are approximately normal because n is large.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  POPS.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.setAttribute("data-id", p.id); b.setAttribute("aria-pressed", "false"); b.className = "chip"; b.addEventListener("click", function () { setPop(p); }); $("pops").appendChild(b); });
+  $("n").addEventListener("input", function (e) { S.n = +e.target.value; S.means = []; S.last = null; render(); });
+  $("d1").addEventListener("click", function () { draw(1); });
+  $("d100").addEventListener("click", function () { draw(100); });
+  $("d1000").addEventListener("click", function () { draw(1000); });
+  $("clr").addEventListener("click", function () { S.means = []; S.last = null; render(); });
+  $("overlay").addEventListener("change", render);
+  $("cut").addEventListener("input", function (e) { S.cut = +e.target.value; render(); });
+  setPop(POPS[0]);
+
+  var Q = [
+    { s: "The weights of apples in an orchard are strongly right-skewed with mean 150 g and SD 40 g. For random samples of 64 apples, what are the mean and SD of the sampling distribution of x̄?", o: ["Mean 150 g, SD 40 g", "Mean 150 g, SD 5 g", "Mean 150 g, SD 0.625 g", "Mean 18.75 g, SD 5 g"], c: 1, w: "μx̄ = μ = 150 g and σx̄ = σ/√n = 40/√64 = 40/8 = 5 g." },
+    { s: "For the apples in the previous question, what is the shape of the sampling distribution of x̄ for n = 64?", o: ["Strongly right-skewed, like the population", "Approximately normal, by the central limit theorem", "Exactly normal", "Uniform"], c: 1, w: "The sample size 64 is large (at least 30), so the CLT says the sampling distribution of x̄ is approximately normal even though the population is skewed." },
+    { s: "As the sample size increases, which feature of the sampling distribution of x̄ changes?", o: ["Its center moves toward 0", "Its standard deviation decreases", "Its standard deviation increases", "Its center moves away from μ"], c: 1, w: "σx̄ = σ/√n gets smaller as n grows. The center stays at μ for every sample size." },
+    { s: "To cut the standard deviation of x̄ in half, the sample size must be:", o: ["Doubled", "Halved", "Multiplied by 4", "Increased by 2"], c: 2, w: "σ/√(4n) = σ/(2√n), which is half of σ/√n. Because of the square root, you need 4 times as many observations." },
+    { s: "A large population is approximately normal with μ = 80 and σ = 6. What is P(x̄ > 82) for a random sample of size 9?", o: ["0.3694", "0.1587", "0.0228", "0.8413"], c: 1, w: "σx̄ = 6/√9 = 2. z = (82 − 80)/2 = 1, and P(Z > 1) ≈ 0.1587. Choice A uses σ = 6 instead of σx̄." },
+    { s: "Which statement about the central limit theorem is correct?", o: ["A large sample's data will be approximately normal.", "The sampling distribution of x̄ is approximately normal for large n, regardless of the population's shape.", "The population becomes normal when n is large.", "It only applies when the population is normal."], c: 1, w: "The CLT is about the distribution of sample means. The data in one sample still look like the population, and the population does not change." },
+    { s: "In a city, 20% of adults bike to work. For random samples of 100 adults, what is the standard deviation of p̂?", o: ["0.16", "0.04", "0.0016", "0.4"], c: 1, w: "σp̂ = √(0.2 × 0.8 / 100) = √0.0016 = 0.04. Choice C is the variance." },
+    { s: "A statistic is called unbiased when:", o: ["Its sampling distribution is centered at the parameter it estimates", "It always equals the parameter", "Its sampling distribution is normal", "It has the smallest possible spread"], c: 0, w: "Unbiased means the mean of the sampling distribution equals the parameter. Individual values still vary around it." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.12");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.12", compact: true, storageKey: "topic-2.12" });</script>
+</body>
+</html>

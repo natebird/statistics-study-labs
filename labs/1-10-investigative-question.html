@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigative Questions and Data Collection Study Lab</title>
+<meta name="description" content="Tell statistical questions from non-statistical ones, classify studies as census, sample survey, observational study, or experiment, and see how a confounding variable fakes a cause.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.sub { display: grid; gap: 6px; margin-top: 8px; }
+.sub h3 { font-size: 1.2rem; }
+.sub p { color: var(--muted); max-width: 70ch; }
+.items { display: grid; gap: 14px; }
+.item { display: grid; gap: 8px; border-bottom: 1px dashed var(--rule); padding-bottom: 12px; }
+.item:last-child { border-bottom: 0; padding-bottom: 0; }
+.item .txt { font-weight: 500; }
+.item .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.opt-row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.opt-row label { display: inline-flex; gap: 6px; align-items: center; font-size: .88rem; }
+.ct { min-width: 0; }
+.ct th, .ct td { padding: 6px 10px; font-size: .88rem; text-align: right; }
+.ct td { font-family: var(--mono); }
+.ct th:first-child, .ct td:first-child { text-align: left; font-family: var(--body); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.10</span>
+  <h1>Investigative Questions and Data Collection Study Lab</h1>
+  <p class="lede">Every statistical study starts with an investigative question about a population, and the question decides how the data should be collected. A survey of a sample describes a population; only an experiment, where the researcher assigns treatments, can show cause and effect. Sort the questions and studies below, then watch a hidden variable fake a cause.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Questions, studies, and causation</h2>
+    <p>Three hands-on parts. Your score updates as you go.</p>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Questions sorted</div><div class="v" id="r-q">0 / 0</div></div>
+    <div class="stat"><div class="k">Studies classified</div><div class="v" id="r-s">0 / 0</div></div>
+    <div class="stat"><div class="k">Coffee drinkers with heart problems</div><div class="v" id="r-c"></div></div>
+    <div class="stat"><div class="k">Non-drinkers with heart problems</div><div class="v" id="r-n"></div></div>
+  </div>
+
+  <div class="sub">
+    <h3>Part A: Is it a statistical investigative question?</h3>
+    <p>A statistical investigative question asks about a population and expects the answer to depend on data that <b>vary</b>. A question with one fixed answer, or about one individual, is not statistical.</p>
+  </div>
+  <div class="card items" id="qItems"></div>
+
+  <div class="sub">
+    <h3>Part B: What kind of study is it?</h3>
+    <p>Census: data from every member of the population. Sample survey: data from a sample to describe a population. Observational study: researchers observe and measure without assigning treatments. Experiment: researchers <b>impose treatments</b> and observe the response.</p>
+  </div>
+  <div class="card items" id="sItems"></div>
+
+  <div class="sub">
+    <h3>Part C: Does coffee cause heart problems?</h3>
+    <p>This simulated observational study follows 400 adults. In this world, <b>coffee has no effect</b> on heart problems unless you add one with the slider. Smoking does raise the risk, and smokers are also more likely to drink coffee.</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="opt-row">
+        <span class="tag">How coffee is decided</span>
+        <div class="seg" id="modeSeg" role="group" aria-label="Study type"></div>
+      </div>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl">
+          <label for="link">Smokers are more likely to drink coffee <output id="link-o"></output></label>
+          <input type="range" id="link" min="0" max="0.45" step="0.05" value="0.35">
+          <span class="hint">Only matters in the observational study, where people choose for themselves.</span>
+        </div>
+        <div class="ctl">
+          <label for="eff">True effect of coffee on risk <output id="eff-o"></output></label>
+          <input type="range" id="eff" min="0" max="0.15" step="0.01" value="0">
+          <span class="hint">Percentage points added to the chance of heart problems for coffee drinkers.</span>
+        </div>
+      </div>
+      <div class="opt-row">
+        <label><input type="checkbox" id="split"> Split the results by smoking</label>
+        <button type="button" id="resample">New group of 400</button>
+      </div>
+      <div class="tbl-wrap"><table class="ct" id="ct"></table></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Percent with heart problems <small id="bar-sub"></small></h3>
+      <svg class="chart" id="bars" role="img" aria-label="Bar chart of the percent with heart problems by coffee group"></svg>
+    </div>
+  </div>
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Question</span><h3>Start with a question</h3><p>A good investigative question names the population and the variable and anticipates variability: "How many hours do students at our school typically sleep on school nights?"</p></div>
+    <div class="card"><span class="tag">Population vs. sample</span><h3>Who do we want to know about?</h3><p>The population is the entire group the question is about. A sample is the part of the population we actually collect data from. A census collects data from everyone.</p></div>
+    <div class="card"><span class="tag">Parameter vs. statistic</span><h3>Numbers that describe</h3><p>A parameter describes a population (usually unknown). A statistic describes a sample and is used to estimate the parameter. Memory trick: <b>p</b>opulation–<b>p</b>arameter, <b>s</b>ample–<b>s</b>tatistic.</p></div>
+    <div class="card"><span class="tag">Observe vs. impose</span><h3>Observational study or experiment?</h3><p>If the researcher assigns the treatment, it is an experiment. If subjects choose or already have the condition, it is observational, even when it uses fancy equipment or a lab.</p></div>
+    <div class="card"><span class="tag">Confounding</span><h3>Hidden variables</h3><p>A confounding variable is related to the explanatory variable and also affects the response, so their effects cannot be separated. Smoking confounds coffee and heart problems in Part C.</p></div>
+    <div class="card"><span class="tag">Causation</span><h3>Only experiments show cause</h3><p>An observational study can show an association, but not that one variable causes the other. A well-designed experiment with random assignment can.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Matching the method to the question</h2>
+    <p>The question you ask decides how you should collect data.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Investigative question</th><th>Method</th><th>What you can conclude</th></tr></thead>
+    <tbody>
+      <tr><td>What proportion of all 1,200 students at our school have a part-time job?</td><td><b>Sample survey</b> (random sample), or a census if feasible</td><td>An estimate of the proportion for all students at the school</td></tr>
+      <tr><td>Does a new study app improve vocabulary quiz scores?</td><td><b>Experiment</b>: randomly assign students to use the app or not</td><td>Whether the app <i>causes</i> higher scores, for subjects like these</td></tr>
+      <tr><td>Do students who play varsity sports have higher GPAs?</td><td><b>Observational study</b> (you cannot assign sports)</td><td>Association only; motivation or time management could confound</td></tr>
+      <tr><td>What is the average age of the 28 people on our soccer team?</td><td><b>Census</b> of the team</td><td>The exact parameter; no estimate needed</td></tr>
+      <tr><td>Is it 72°F outside right now?</td><td>Not a statistical question</td><td>One fixed answer; no variability to study</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>To call a study an experiment, point to the action: "The researchers <i>assigned</i> the treatments." To call it observational: "Subjects chose their own treatment; no treatment was imposed."</li>
+        <li>Name the population precisely: "all adults in the city," not "people."</li>
+        <li>When explaining confounding, give a specific variable and describe both links: how it relates to the explanatory variable <i>and</i> how it affects the response.</li>
+        <li>When asked whether a conclusion of cause is justified, base your answer on the design: random assignment allows cause-and-effect conclusions; no random assignment does not.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Calling any study with a comparison group an experiment. If the groups were not assigned, it is observational.</li>
+        <li>Naming a confounding variable that affects only the response. It must also be linked to the explanatory variable.</li>
+        <li>Saying "correlation means causation" in disguise: "Coffee drinkers had more heart problems, so coffee is harmful."</li>
+        <li>Mixing up parameter and statistic: the sample mean x̄ is a statistic; the population mean μ is a parameter.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.10. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  // ---------- generic sorter: items with a correct choice, buttons, feedback ----------
+  function sorter(el, items, choices, scoreEl) {
+    var done = 0, right = 0;
+    scoreEl.textContent = "0 / " + items.length;
+    items.forEach(function (it) {
+      var d = document.createElement("div"); d.className = "item";
+      d.innerHTML = '<div class="txt"></div><div class="btns"></div><div class="why" hidden></div>';
+      d.querySelector(".txt").textContent = it.t;
+      choices.forEach(function (c, j) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = c;
+        b.addEventListener("click", function () {
+          var bs = d.querySelectorAll("button"); bs.forEach(function (z) { z.disabled = true; });
+          bs[it.c].classList.add("right"); if (j !== it.c) b.classList.add("wrong"); else right++;
+          done++; scoreEl.textContent = right + " / " + items.length + (done === items.length ? " ✓" : "");
+          var w = d.querySelector(".why"); w.hidden = false;
+          w.innerHTML = (j === it.c ? "<b style='color:var(--good)'>Correct.</b> " : "<b style='color:var(--bad)'>Not quite.</b> It is <b>" + choices[it.c].toLowerCase() + "</b>. ") + it.w;
+        });
+        d.querySelector(".btns").appendChild(b);
+      });
+      el.appendChild(d);
+    });
+  }
+
+  sorter($("qItems"), [
+    { t: "How many hours of sleep do students at our school typically get on a school night?", c: 0, w: "It names a population (students at our school) and the answer varies from student to student." },
+    { t: "How many hours did I sleep last night?", c: 1, w: "It is about one individual and has a single answer. There is no variability to study." },
+    { t: "What is the boiling point of water at sea level?", c: 1, w: "It has one fixed, known answer." },
+    { t: "Do teens in our city who own a pet tend to report lower stress than teens who do not?", c: 0, w: "It compares two groups in a population, and stress varies from teen to teen." },
+    { t: "How many students are enrolled in AP Statistics this year?", c: 1, w: "It has one exact count you can look up. Nothing varies." },
+    { t: "What proportion of customers at this coffee shop order a drink with oat milk?", c: 0, w: "Customers differ in what they order, so the answer comes from data that vary." }
+  ], ["Statistical", "Not statistical"], $("r-q"));
+
+  sorter($("sItems"), [
+    { t: "A school counts every student's absences from the attendance system to find the average for the year.", c: 0, w: "Data come from every member of the population (all students at the school)." },
+    { t: "A pollster calls 1,000 randomly chosen voters in a state and asks which candidate they support.", c: 1, w: "A sample is used to describe the population of voters. No treatment is imposed." },
+    { t: "Researchers record the screen time and sleep of 500 teens for a month to see whether they are related.", c: 2, w: "Researchers observe without assigning screen time." },
+    { t: "Sixty volunteers are randomly assigned to take either a new allergy pill or a placebo, and symptoms are compared.", c: 3, w: "The researchers impose the treatments (pill or placebo)." },
+    { t: "A doctor compares heart health of patients who chose to run marathons with patients who did not.", c: 2, w: "Patients chose whether to run. Comparing groups does not make a study an experiment." },
+    { t: "A farmer applies two fertilizers to randomly chosen plots and measures the corn yield of each plot.", c: 3, w: "The farmer assigns the fertilizers to plots." },
+    { t: "A website asks every visitor to rate the site, and 2% respond.", c: 1, w: "Data come from part of the population (the visitors who answered), not all of them. It is a badly biased survey, but still a sample survey." },
+    { t: "A researcher measures the lead levels in the water of every home on one street to describe that street.", c: 0, w: "If the population is the homes on that street, measuring all of them is a census." }
+  ], ["Census", "Sample survey", "Observational study", "Experiment"], $("r-s"));
+
+  // ---------- confounding simulation ----------
+  var C = { exp: false, link: 0.35, eff: 0, split: false, seed: 7 };
+  function seg() {
+    var s = $("modeSeg"); s.innerHTML = "";
+    [[false, "People choose (observational)"], [true, "Randomly assigned (experiment)"]].forEach(function (x) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = x[1];
+      b.setAttribute("aria-pressed", String(C.exp === x[0]));
+      b.addEventListener("click", function () { C.exp = x[0]; seg(); sim(); });
+      s.appendChild(b);
+    });
+  }
+  function sim() {
+    $("link-o").textContent = "+" + Math.round(C.link * 100) + " pts"; $("eff-o").textContent = C.eff ? "+" + Math.round(C.eff * 100) + " pts" : "none";
+    var r = Lab.rng(C.seed), people = [];
+    for (var i = 0; i < 400; i++) {
+      var smoker = r() < 0.3;
+      var coffee = C.exp ? r() < 0.5 : r() < (smoker ? 0.5 + C.link : 0.5 - C.link * 0.43);
+      var p = (smoker ? 0.3 : 0.08) + (coffee ? C.eff : 0);
+      people.push({ s: smoker, c: coffee, h: r() < p });
+    }
+    function rate(f) { var g = people.filter(f), h = g.filter(function (x) { return x.h; }).length; return { n: g.length, h: h, p: g.length ? h / g.length : 0 }; }
+    var all = { c: rate(function (x) { return x.c; }), n: rate(function (x) { return !x.c; }) };
+    var sm = { c: rate(function (x) { return x.s && x.c; }), n: rate(function (x) { return x.s && !x.c; }) };
+    var ns = { c: rate(function (x) { return !x.s && x.c; }), n: rate(function (x) { return !x.s && !x.c; }) };
+    var smC = rate(function (x) { return x.c && x.s; }).n / Math.max(1, all.c.n), smN = rate(function (x) { return !x.c && x.s; }).n / Math.max(1, all.n.n);
+    $("r-c").textContent = Lab.pct(all.c.p); $("r-n").textContent = Lab.pct(all.n.p);
+
+    var rows = C.split ? [["Smoker, coffee", sm.c.p * 100], ["Smoker, none", sm.n.p * 100], ["Nonsmoker, coffee", ns.c.p * 100], ["Nonsmoker, none", ns.n.p * 100]] : [["Coffee drinkers", all.c.p * 100], ["Non-drinkers", all.n.p * 100]];
+    Lab.bars($("bars"), rows, { yLabel: "% with heart problems", yMax: 50, colors: C.split ? ["var(--c1)", "var(--ghost)", "var(--accent)", "var(--ghost)"] : ["var(--accent)", "var(--ghost)"] });
+    $("bar-sub").textContent = C.exp ? "randomized experiment" : "observational study";
+
+    var t = "<thead><tr><th>Group</th><th>n</th><th>Heart problems</th><th>Percent</th><th>Smokers in group</th></tr></thead><tbody>";
+    [["Coffee drinkers", all.c, smC], ["Non-drinkers", all.n, smN]].forEach(function (g) { t += "<tr><td>" + g[0] + "</td><td>" + g[1].n + "</td><td>" + g[1].h + "</td><td>" + Lab.pct(g[1].p) + "</td><td>" + Lab.pct(g[2], 0) + "</td></tr>"; });
+    $("ct").innerHTML = t + "</tbody>";
+
+    var gap = (all.c.p - all.n.p) * 100, inSm = (sm.c.p - sm.n.p) * 100, inNs = (ns.c.p - ns.n.p) * 100, head, li = [];
+    if (!C.exp && C.link >= 0.15 && C.eff === 0) head = "<b>An association with no cause.</b> Coffee drinkers have a heart-problem rate " + N(gap, 1) + " points " + (gap >= 0 ? "higher" : "lower") + " than non-drinkers, even though coffee has no effect in this world.";
+    else if (C.exp) head = "<b>Random assignment breaks the link.</b> Coffee was assigned by chance, so smokers ended up spread across both groups (" + Lab.pct(smC, 0) + " vs. " + Lab.pct(smN, 0) + " smokers). Any remaining difference (" + N(gap, 1) + " points) reflects coffee's true effect" + (C.eff ? " (+" + Math.round(C.eff * 100) + " points)" : " (none)") + " plus chance variation.";
+    else head = "<b>Difference: " + N(gap, 1) + " percentage points.</b> In an observational study you cannot tell how much of this is caused by coffee and how much by smoking.";
+    if (!C.exp) li.push("Smoking is a <b>confounding variable</b>: " + Lab.pct(smC, 0) + " of coffee drinkers smoke, compared with " + Lab.pct(smN, 0) + " of non-drinkers, and smoking raises heart risk.");
+    li.push(C.split ? "Within smokers the coffee gap is " + N(inSm, 1) + " points; within nonsmokers it is " + N(inNs, 1) + " points. Comparing people with the same smoking status removes most of the fake effect." : "Check “Split the results by smoking” to compare people with the same smoking status.");
+    li.push("Switch to “Randomly assigned” to see what an experiment does. Then press “New group of 400” a few times: small differences come and go by chance.");
+    li.push("AP answer: \"Because this is an observational study, we cannot conclude that coffee causes heart problems. Smoking is a possible confounding variable.\"");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + li.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  $("link").addEventListener("input", function (e) { C.link = +e.target.value; sim(); });
+  $("eff").addEventListener("input", function (e) { C.eff = +e.target.value; sim(); });
+  $("split").addEventListener("change", function (e) { C.split = e.target.checked; sim(); });
+  $("resample").addEventListener("click", function () { C.seed = Math.floor(Math.random() * 1e9); sim(); });
+  seg(); sim();
+
+  var Q = [
+    { s: "Which of these is a statistical investigative question?", o: ["How tall is the school's flagpole?", "How tall am I?", "How much do the heights of students at this school vary?", "What is the height limit for the school bus?"], c: 2, w: "Only C is about a population whose values vary. The others have one fixed answer." },
+    { s: "A study finds that students who eat breakfast have higher test scores. Researchers recorded what students chose to eat. This study is:", o: ["An experiment, because two groups are compared", "An observational study, because no treatment was imposed", "A census, because all students were measured", "An experiment, because test scores were measured"], c: 1, w: "Students chose whether to eat breakfast. Without assignment of treatments it is observational." },
+    { s: "In the breakfast study, which is the best example of a possible confounding variable?", o: ["The test's difficulty", "The number of students in the study", "Family income, which may affect both breakfast habits and access to tutoring and study time", "The day of the week the test was given"], c: 2, w: "A confounder must be linked to both breakfast (explanatory) and scores (response). Family income plausibly affects both." },
+    { s: "A newspaper reports that 62% of a random sample of 800 registered voters favor a new park. The number 62% is a:", o: ["Parameter", "Statistic", "Population", "Census"], c: 1, w: "It describes the sample, so it is a statistic. It estimates the parameter: the proportion of all registered voters who favor the park." },
+    { s: "A researcher wants to know whether a new reading program causes improved reading scores. Which design allows a cause-and-effect conclusion?", o: ["Compare scores of students whose schools chose the program with those that did not", "Randomly assign students to the new program or the current program and compare scores", "Survey teachers about whether they like the program", "Measure every student's score once after the program"], c: 1, w: "Only random assignment of treatments creates groups that are similar except for the treatment, allowing causal conclusions." },
+    { s: "The population in a study is:", o: ["The individuals actually measured", "The entire group the researchers want to learn about", "Any group of 30 or more people", "The people who volunteered"], c: 1, w: "The population is the whole group of interest. The individuals measured are the sample." },
+    { s: "Which situation is a census?", o: ["Asking 50 random students at a school of 1,500 about lunch", "Measuring the weight of every one of the 24 puppies at a shelter to describe those puppies", "Testing a new drug on 200 volunteers", "Recording the speeds of every 10th car on a highway"], c: 1, w: "Data are collected from every member of the population of interest (all 24 puppies)." },
+    { s: "An observational study finds a strong association between owning a dog and lower blood pressure. Which conclusion is appropriate?", o: ["Owning a dog lowers blood pressure.", "Dog ownership is associated with lower blood pressure, but we cannot conclude it causes it.", "Low blood pressure causes people to buy dogs.", "There is no relationship, because the study was observational."], c: 1, w: "Observational studies can show associations. Without random assignment, other variables (such as physical activity) may explain the link." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.10");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.10", compact: true, storageKey: "topic-1.10" });</script>
+</body>
+</html>

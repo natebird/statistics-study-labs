@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variables Study Lab</title>
+<meta name="description" content="Classify variables as categorical or quantitative (discrete or continuous) and see which summaries and graphs fit each type.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.ds { min-width: 0; }
+.ds th, .ds td { padding: 6px 8px; font-size: .84rem; }
+.ds th { cursor: pointer; text-transform: none; letter-spacing: 0; font-size: .78rem; }
+.ds th button { all: unset; cursor: pointer; font-weight: 600; color: var(--muted); }
+.ds th.sel, .ds td.sel { background: var(--accent-soft); color: var(--accent); }
+.ds th.sel button { color: var(--accent); }
+.ds th button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.2</span>
+  <h1>Variables Study Lab</h1>
+  <p class="lede">Data sets list individuals (rows) and the variables measured on them (columns). A categorical variable puts individuals into groups; a quantitative variable takes numerical values where arithmetic makes sense. Explore a class survey, then test yourself with the sorting game.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Classify the variable, then pick the graph</h2>
+    <p>A variable is a characteristic that changes from one individual to another. Its type decides which summaries and graphs make sense.</p>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>Class survey data <small style="font-family:var(--body);font-weight:400;font-size:.82rem;color:var(--muted)">click a column</small></h3>
+      <div class="tbl-wrap"><table id="ds" class="ds"></table></div>
+      <p class="note">Each row is one <b>individual</b> (a student). Each column is one <b>variable</b>.</p>
+    </div>
+    <div class="card graph-card">
+      <h3><span id="g-title"></span> <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Graph of the selected variable"></svg>
+    </div>
+  </div>
+
+  <div class="readout" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+    <div class="stat"><div class="k">Variable type</div><div class="v" id="r-type" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">Sensible summary</div><div class="v" id="r-sum" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">Good graphs</div><div class="v" id="r-graph" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="card" style="display:grid; gap:12px;">
+    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center;">
+      <h3>Sorting game: what kind of variable?</h3>
+      <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="vg-score"></span><button type="button" id="vg-new">New set</button></div>
+    </div>
+    <div id="vg" style="display:grid; gap:10px;"></div>
+  </div>
+  <div class="story" id="vg-story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Data</span><h3>Individuals and variables</h3><p>Individuals are the people, animals, or objects described by a data set. A variable is any characteristic that can differ from one individual to the next.</p></div>
+    <div class="card"><span class="tag">Type 1</span><h3>Categorical variables</h3><p>Values are labels or groups, such as eye color or yes/no. Summarize them with counts and proportions. Some categorical variables use numbers as labels, like zip codes or jersey numbers.</p></div>
+    <div class="card"><span class="tag">Type 2</span><h3>Quantitative variables</h3><p>Values are numerical amounts, such as height or the number of siblings, where means and differences make sense.</p></div>
+    <div class="card"><span class="tag">Counts</span><h3>Discrete</h3><p>A discrete quantitative variable takes a countable set of separate values, usually whole numbers from counting: pets, goals, siblings.</p></div>
+    <div class="card"><span class="tag">Measures</span><h3>Continuous</h3><p>A continuous quantitative variable can take any value in an interval: time, weight, temperature. Rounding the recorded value does not make it discrete in the AP sense.</p></div>
+    <div class="card"><span class="tag">Why it matters</span><h3>Type decides the tools</h3><p>Categorical data get bar charts, pie charts, and proportions. Quantitative data get dotplots, histograms, boxplots, means, and standard deviations.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Match each type of variable with its summaries and graphs.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Type</th><th>Examples</th><th>Summarize with</th><th>Graph with</th></tr></thead>
+    <tbody>
+      <tr><td><b>Categorical</b></td><td>Blood type, favorite subject, yes/no, zip code</td><td>Counts, proportions, percents</td><td>Bar chart, pie chart</td></tr>
+      <tr><td><b>Quantitative, discrete</b></td><td>Number of pets, goals in a game, siblings</td><td>Mean, median, SD, IQR, range</td><td>Dotplot, histogram, boxplot</td></tr>
+      <tr><td><b>Quantitative, continuous</b></td><td>Height, commute time, temperature</td><td>Mean, median, SD, IQR, range</td><td>Histogram, stemplot, dotplot, boxplot</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>When asked to identify a variable, name it in context and give its type: “Minutes of exercise per week is a quantitative variable.”</li>
+        <li>Justify the type: “It is categorical because each response places a student into a group.”</li>
+        <li>Choose graphs and summaries that match the type, and say why. A bar chart for a categorical variable; a histogram or boxplot for a quantitative one.</li>
+        <li>Identify the individuals explicitly when asked: they are the objects in each row, not the variables.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Calling a variable quantitative just because its values are numbers (zip codes, jersey numbers, area codes).</li>
+        <li>Making a histogram of a categorical variable. Use a bar chart, with gaps between the bars.</li>
+        <li>Calling time or weight discrete because they were rounded. Measurements are continuous.</li>
+        <li>Confusing the variable (“height”) with its values (“170 cm”) or with the individuals (“the students”).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.2. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function btn(parent, text, onclick, cls) { var b = document.createElement("button"); b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.addEventListener("click", onclick); parent.appendChild(b); return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  // ================= Data set explorer =================
+  var COLS = [
+    { k: "Grade", type: "cat", vals: ["10th", "11th", "11th", "12th", "10th", "11th", "12th", "11th", "10th", "11th", "12th", "11th"], note: "Grade level is categorical here because it names a group. You could count students in each grade but you would not average the labels." },
+    { k: "Zip code", type: "cat", vals: ["30114", "30115", "30114", "30188", "30114", "30115", "30114", "30188", "30115", "30114", "30114", "30115"], note: "<b>Trap:</b> zip codes are numbers, but they are labels. The “mean zip code” has no meaning, so zip code is categorical." },
+    { k: "Height (cm)", type: "cont", vals: [162.5, 170.2, 158.0, 181.3, 175.6, 166.1, 169.8, 159.4, 172.0, 177.9, 164.3, 168.7], note: "Height is measured, and between any two heights there is another possible height, so it is quantitative and continuous." },
+    { k: "Pets", type: "disc", vals: [0, 2, 1, 0, 3, 1, 1, 0, 2, 5, 1, 0], note: "Number of pets is counted. It takes whole-number values (0, 1, 2, …), so it is quantitative and discrete." },
+    { k: "Favorite subject", type: "cat", vals: ["Math", "English", "Science", "Math", "Art", "Science", "History", "Math", "Science", "Art", "English", "Math"], note: "Favorite subject places each student in a category, so it is categorical." },
+    { k: "Commute (min)", type: "cont", vals: [12, 25, 8, 31, 15, 22, 18, 40, 10, 27, 14, 19], note: "Commute time is a measured amount of time, so it is quantitative. Time is continuous even when it is recorded to the nearest minute." },
+    { k: "License?", type: "cat", vals: ["No", "Yes", "No", "Yes", "Yes", "No", "Yes", "Yes", "No", "Yes", "No", "Yes"], note: "A yes/no variable is categorical with two categories. Its summary is a proportion, such as the proportion of students with a license." }
+  ];
+  var TYPE = { cat: ["Categorical", "Counts, proportions, percents", "Bar chart, pie chart"], disc: ["Quantitative, discrete", "Mean, median, SD, IQR", "Dotplot, histogram, boxplot"], cont: ["Quantitative, continuous", "Mean, median, SD, IQR", "Histogram, dotplot, stemplot, boxplot"] };
+  var sel = 1;
+  function drawTable() {
+    var h = "<thead><tr>";
+    COLS.forEach(function (c, j) { h += '<th class="' + (j === sel ? "sel" : "") + '"><button type="button" data-j="' + j + '" aria-pressed="' + (j === sel) + '">' + esc(c.k) + "</button></th>"; });
+    h += "</tr></thead><tbody>";
+    for (var i = 0; i < 12; i++) { h += "<tr>"; COLS.forEach(function (c, j) { h += '<td class="' + (j === sel ? "sel" : "") + '">' + esc(c.vals[i]) + "</td>"; }); h += "</tr>"; }
+    $("ds").innerHTML = h + "</tbody>";
+    Array.prototype.forEach.call($("ds").querySelectorAll("th button"), function (b) { b.addEventListener("click", function () { sel = +b.getAttribute("data-j"); render(); }); });
+  }
+  function render() {
+    drawTable();
+    var c = COLS[sel], t = TYPE[c.type];
+    $("r-type").textContent = t[0]; $("r-sum").textContent = t[1]; $("r-graph").textContent = t[2];
+    $("g-title").textContent = c.k; $("g-sub").textContent = "n = 12 students";
+    var s;
+    if (c.type === "cat") {
+      var cnt = Lab.counts(c.vals).sort(function (a, b) { return b[1] - a[1]; });
+      Lab.bars($("g"), cnt, { xLabel: c.k, yLabel: "Number of students" });
+      var top = cnt[0];
+      s = "<p><b>" + esc(c.k) + " is categorical.</b> " + c.note + "</p><ul><li>Summarize it with counts or proportions: the most common category is <b>" + esc(top[0]) + "</b> with " + top[1] + " of 12 students (" + Lab.pct(top[1] / 12) + ").</li><li>Bar heights show counts. The categories have no natural order, so you can rearrange the bars, and gaps separate them.</li></ul>";
+    } else {
+      var sm = Lab.summary(c.vals), pad = Math.max(sm.range * .08, .5);
+      Lab.dotplot($("g"), c.vals, { lo: sm.min - pad, hi: sm.max + pad, xLabel: c.k, binWidth: c.type === "disc" ? 1 : undefined });
+      s = "<p><b>" + esc(c.k) + " is quantitative" + (c.type === "disc" ? " and discrete" : " and continuous") + ".</b> " + c.note + "</p><ul><li>Arithmetic makes sense: the mean is " + N(sm.mean) + " and the median is " + N(sm.med) + ".</li><li>A number line graph (like this dotplot) keeps the order and spacing of the values.</li></ul>";
+    }
+    $("story").innerHTML = s;
+  }
+  render();
+
+  // ================= Sorting game =================
+  var BANK = [
+    ["Eye color of a student", "cat"], ["Number of text messages sent today", "disc"], ["Time to run a mile", "cont"], ["Jersey number of a soccer player", "cat"],
+    ["Weight of a newborn puppy", "cont"], ["Number of siblings", "disc"], ["Whether a patient recovered (yes/no)", "cat"], ["Area code of a phone number", "cat"],
+    ["Daily high temperature", "cont"], ["Number of cars in a parking lot", "disc"], ["Brand of phone owned", "cat"], ["Amount of rain in a month (inches)", "cont"],
+    ["Number of goals scored in a game", "disc"], ["Blood type", "cat"], ["Length of a song", "cont"], ["Letter grade on a test (A–F)", "cat"]
+  ];
+  var R = Lab.rng(), G = [], done = 0, right = 0;
+  var LAB = { cat: "Categorical", disc: "Quantitative, discrete", cont: "Quantitative, continuous" };
+  var WHY = { cat: "It names a group or label. Averaging it would make no sense.", disc: "It is a count, so it takes separate whole-number values.", cont: "It is a measurement that can take any value in an interval." };
+  function newSet() { G = R.shuffle(BANK).slice(0, 6); done = 0; right = 0; drawG(); }
+  function drawG() {
+    var box = $("vg"); box.innerHTML = "";
+    G.forEach(function (q) {
+      var row = document.createElement("div"); row.className = "card"; row.style.cssText = "display:grid;gap:8px;padding:12px 14px;";
+      row.innerHTML = '<div style="font-weight:500">' + esc(q[0]) + '</div><div class="scenarios"></div><div class="why" hidden></div>';
+      var opts = row.querySelector(".scenarios"), why = row.querySelector(".why");
+      ["cat", "disc", "cont"].forEach(function (k) {
+        btn(opts, LAB[k], function () {
+          opts.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+          var ok = k === q[1]; this.classList.add(ok ? "right" : "wrong");
+          done++; if (ok) right++;
+          why.hidden = false; why.innerHTML = (ok ? "<b style='color:var(--good)'>Correct.</b> " : "<b style='color:var(--bad)'>Not quite.</b> It is " + LAB[q[1]].toLowerCase() + ". ") + WHY[q[1]];
+          gStory();
+        }, "chip");
+      });
+      box.appendChild(row);
+    });
+    gStory();
+  }
+  function gStory() {
+    $("vg-score").textContent = right + " / " + done + " correct";
+    $("vg-story").innerHTML = done < G.length ? "<p><b>Quick test:</b> would an average of this variable mean something? If yes, it is quantitative. Then ask: is it counted (discrete) or measured (continuous)?</p>"
+      : "<p><b>Set complete: " + right + " of " + G.length + ".</b> " + (right === G.length ? "Nice work. Press New set for more." : "Review the explanations, then try a new set.") + "</p>";
+  }
+  $("vg-new").addEventListener("click", newSet);
+  newSet();
+
+  var Q = [
+    { s: "Which variable is categorical?", o: ["Weight of a backpack in pounds", "Number of books in a backpack", "Color of a backpack", "Time spent packing a backpack"], c: 2, w: "Color places each backpack in a group. The other three are numerical amounts where averages make sense." },
+    { s: "A survey records each student's ZIP code. ZIP code is best described as:", o: ["Quantitative, because it is a number", "Categorical, because the numbers are labels", "Quantitative and continuous", "Quantitative and discrete"], c: 1, w: "ZIP codes are identifiers. Arithmetic on them (like a mean ZIP code) has no meaning, so the variable is categorical." },
+    { s: "Which variable is quantitative and discrete?", o: ["Height of a sunflower", "Number of seeds that sprout in a tray", "Type of soil used", "Time until the first seed sprouts"], c: 1, w: "A count of seeds takes separate whole-number values. Height and time are continuous; soil type is categorical." },
+    { s: "A data set has one row for each car in a lot and columns for make, color, mileage, and number of doors. What are the individuals?", o: ["The cars", "Make, color, mileage, and doors", "The parking lot", "The mileage values"], c: 0, w: "Individuals are the objects described by the data, one per row. The columns are the variables." },
+    { s: "Which graph is appropriate for a categorical variable?", o: ["Histogram", "Dotplot", "Bar chart", "Boxplot"], c: 2, w: "Bar charts (and pie charts) display categorical data. Histograms, dotplots, and boxplots need a numerical scale." },
+    { s: "For which variable does calculating a mean make sense?", o: ["Favorite music genre", "Phone area code", "Shoe size", "Political party"], c: 2, w: "Shoe size is a numerical measurement on a meaningful scale, so its mean is interpretable. The others are labels." },
+    { s: "A researcher records whether each of 200 patients had a side effect (yes or no). The best numerical summary is:", o: ["The mean of the yes/no answers", "The proportion of patients who had a side effect", "The standard deviation of the answers", "The median answer"], c: 1, w: "A yes/no variable is categorical. Summarize it with a count or proportion, such as 34 of 200, or 0.17." },
+    { s: "Which variable is quantitative and continuous?", o: ["Number of pets in a household", "Amount of water a plant uses in a week", "Number of correct answers on a quiz", "Favorite pet type"], c: 1, w: "An amount of water is measured and can take any value in a range. Counts like pets and correct answers are discrete." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.2");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.2", compact: true, storageKey: "topic-1.2" });</script>
+</body>
+</html>

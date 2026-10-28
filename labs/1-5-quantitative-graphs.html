@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dotplots, Stemplots, and Histograms Study Lab</title>
+<meta name="description" content="Graph one quantitative variable as a dotplot, stemplot, histogram, or cumulative relative frequency plot, and see how bin choices change the picture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.5</span>
+  <h1>Dotplots, Stemplots, and Histograms Study Lab</h1>
+  <p class="lede">A quantitative variable is graphed on a number line so that distances between values mean something. Each display trades detail for readability. Switch among four graphs of the same data, change the histogram's bins, and read percentiles off a cumulative plot.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. One data set, four graphs</h2>
+    <p>Dotplots, stemplots, histograms, and cumulative relative frequency plots all put a quantitative variable on a number line. Change the graph and the histogram's bins to see what each display shows and hides.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset data sets</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="card" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Graph</span><div class="seg" id="viewSeg" role="group" aria-label="Choose the graph type"></div></div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>Controls</h3>
+      <div id="histCtl" class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl"><label for="bw">Bin width <output id="bw-o"></output></label><input type="range" id="bw" min="0" max="5" step="1" value="2"><span class="hint">Wider bins smooth the shape; narrower bins show more detail and more noise.</span></div>
+        <div class="ctl"><label for="bs">Shift the bin start <output id="bs-o"></output></label><input type="range" id="bs" min="0" max="4" step="1" value="0"><span class="hint">Same data, same width, different boundaries.</span></div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Y-axis</span><div class="seg" id="relSeg" role="group" aria-label="Frequency or relative frequency"></div></div>
+      </div>
+      <div id="stemCtl" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Stems</span><div class="seg" id="splitSeg" role="group" aria-label="Split stems"></div></div>
+      <div id="cumCtl" class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl"><label for="cx">Read the plot at x = <output id="cx-o"></output></label><input type="range" id="cx" min="0" max="100" step="1" value="50"><span class="hint">The height tells you the proportion of values at or below x.</span></div>
+      </div>
+      <details><summary class="note" style="cursor:pointer">See the raw data</summary><div class="datatable" id="raw" style="margin-top:8px"></div></details>
+    </div>
+    <div class="card graph-card">
+      <h3><span id="g-title"></span> <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Graph of the quantitative data"></svg>
+      <div id="stemBox"></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">n</div><div class="v" id="r-n"></div></div>
+    <div class="stat"><div class="k">Min to max</div><div class="v" id="r-mm"></div></div>
+    <div class="stat"><div class="k" id="k-3"></div><div class="v" id="r-3"></div></div>
+    <div class="stat"><div class="k" id="k-4"></div><div class="v" id="r-4"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Dots</span><h3>Dotplot</h3><p>One dot per value above a number line, stacked when values repeat. Shows every value; best for small data sets.</p></div>
+    <div class="card"><span class="tag">Stems</span><h3>Stemplot</h3><p>Splits each value into a stem (leading digits) and a leaf (last digit). Keeps the actual values and shows the shape. Always include a key.</p></div>
+    <div class="card"><span class="tag">Bins</span><h3>Histogram</h3><p>Bars over equal-width intervals of values; bar height is the count or proportion in that bin. Bars touch because the bins cover a continuous number line.</p></div>
+    <div class="card"><span class="tag">Choices</span><h3>Bin width matters</h3><p>Too many bins make a jagged graph; too few hide the shape. Different reasonable choices should tell the same overall story.</p></div>
+    <div class="card"><span class="tag">Running total</span><h3>Cumulative relative frequency</h3><p>Plots the proportion of values at or below each x. Use it to find percentiles, the median (0.5), and quartiles (0.25 and 0.75).</p></div>
+    <div class="card"><span class="tag">Vs. categorical</span><h3>Histogram vs. bar chart</h3><p>A histogram's x-axis is a number scale, so the bars touch and their order is fixed. A bar chart's categories can be rearranged and are separated by gaps.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Choosing a display</h2>
+    <p>Each graph's strengths and limits.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Display</th><th>Shows individual values?</th><th>Best for</th><th>Watch out for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Dotplot</b></td><td>Yes</td><td>Small data sets, seeing gaps and outliers</td><td>Gets crowded with large n</td></tr>
+      <tr><td><b>Stemplot</b></td><td>Yes</td><td>Small to moderate data sets, finding the median by hand</td><td>Needs a key; awkward with decimals or wide ranges</td></tr>
+      <tr><td><b>Histogram</b></td><td>No</td><td>Large data sets, seeing shape</td><td>Shape depends on bin width and start</td></tr>
+      <tr><td><b>Cumulative relative frequency plot</b></td><td>No (shows running proportions)</td><td>Percentiles, median, quartiles</td><td>Reading the y-axis as a count instead of a proportion</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Label the horizontal axis with the variable and units (“Commute time, minutes”) and use an evenly spaced scale.</li>
+        <li>Give every stemplot a key with units: “4 | 7 = 47 seconds.”</li>
+        <li>When asked to estimate from a histogram, explain the reasoning: “About 12 + 9 = 21 of the 50 values are below 30, so about 42%.”</li>
+        <li>For percentile questions with a cumulative plot, show where you read the graph and state the result in context.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Leaving gaps between histogram bars or drawing a histogram of categorical data.</li>
+        <li>Forgetting the stemplot key, or not putting leaves in order.</li>
+        <li>Placing a boundary value in the bin to its left instead of to its right.</li>
+        <li>Reading a cumulative relative frequency plot's height as the count at a single value.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.5. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function btn(parent, text, onclick, cls) { var b = document.createElement("button"); b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.addEventListener("click", onclick); parent.appendChild(b); return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+
+  // Inline histogram: Lab.histogram passes the bin width on as the SVG width, so draw it here.
+  function histo(svg, data, o) {
+    var b = Lab.bins(data, o.start, o.width), n = data.length;
+    var vals = b.map(function (x) { return o.relative ? x.n / n : x.n; });
+    var top = Math.max.apply(null, vals.concat([o.relative ? 0.1 : 1]));
+    var yt = Lab.niceTicks(0, top * 1.1, 5);
+    var ticks = b.map(function (x) { return x.lo; }).concat([b[b.length - 1].hi]);
+    if (ticks.length > 12) { var k = Math.ceil(ticks.length / 10); ticks = ticks.filter(function (_, i) { return i % k === 0; }); }
+    var F = Lab.frame(svg, { x: [b[0].lo, b[b.length - 1].hi], y: [0, yt[yt.length - 1]], xLabel: o.xLabel, yLabel: o.relative ? "Relative frequency" : "Frequency",
+      xTicks: ticks, yTicks: yt, fmtX: function (v) { return N(v, 2); }, fmtY: function (v) { return o.relative ? N(v, 2) : N(v, 0); } });
+    b.forEach(function (x, i) {
+      if (!vals[i]) return;
+      Lab.el("rect", { x: F.sx(x.lo) + 0.5, y: F.sy(vals[i]), width: Math.max(0, F.sx(x.hi) - F.sx(x.lo) - 1), height: F.sy(0) - F.sy(vals[i]), fill: "var(--accent)", opacity: .85 }, F.g);
+    });
+    F.bins = b; return F;
+  }
+  function gen(seed, n, f) { var r = Lab.rng(seed), a = []; for (var i = 0; i < n; i++) a.push(f(r)); return a; }
+  var PRESETS = [
+    { name: "Test scores (left-skewed)", label: "Test score (points)", unit: "points", data: gen(11, 40, function (r) { return Math.min(100, Math.round(100 - Math.abs(r.normal(0, 1)) * 14 - r() * 6)); }) },
+    { name: "Ages of pennies (right-skewed)", label: "Age of penny (years)", unit: "years", data: gen(5, 50, function (r) { return Math.round(-Math.log(1 - r()) * 11); }) },
+    { name: "Heights of students (symmetric)", label: "Height (cm)", unit: "cm", data: gen(7, 45, function (r) { return Math.round(r.normal(168, 8)); }) },
+    { name: "Wait times at two stops (bimodal)", label: "Wait time (minutes)", unit: "minutes", data: gen(3, 44, function (r) { return Math.max(1, Math.round(r() < .5 ? r.normal(8, 2.2) : r.normal(24, 3))); }) },
+    { name: "Small data set (n = 12)", label: "Hours of homework per week", unit: "hours", data: [3, 5, 6, 6, 7, 8, 8, 9, 10, 12, 14, 21] }
+  ];
+  var VIEWS = [["dot", "Dotplot"], ["hist", "Histogram"], ["stem", "Stemplot"], ["cum", "Cumulative relative frequency"]];
+  var S = { p: PRESETS[0], view: "hist", bw: 2, bs: 0, rel: false, split: false, cx: 50 };
+  VIEWS.forEach(function (v) { var b = btn($("viewSeg"), v[1], function () { S.view = v[0]; render(); }); b.setAttribute("data-v", v[0]); });
+  [["f", "Frequency"], ["r", "Relative frequency"]].forEach(function (v) { var b = btn($("relSeg"), v[1], function () { S.rel = v[0] === "r"; render(); }); b.setAttribute("data-v", v[0]); });
+  [["n", "One stem per digit"], ["y", "Split stems"]].forEach(function (v) { var b = btn($("splitSeg"), v[1], function () { S.split = v[0] === "y"; render(); }); b.setAttribute("data-v", v[0]); });
+  PRESETS.forEach(function (p) { btn($("scen"), p.name, function () { S.p = p; S.bw = 2; S.bs = 0; S.cx = 50; $("bw").value = 2; $("bs").value = 0; $("cx").value = 50; render(); }); });
+  function sync(id, val) { Array.prototype.forEach.call($(id).children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === val)); }); }
+  function widths(s) {
+    var base = Lab.niceStep(s.range || 1, 8);
+    var c = [base / 4, base / 2, base, base * 2, base * 4, base * 8].map(function (w) { return +w.toPrecision(6); });
+    return c;
+  }
+  function render() {
+    sync("viewSeg", S.view); sync("relSeg", S.rel ? "r" : "f"); sync("splitSeg", S.split ? "y" : "n");
+    var d = S.p.data, s = Lab.summary(d), u = S.p.unit;
+    $("histCtl").style.display = S.view === "hist" ? "" : "none";
+    $("stemCtl").style.display = S.view === "stem" ? "" : "none";
+    $("cumCtl").style.display = S.view === "cum" ? "" : "none";
+    $("g").style.display = S.view === "stem" ? "none" : ""; $("stemBox").style.display = S.view === "stem" ? "" : "none";
+    $("raw").innerHTML = s.sorted.map(function (v) { return "<span>" + N(v) + "</span>"; }).join("");
+    $("r-n").textContent = s.n; $("r-mm").textContent = N(s.min) + " to " + N(s.max);
+    $("g-title").textContent = VIEWS.filter(function (v) { return v[0] === S.view; })[0][1]; $("g-sub").textContent = S.p.label;
+    var t = [], head;
+    var w = widths(s)[S.bw], start = Math.floor(s.min / w) * w - (S.bs / 5) * w;
+    if (start + w <= s.min - 1e-9) start += 0; // keep
+    if (S.view === "hist") {
+      $("bw-o").textContent = N(w); $("bs-o").textContent = "starts at " + N(start);
+      var F = histo($("g"), d, { start: start, width: w, xLabel: S.p.label, relative: S.rel });
+      var b = F.bins, top = b.reduce(function (a, x) { return x.n > a.n ? x : a; }, b[0]);
+      $("k-3").textContent = "Number of bins"; $("r-3").textContent = b.length;
+      $("k-4").textContent = "Tallest bin"; $("r-4").textContent = "[" + N(top.lo) + ", " + N(top.hi) + ")";
+      head = "<b>Histogram with " + b.length + " bins of width " + N(w) + " " + u + ".</b> The tallest bar, " + N(top.lo) + " to just under " + N(top.hi) + ", holds " + top.n + " of " + s.n + " values (" + Lab.pct(top.n / s.n) + ").";
+      if (b.length > 18) t.push("With so many narrow bins, the graph looks jagged. Random bumps can hide the overall shape.");
+      else if (b.length < 5) t.push("With so few bins, detail disappears. You can no longer see gaps, clusters, or the true shape.");
+      else t.push("This bin width shows the overall shape without too much noise. Try other widths and starting points: the shape you'd describe should hold up.");
+      t.push("Each bin includes its left endpoint and excludes its right endpoint, so a value exactly on a boundary goes in the bin to its right.");
+      t.push("Histograms don't show individual values, so you can't read the exact mean or median from one. You can estimate them.");
+    } else if (S.view === "dot") {
+      var pad = Math.max(s.range * .05, 1);
+      Lab.dotplot($("g"), d, { lo: s.min - pad, hi: s.max + pad, xLabel: S.p.label, binWidth: s.range > 60 ? 2 : 1 });
+      var md = Lab.counts(d).sort(function (a, c) { return c[1] - a[1]; })[0];
+      $("k-3").textContent = "Most frequent value"; $("r-3").textContent = N(+md[0]) + " (" + md[1] + "×)";
+      $("k-4").textContent = "Median"; $("r-4").textContent = N(s.med);
+      head = "<b>Dotplot: every value is a dot.</b> You can see every observation, including exact values, gaps, clusters, and possible outliers.";
+      t.push("Dotplots work best for small to moderate data sets. With hundreds of values, a histogram is easier to read.");
+      t.push("You can find the median by counting dots: with n = " + s.n + ", the median is " + (s.n % 2 ? "value #" + ((s.n + 1) / 2) : "the average of values #" + (s.n / 2) + " and #" + (s.n / 2 + 1)) + " from the left, which is " + N(s.med) + ".");
+    } else if (S.view === "stem") {
+      var su = s.max >= 100 ? 10 : 10, html = Lab.stemplot(d, { stemUnit: su, split: S.split, key: Math.floor(s.min / 10) + " | " + (s.min % 10) + " means " + N(s.min) + " " + u });
+      $("stemBox").innerHTML = html;
+      $("k-3").textContent = "Stems"; $("r-3").textContent = S.split ? "Split (0–4, 5–9)" : "One per tens digit";
+      $("k-4").textContent = "Median"; $("r-4").textContent = N(s.med);
+      head = "<b>Stemplot:</b> the stem is every digit but the last, and the leaf is the last digit. Turned sideways, it looks like a histogram, but it keeps every original value.";
+      t.push(S.split ? "Split stems use two rows per stem: leaves 0–4 on the first and 5–9 on the second. This spreads out data that bunch on a few stems." : "If most values sit on just a few stems, try split stems to see the shape better.");
+      t.push("Every stemplot needs a key, such as “" + Math.floor(s.min / 10) + " | " + (s.min % 10) + " means " + N(s.min) + " " + u + ".” Leaves are in increasing order on each row.");
+    } else {
+      var cs = s.sorted, lo = s.min - Math.max(1, s.range * .05), hi = s.max + Math.max(1, s.range * .05);
+      var xv = lo + (hi - lo) * S.cx / 100; xv = Math.round(xv * 10) / 10;
+      $("cx-o").textContent = N(xv);
+      var F2 = Lab.frame($("g"), { x: [lo, hi], y: [0, 1], xLabel: S.p.label, yLabel: "Cumulative relative frequency", xTicks: Lab.niceTicks(lo, hi, 6).filter(function (v) { return v >= lo && v <= hi; }), yTicks: [0, .2, .4, .6, .8, 1], fmtX: function (v) { return N(v); }, fmtY: function (v) { return N(v, 1); } });
+      var pts = [[lo, 0]];
+      cs.forEach(function (v, i) { if (i < cs.length - 1 && cs[i + 1] === v) return; pts.push([v, pts[pts.length - 1][1]]); pts.push([v, (i + 1) / cs.length]); });
+      pts.push([hi, 1]);
+      Lab.line(F2, pts, "var(--accent)", 2.5);
+      var at = cs.filter(function (v) { return v <= xv; }).length / cs.length;
+      Lab.line(F2, [[xv, 0], [xv, at], [lo, at]], "var(--c1)", 1.5, "4 3");
+      Lab.dot(F2, xv, at, "var(--c1)");
+      Lab.hline(F2, .5, "var(--ghost)", 1, "6 5"); Lab.tag(F2, lo + (hi - lo) * .01, .53, "0.5 (median)", "var(--muted)");
+      $("k-3").textContent = "Proportion ≤ " + N(xv); $("r-3").textContent = N(at, 3);
+      $("k-4").textContent = "Percentile of " + N(xv); $("r-4").textContent = Math.round(at * 100) + "th";
+      head = "<b>" + Lab.pct(at) + " of the values are at or below " + N(xv) + " " + u + ".</b> So " + N(xv) + " is at about the " + Math.round(at * 100) + "th percentile (using “at or below”).";
+      t.push("The curve climbs fastest where data are most concentrated, and it is flat across gaps.");
+      t.push("Read the median where the curve crosses 0.5 (about " + N(s.med) + "), and the quartiles at 0.25 and 0.75.");
+    }
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  $("bw").addEventListener("input", function (e) { S.bw = +e.target.value; render(); });
+  $("bs").addEventListener("input", function (e) { S.bs = +e.target.value; render(); });
+  $("cx").addEventListener("input", function (e) { S.cx = +e.target.value; render(); });
+  render();
+
+  var Q = [
+    { s: "A histogram uses bins 10–20, 20–30, and so on. In which bin is the value 30 placed?", o: ["10–20", "20–30", "30–40", "It is left out"], c: 2, w: "Bins include the left endpoint and exclude the right endpoint, so 30 goes in the 30–40 bin." },
+    { s: "Which display shows every individual data value?", o: ["Histogram", "Stemplot", "Boxplot", "Bar chart"], c: 1, w: "A stemplot keeps each value (stem plus leaf). Dotplots also do. A histogram only shows counts per bin." },
+    { s: "In a stemplot with key 4 | 7 = 47 seconds, the row 5 | 0 2 2 8 represents:", o: ["50, 52, 52, 58 seconds", "5.0, 5.2, 5.2, 5.8 seconds", "Four values between 0 and 8", "5, 0, 2, 2, 8 seconds"], c: 0, w: "Each leaf is the ones digit, and the stem is the tens digit: 50, 52, 52, 58." },
+    { s: "A histogram of 200 values is redrawn with much narrower bins. The most likely result is:", o: ["A smoother, simpler shape", "A more jagged shape with more random bumps", "A different mean", "Fewer total observations"], c: 1, w: "Narrow bins hold few values each, so chance variation shows up as bumps. The data and summary statistics are unchanged." },
+    { s: "On a cumulative relative frequency plot, the value 62 has a height of 0.80. This means:", o: ["80 values are at most 62", "About 80% of the values are at or below 62", "62 is 80% of the maximum", "About 80% of the values are above 62"], c: 1, w: "The vertical axis gives the proportion of values at or below each x, so 62 is at about the 80th percentile." },
+    { s: "Which graph is most appropriate for displaying 5,000 commute times?", o: ["Dotplot", "Stemplot", "Histogram", "Pie chart"], c: 2, w: "With thousands of values, dotplots and stemplots become unreadable. A histogram summarizes large data sets well." },
+    { s: "A relative frequency histogram has bars of heights 0.10, 0.25, 0.40, 0.15, and one missing bar. What is the missing height?", o: ["0.05", "0.10", "0.15", "0.20"], c: 1, w: "Relative frequencies add to 1: 1 − (0.10 + 0.25 + 0.40 + 0.15) = 0.10." },
+    { s: "On a cumulative relative frequency plot, where is the median?", o: ["Where the curve is steepest", "At the x-value where the curve reaches 0.5", "At the highest x-value", "At the x-value where the curve reaches 1"], c: 1, w: "Half the values are at or below the median, so it is where the cumulative proportion reaches 0.5." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.5");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.5", compact: true, storageKey: "topic-1.5" });</script>
+</body>
+</html>

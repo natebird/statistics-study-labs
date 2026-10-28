@@ -4,20 +4,152 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AP Statistics Study Labs</title>
-<meta name="description" content="Interactive study labs and terminology guides for AP Statistics.">
+<meta name="description" content="Interactive study labs and terminology guides for every unit of AP Statistics.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/lab.css?v=1">
 <script src="assets/prefs.js?v=1"></script>
+<style>
+.labs { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.lab-card { display: grid; gap: 8px; text-decoration: none; color: var(--ink); align-content: start; }
+.lab-card:hover { border-color: var(--accent); }
+.lab-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.lab-card .num, .unit-head .num { font-family: var(--mono); font-size: .8rem; color: var(--accent); }
+.lab-card p { color: var(--muted); font-size: .94rem; }
+.lab-card .go { color: var(--accent); font-weight: 500; font-size: .9rem; }
+.unit-head { display: grid; gap: 4px; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+.unit-head .meta { font-size: .88rem; color: var(--muted); }
+.unit-head a, .soon a, .jump a { color: var(--accent); }
+.soon { color: var(--muted); }
+.jump { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: .92rem; }
+.unit { scroll-margin-top: 16px; }
+footer { color: var(--muted); font-size: .86rem; border-top: 1px solid var(--rule); padding-top: 16px; }
+</style>
 </head>
 <body>
 <div class="wrap">
+
 <header>
   <span class="kicker">AP Statistics</span>
   <h1>AP Statistics Study Labs</h1>
-  <p class="lede">Interactive study labs for the revised (2026–27) AP Statistics course, one for each topic. The labs and terminology guides are on the way.</p>
+  <p class="lede">Interactive study labs for the revised (2026–27) AP Statistics course, one for each of its 55 topics. Each lab has data you can edit, graphs and simulations that react, a running explanation of what changed and why, worked examples, FRQ tips, practice questions, and the key terms for that topic.</p>
+  <nav class="jump" aria-label="Jump to a unit"><a href="#unit-1">Unit 1</a> <a href="#unit-2">Unit 2</a> <a href="#unit-3">Unit 3</a> <a href="#unit-4">Unit 4</a> <a href="#unit-5">Unit 5</a> <a href="terms/index.html">All terms</a></nav>
 </header>
+
+<section aria-labelledby="terms-h">
+  <div style="display:grid; gap:6px;">
+    <h2 id="terms-h" style="font-size:1.3rem;">Terminology guides</h2>
+    <p style="color:var(--muted); max-width:70ch;">Every key term in the course, with search, flashcards, and a self-quiz.</p>
+  </div>
+  <div class="unit-cards">
+    <a class="card" href="terms/index.html"><span class="num">All units</span><b>Master terminology guide</b><span class="meta">Search and study every term in the course</span></a>
+    <a class="card" href="terms/unit-1.html"><span class="num">Unit 1</span><b>Exploring One-Variable Data and Collecting Data</b></a>
+    <a class="card" href="terms/unit-2.html"><span class="num">Unit 2</span><b>Probability, Random Variables, and Probability Distributions</b></a>
+    <a class="card" href="terms/unit-3.html"><span class="num">Unit 3</span><b>Inference for Categorical Data: Proportions</b></a>
+    <a class="card" href="terms/unit-4.html"><span class="num">Unit 4</span><b>Inference for Quantitative Data: Means</b></a>
+    <a class="card" href="terms/unit-5.html"><span class="num">Unit 5</span><b>Regression Analysis</b></a>
+  </div>
+</section>
+
+<section aria-labelledby="unit-1" class="unit">
+  <div class="unit-head">
+    <h2 id="unit-1" style="font-size:1.4rem;"><span class="num">Unit 1</span> Exploring One-Variable Data and Collecting Data</h2>
+    <span class="meta">20–30% of the multiple-choice section · <a href="terms/unit-1.html">Unit 1 terms</a></span>
+  </div>
+  <div class="labs">
+    <a class="card lab-card" href="labs/1-1-introducing-statistics.html"><span class="num">Topic 1.1</span><h3>Introducing Statistics</h3><p>Tell statistical questions from ordinary ones, then sample from a population to see why statistics vary while parameters stay fixed.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-2-variables.html"><span class="num">Topic 1.2</span><h3>Variables</h3><p>Classify variables as categorical or quantitative (discrete or continuous) and see which summaries and graphs fit each type.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-3-categorical-tables.html"><span class="num">Topic 1.3</span><h3>Tables and Summaries for One Categorical Variable</h3><p>Build frequency and relative frequency tables for a categorical variable and work backward from percents to counts.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-4-categorical-graphs.html"><span class="num">Topic 1.4</span><h3>Graphs for One Categorical Variable</h3><p>Display a categorical variable with bar charts and pie charts, and catch a misleading graph with a truncated axis.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-5-quantitative-graphs.html"><span class="num">Topic 1.5</span><h3>Graphs for One Quantitative Variable</h3><p>Graph one quantitative variable as a dotplot, stemplot, histogram, or cumulative relative frequency plot, and see how bin choices change the picture.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-6-describing-distributions.html"><span class="num">Topic 1.6</span><h3>Describing Quantitative Distributions</h3><p>Describe a quantitative distribution's shape, center, variability, and unusual features, and practice naming shapes from a histogram.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-7-summary-statistics.html"><span class="num">Topic 1.7</span><h3>Summary Statistics for One Quantitative Variable</h3><p>Calculate the mean, median, standard deviation, quartiles, and IQR step by step, and see which ones resist outliers.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-8-boxplots.html"><span class="num">Topic 1.8</span><h3>Boxplots and Graphs of Summary Statistics</h3><p>Build a boxplot from the five-number summary, flag outliers with the fences, and read percentiles off a cumulative relative frequency graph.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-9-comparing-distributions.html"><span class="num">Topic 1.9</span><h3>Comparing Distributions</h3><p>Compare two groups on shape, outliers, center, and spread with side-by-side dotplots and boxplots, and practice writing comparisons in context.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-10-investigative-question.html"><span class="num">Topic 1.10</span><h3>The Investigative Question and Data Collection</h3><p>Tell statistical questions from non-statistical ones, classify studies as census, sample survey, observational study, or experiment, and see how a confounding variable fakes a cause.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-11-random-sampling.html"><span class="num">Topic 1.11</span><h3>Random Sampling</h3><p>Sample a simulated school with simple random, stratified, cluster, and systematic sampling, and see which method gives the most precise estimates.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-12-sampling-problems.html"><span class="num">Topic 1.12</span><h3>Potential Problems with Sampling</h3><p>Run a town survey six different ways and watch how undercoverage, nonresponse, voluntary response, convenience sampling, and question wording push the estimate away from the truth.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/1-13-experimental-design.html"><span class="num">Topic 1.13</span><h3>Experimental Design</h3><p>Run simulated experiments with self-selection, random assignment, blocking, and matched pairs to see how design controls bias and variability, then decide the scope of inference.</p><span class="go">Open lab →</span></a>
+  </div>
+</section>
+<section aria-labelledby="unit-2" class="unit">
+  <div class="unit-head">
+    <h2 id="unit-2" style="font-size:1.4rem;"><span class="num">Unit 2</span> Probability, Random Variables, and Probability Distributions</h2>
+    <span class="meta">15–25% of the multiple-choice section · <a href="terms/unit-2.html">Unit 2 terms</a></span>
+  </div>
+  <div class="labs">
+    <a class="card lab-card" href="labs/2-1-two-way-tables.html"><span class="num">Topic 2.1</span><h3>Two-Way Tables and Graphs</h3><p>Build a two-way table, then compare groups with side-by-side, segmented, and mosaic bar charts to see whether two categorical variables are associated.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-2-two-categorical-summaries.html"><span class="num">Topic 2.2</span><h3>Summary Statistics for Two Categorical Variables</h3><p>Click any cell of a two-way table to see its joint, marginal, and conditional relative frequencies, then practice picking the right denominator.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-3-simulation.html"><span class="num">Topic 2.3</span><h3>Estimating Probabilities Using Simulation</h3><p>Design and run a simulation with random numbers, then watch the estimated probability settle toward the true value as the number of trials grows.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-4-intro-probability.html"><span class="num">Topic 2.4</span><h3>Introduction to Probability</h3><p>List a sample space, count the outcomes in an event, and use the complement rule; then check whether a probability model is valid.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-5-mutually-exclusive.html"><span class="num">Topic 2.5</span><h3>Mutually Exclusive Events</h3><p>Pick two events from a deck of cards, see their overlap in a Venn diagram, and decide whether they are mutually exclusive.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-6-conditional-probability.html"><span class="num">Topic 2.6</span><h3>Conditional Probability</h3><p>Use a tree diagram and a table of hypothetical counts to find P(A and B), P(B), and P(A | B), and see why P(A | B) and P(B | A) can be very different.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-7-independence-unions.html"><span class="num">Topic 2.7</span><h3>Independent Events and Unions of Events</h3><p>Set P(A), P(B), and P(A and B), then check independence and find P(A or B) with the general addition rule.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-8-random-variables.html"><span class="num">Topic 2.8</span><h3>Random Variables and Probability Distributions</h3><p>Build a discrete probability distribution, check that it is valid, and find probabilities like P(X ≤ 2) from the table and graph.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-9-parameters-random-variables.html"><span class="num">Topic 2.9</span><h3>Parameters of Random Variables</h3><p>Find the mean (expected value) and standard deviation of a discrete random variable, then see how they change when you transform or combine variables.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-10-binomial.html"><span class="num">Topic 2.10</span><h3>The Binomial Distribution</h3><p>Check the binomial conditions, then set n and p to find exact, at-most, and at-least probabilities with binompdf and binomcdf.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-11-normal.html"><span class="num">Topic 2.11</span><h3>The Normal Distribution</h3><p>Shade areas under a normal curve, convert to z-scores, and go both ways with normalcdf and invNorm.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/2-12-sampling-distributions-clt.html"><span class="num">Topic 2.12</span><h3>Sampling Distributions and the Central Limit Theorem</h3><p>Draw thousands of random samples from skewed, uniform, or yes/no populations and watch the sampling distribution of the mean become approximately normal.</p><span class="go">Open lab →</span></a>
+  </div>
+</section>
+<section aria-labelledby="unit-3" class="unit">
+  <div class="unit-head">
+    <h2 id="unit-3" style="font-size:1.4rem;"><span class="num">Unit 3</span> Inference for Categorical Data: Proportions</h2>
+    <span class="meta">15–25% of the multiple-choice section · <a href="terms/unit-3.html">Unit 3 terms</a></span>
+  </div>
+  <div class="labs">
+    <a class="card lab-card" href="labs/3-1-estimators.html"><span class="num">Topic 3.1</span><h3>Estimators</h3><p>Take hundreds of samples and see what makes an estimator biased or variable, and why bigger samples fix one but not the other.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-2-sampling-dist-p-hat.html"><span class="num">Topic 3.2</span><h3>Sampling Distributions for Sample Proportions</h3><p>Simulate thousands of samples to see the shape, center, and spread of p̂, and when the normal model and its conditions work.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-3-ci-one-proportion.html"><span class="num">Topic 3.3</span><h3>Confidence Interval for a Proportion</h3><p>Build a one-proportion z-interval step by step, simulate hundreds of intervals to see what confidence means, and plan a sample size.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-4-justify-ci-one-proportion.html"><span class="num">Topic 3.4</span><h3>Justifying a Claim with a Proportion Interval</h3><p>Use a confidence interval as a set of plausible values to decide whether a claim about a population proportion is supported.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-5-setup-test-one-proportion.html"><span class="num">Topic 3.5</span><h3>Setting Up a Test for a Proportion</h3><p>Practice writing null and alternative hypotheses, defining the parameter, and checking conditions for a one-proportion z-test.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-6-p-values.html"><span class="num">Topic 3.6</span><h3>p-Values</h3><p>See a p-value as a shaded area under the null model, compare it with a simulation, and practice interpreting it in context.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-7-test-one-proportion.html"><span class="num">Topic 3.7</span><h3>Carrying Out a Test for a Proportion</h3><p>Run a complete one-sample z-test for a proportion and get a four-step write-up (State, Plan, Do, Conclude) built from your inputs.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-8-errors-in-tests.html"><span class="num">Topic 3.8</span><h3>Potential Errors When Performing Tests</h3><p>See Type I error, Type II error, and power as areas under two sampling distributions, and how n, α, and the true p change them.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-9-sampling-dist-diff-proportions.html"><span class="num">Topic 3.9</span><h3>Sampling Distributions for a Difference in Proportions</h3><p>Simulate thousands of pairs of samples to see the center, spread, and shape of the sampling distribution of p̂₁ − p̂₂.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-10-ci-two-proportions.html"><span class="num">Topic 3.10</span><h3>Confidence Interval for a Difference in Proportions</h3><p>Build a two-sample z-interval for p₁ − p₂ step by step, then simulate many intervals to see what the confidence level means.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-11-justify-ci-two-proportions.html"><span class="num">Topic 3.11</span><h3>Justifying a Claim with a Two-Proportion Interval</h3><p>Decide whether a confidence interval for p₁ − p₂ supports, fails to support, or contradicts a claim, and see what controls its width.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-12-setup-test-two-proportions.html"><span class="num">Topic 3.12</span><h3>Setting Up a Test for a Difference in Proportions</h3><p>Write hypotheses for p₁ − p₂, pick the right alternative, and check conditions using the pooled proportion.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-13-test-two-proportions.html"><span class="num">Topic 3.13</span><h3>Carrying Out a Test for a Difference in Proportions</h3><p>Run a complete two-sample z-test for p₁ − p₂: pooled SE, test statistic, p-value, decision, and conclusion in context.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-14-setup-chi-square.html"><span class="num">Topic 3.14</span><h3>Setting Up a Chi-Square Test</h3><p>Decide between a chi-square test for homogeneity and for independence, write hypotheses, compute expected counts, and check conditions.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/3-15-chi-square-test.html"><span class="num">Topic 3.15</span><h3>Carrying Out a Chi-Square Test</h3><p>Compute expected counts, components, the χ² statistic, df, and p-value for a two-way table, then write the conclusion in context.</p><span class="go">Open lab →</span></a>
+  </div>
+</section>
+<section aria-labelledby="unit-4" class="unit">
+  <div class="unit-head">
+    <h2 id="unit-4" style="font-size:1.4rem;"><span class="num">Unit 4</span> Inference for Quantitative Data: Means</h2>
+    <span class="meta">10–20% of the multiple-choice section · <a href="terms/unit-4.html">Unit 4 terms</a></span>
+  </div>
+  <div class="labs">
+    <a class="card lab-card" href="labs/4-1-sampling-dist-x-bar.html"><span class="num">Topic 4.1</span><h3>Sampling Distributions for Sample Means</h3><p>Draw thousands of random samples from different population shapes and watch the distribution of sample means center at μ, shrink by σ/√n, and turn normal as n grows.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-2-ci-one-mean.html"><span class="num">Topic 4.2</span><h3>Confidence Interval for a Mean or Mean Difference</h3><p>Build a one-sample or paired t interval from raw data or summary statistics, check the conditions, and see what the confidence level really means.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-3-justify-ci-one-mean.html"><span class="num">Topic 4.3</span><h3>Justifying a Claim with a Mean Interval</h3><p>Use a t interval for a mean or mean difference to decide whether a claimed value is plausible, and see how sample size and confidence level change the answer.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-4-setup-test-one-mean.html"><span class="num">Topic 4.4</span><h3>Setting Up a Test for a Mean or Mean Difference</h3><p>Practice choosing the parameter, hypotheses, procedure, and conditions for a one-sample or paired t test, and see which t values would count as evidence for the alternative.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-5-test-one-mean.html"><span class="num">Topic 4.5</span><h3>Carrying Out a Test for a Mean or Mean Difference</h3><p>Run a one-sample or paired t test from raw data or summary statistics: compute t and the p-value, see the area on the t curve, and write all four steps.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-6-sampling-dist-diff-means.html"><span class="num">Topic 4.6</span><h3>Sampling Distributions for a Difference in Means</h3><p>Simulate thousands of differences in sample means and see why the mean is μ₁ − μ₂, the variances add, and the shape becomes normal.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-7-ci-two-means.html"><span class="num">Topic 4.7</span><h3>Confidence Interval for a Difference in Means</h3><p>Build a two-sample t interval step by step, compare calculator and conservative df, and watch 50 intervals show what confidence means.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-8-justify-ci-two-means.html"><span class="num">Topic 4.8</span><h3>Justifying a Claim with a Two-Mean Interval</h3><p>Decide whether a claim about μ₁ − μ₂ is supported, plausible, or contradicted by a confidence interval, and see what makes the interval narrower.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-9-setup-test-two-means.html"><span class="num">Topic 4.9</span><h3>Setting Up a Test for a Difference in Means</h3><p>Tell paired data from two independent samples, write hypotheses about μ₁ − μ₂, and check the Random, 10%, and Normal/Large conditions.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/4-10-test-two-means.html"><span class="num">Topic 4.10</span><h3>Carrying Out a Test for a Difference in Means</h3><p>Run a complete two-sample t-test: test statistic, df, a shaded p-value, the decision, and a four-step written answer that updates live.</p><span class="go">Open lab →</span></a>
+  </div>
+</section>
+<section aria-labelledby="unit-5" class="unit">
+  <div class="unit-head">
+    <h2 id="unit-5" style="font-size:1.4rem;"><span class="num">Unit 5</span> Regression Analysis</h2>
+    <span class="meta">10–20% of the multiple-choice section · <a href="terms/unit-5.html">Unit 5 terms</a></span>
+  </div>
+  <div class="labs">
+    <a class="card lab-card" href="labs/5-1-scatterplots.html"><span class="num">Topic 5.1</span><h3>Scatterplots</h3><p>Drag and add points on a scatterplot, then practice describing direction, form, strength, and unusual features in context.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/5-2-correlation.html"><span class="num">Topic 5.2</span><h3>Correlation</h3><p>Guess the correlation from a scatterplot, compute r step by step from z-scores, and practice telling correlation from causation.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/5-3-linear-regression-models.html"><span class="num">Topic 5.3</span><h3>Linear Regression Models</h3><p>Use a regression equation to make predictions, interpret the slope and y-intercept in context, and spot risky extrapolation.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/5-4-residuals.html"><span class="num">Topic 5.4</span><h3>Residuals</h3><p>Calculate residuals as actual minus predicted, interpret them in context, and read residual plots to judge whether a linear model fits.</p><span class="go">Open lab →</span></a>
+    <a class="card lab-card" href="labs/5-5-least-squares-regression.html"><span class="num">Topic 5.5</span><h3>Least-Squares Regression</h3><p>Drag points and watch the least-squares line, its squared residuals, slope, intercept, r², and s update, then read regression output.</p><span class="go">Open lab →</span></a>
+  </div>
+</section>
+
+<footer>Data sets in the labs are made up for practice unless a lab says otherwise. Topics follow the revised AP Statistics Course and Exam Description (effective fall 2026). 55 labs are live.</footer>
+
 </div>
 </body>
 </html>

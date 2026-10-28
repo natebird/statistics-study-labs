@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two-Way Tables and Graphs Study Lab</title>
+<meta name="description" content="Build a two-way table, then compare groups with side-by-side, segmented, and mosaic bar charts to see whether two categorical variables are associated.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.tw input[type=number]{font:inherit;font-family:var(--mono);font-size:.88rem;width:100%;min-width:56px;padding:5px 6px;border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--ink)}
+.tw{min-width:0}.tw th,.tw td{padding:6px 8px;vertical-align:middle}.tw tfoot td,.tw td.tot{font-family:var(--mono);font-size:.86rem;background:var(--paper)}
+.keyrow{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}.keyrow i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.optrow{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.1</span>
+  <h1>Two-Way Tables and Graphs Study Lab</h1>
+  <p class="lede">A two-way table counts individuals by two categorical variables at once. To see whether the variables are associated, compare the distribution of one variable across the groups of the other. Edit the counts, switch which variable you condition on, and watch the graphs and the explanation update.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Build a table, then compare groups</h2>
+    <p>Type any counts. The totals, graphs, and conditional distributions update as you type.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">Conditional relative frequency = cell count ÷ group total</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset tables</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="tw-title">Two-way table</h3>
+      <div class="tbl-wrap"><table class="tw" id="tw"></table></div>
+      <p class="note" id="tw-note"></p>
+    </div>
+    <div class="card graph-card">
+      <h3><span id="g-title">Graph</span> <small id="g-sub"></small></h3>
+      <div class="optrow">
+        <div class="seg" id="modeSeg" role="group" aria-label="Graph type"></div>
+        <div class="seg" id="condSeg" role="group" aria-label="Which variable defines the groups"></div>
+      </div>
+      <svg class="chart" id="g" role="img" aria-label="Bar chart comparing the groups"></svg>
+      <div class="keyrow" id="key"></div>
+    </div>
+  </div>
+
+  <div class="readout" id="readout"></div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Conditional distributions, worked out</h3>
+      <div class="calc" id="calcCond"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Marginal distributions</h3>
+      <div class="calc" id="calcMarg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Two-way table</span><h3>Two variables, one table</h3><p>Each individual lands in exactly one cell: one category of the row variable and one category of the column variable. The row and column totals are in the margins, and the grand total is in the corner.</p></div>
+    <div class="card"><span class="tag">Marginal</span><h3>One variable at a time</h3><p>The marginal distribution of a variable uses only the totals in the margin. It ignores the other variable completely, so it cannot show association.</p></div>
+    <div class="card"><span class="tag">Conditional</span><h3>Within one group</h3><p>A conditional distribution looks at only the individuals in one group and gives the proportion in each category of the other variable. Each conditional distribution adds up to 1 (or 100%).</p></div>
+    <div class="card"><span class="tag">Association</span><h3>Do the groups differ?</h3><p>Two categorical variables are <b>associated</b> if the conditional distributions differ across groups. If every group has the same conditional distribution, there is no association.</p></div>
+    <div class="card"><span class="tag">Graphs</span><h3>Pick the right bar chart</h3><p><b>Side-by-side</b> bars show counts, which can mislead when groups are different sizes. <b>Segmented</b> bars show proportions, so each bar is 100% tall. A <b>mosaic plot</b> is a segmented bar chart whose bar widths show the group sizes.</p></div>
+    <div class="card"><span class="tag">Caution</span><h3>Association is not causation</h3><p>Finding an association in observational data does not show that one variable causes the other. A lurking variable might explain both.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Worked examples</h2>
+    <p>The table: 200 students by grade (9th, 12th) and whether they drive to school. 9th: 6 drive, 94 do not. 12th: 58 drive, 42 do not.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Question</th><th>What to use</th><th>Work</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>What is the marginal distribution of driving?</td><td>Column totals ÷ grand total</td><td>64 ÷ 200, 136 ÷ 200</td><td><b>32% drive, 68% do not</b></td></tr>
+      <tr><td>What proportion of 12th graders drive?</td><td>Cell ÷ 12th-grade total</td><td>58 ÷ 100</td><td><b>0.58</b></td></tr>
+      <tr><td>What proportion of drivers are 12th graders?</td><td>Cell ÷ drivers total</td><td>58 ÷ 64</td><td><b>about 0.906</b></td></tr>
+      <tr><td>Is grade associated with driving?</td><td>Compare conditional distributions</td><td>0.06 for 9th vs. 0.58 for 12th</td><td><b>Yes.</b> The proportions differ a lot.</td></tr>
+      <tr><td>Which graph should you use to compare grades?</td><td>Groups = the explanatory variable</td><td>One bar per grade, segmented by driving</td><td><b>Segmented bar chart</b> (or mosaic)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Compare proportions, not counts, when the groups are different sizes: "58% of 12th graders drive compared with only 6% of 9th graders."</li>
+        <li>Name both variables and the context in your conclusion: "There is an association between grade level and driving to school."</li>
+        <li>Make the groups the explanatory variable. Label the axis "Proportion" or "Percent," and include a key for the segments.</li>
+        <li>Show the division: "58/100 = 0.58." Graders want to see which total you divided by.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Dividing by the wrong total. "Of the 12th graders" means divide by the 12th-grade total; "of the drivers" means divide by the drivers total.</li>
+        <li>Concluding association from a side-by-side bar chart of counts when the groups have different sizes.</li>
+        <li>Using marginal distributions to judge association. Only conditional distributions can show it.</li>
+        <li>Saying one variable causes the other just because they are associated.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.1. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  var PRESETS = [
+    { name: "Grade and driving to school", rv: "Grade", cv: "Drives to school", rows: ["9th", "12th"], cols: ["Drives", "Does not"], n: [[6, 94], [58, 42]] },
+    { name: "New drug vs. placebo", rv: "Treatment", cv: "Outcome", rows: ["New drug", "Placebo"], cols: ["Improved", "Not improved"], n: [[64, 36], [41, 59]] },
+    { name: "Age and seat belt use", rv: "Driver age", cv: "Seat belt", rows: ["Under 25", "25–54", "55+"], cols: ["Always", "Not always"], n: [[120, 40], [300, 50], [140, 20]] },
+    { name: "Grade and favorite pet (no association)", rv: "Grade", cv: "Favorite pet", rows: ["9th", "12th"], cols: ["Dog", "Cat", "Neither"], n: [[60, 30, 30], [40, 20, 20]] },
+    { name: "Unequal group sizes", rv: "School", cv: "Lunch", rows: ["Small school", "Large school"], cols: ["Buys lunch", "Brings lunch"], n: [[30, 20], [300, 450]] }
+  ];
+  var S, mode = "seg", cond = "rows";
+  function load(p) { S = JSON.parse(JSON.stringify(p)); build(); render(); }
+
+  function build() {
+    var h = "<thead><tr><th scope='col'>" + S.rv + " \\ " + S.cv + "</th>";
+    S.cols.forEach(function (c) { h += "<th scope='col'>" + c + "</th>"; });
+    h += "<th scope='col'>Total</th></tr></thead><tbody>";
+    S.rows.forEach(function (r, i) {
+      h += "<tr><th scope='row'>" + r + "</th>";
+      S.cols.forEach(function (c, j) { h += "<td><label class='sr' for='c" + i + "-" + j + "'>" + r + ", " + c + "</label><input type='number' min='0' step='1' id='c" + i + "-" + j + "' value='" + S.n[i][j] + "'></td>"; });
+      h += "<td class='tot' id='rt" + i + "'></td></tr>";
+    });
+    h += "</tbody><tfoot><tr><td>Total</td>";
+    S.cols.forEach(function (c, j) { h += "<td id='ct" + j + "'></td>"; });
+    h += "<td id='gt'></td></tr></tfoot>";
+    $("tw").innerHTML = h;
+    S.rows.forEach(function (r, i) { S.cols.forEach(function (c, j) {
+      $("c" + i + "-" + j).addEventListener("input", function (e) { S.n[i][j] = Math.max(0, Math.round(+e.target.value || 0)); render(); });
+    }); });
+    $("tw-title").textContent = S.rv + " by " + S.cv;
+  }
+
+  // groups = categories of the conditioning variable; segs = categories of the other
+  function view() {
+    var byRows = cond === "rows";
+    var groups = byRows ? S.rows : S.cols, segs = byRows ? S.cols : S.rows;
+    var m = groups.map(function (g, a) { return segs.map(function (s, b) { return byRows ? S.n[a][b] : S.n[b][a]; }); });
+    return { groups: groups, segs: segs, m: m, gName: byRows ? S.rv : S.cv, sName: byRows ? S.cv : S.rv };
+  }
+
+  function render() {
+    var R = S.n.map(function (r) { return Lab.sum(r); }), C = S.cols.map(function (c, j) { return Lab.sum(S.n.map(function (r) { return r[j]; })); }), T = Lab.sum(R);
+    R.forEach(function (v, i) { $("rt" + i).textContent = v; }); C.forEach(function (v, j) { $("ct" + j).textContent = v; }); $("gt").textContent = T;
+    $("tw-note").textContent = T ? "Grand total: " + T + " individuals." : "Enter some counts.";
+    var V = view(), gt = V.m.map(function (r) { return Lab.sum(r); });
+    var prop = V.m.map(function (r, a) { return r.map(function (x) { return gt[a] ? x / gt[a] : 0; }); });
+    var colors = V.segs.map(function (_, b) { return Lab.PALETTE[b]; });
+    $("key").innerHTML = V.segs.map(function (s, b) { return "<span><i style='background:" + colors[b] + "'></i>" + s + "</span>"; }).join("");
+    var svg = $("g"), k = V.groups.length;
+    if (mode === "side") {
+      var mx = Math.max.apply(null, V.m.map(function (r) { return Math.max.apply(null, r); }).concat([1]));
+      var yt = Lab.niceTicks(0, mx * 1.12, 5);
+      var F = Lab.frame(svg, { x: [0, k], y: [0, yt[yt.length - 1]], xLabel: V.gName, yLabel: "Count", yTicks: yt, fmtY: function (v) { return N(v, 0); } });
+      V.m.forEach(function (r, a) {
+        var w = 0.8 / r.length;
+        r.forEach(function (x, b) {
+          var x0 = a + 0.1 + b * w;
+          Lab.rect(F, x0 + 0.01, 0, x0 + w - 0.01, x, colors[b], .9);
+          Lab.el("text", { x: F.sx(x0 + w / 2), y: F.sy(x) - 4, "text-anchor": "middle", style: "fill:var(--ink);font-size:10px;font-weight:600" }, F.svg, String(x));
+        });
+        Lab.el("text", { x: F.sx(a + .5), y: F.H - F.M.b + 16, "text-anchor": "middle" }, F.svg, V.groups[a]);
+      });
+      $("g-title").textContent = "Side-by-side bar chart"; $("g-sub").textContent = "counts";
+    } else {
+      var F2 = Lab.frame(svg, { x: [0, mode === "mosaic" ? 1 : k], y: [0, 1], xLabel: V.gName + (mode === "mosaic" ? " (bar width = group size)" : ""), yLabel: "Proportion of " + V.sName, yTicks: [0, .25, .5, .75, 1], fmtY: function (v) { return N(v, 2); } });
+      var x = 0;
+      V.m.forEach(function (r, a) {
+        var w = mode === "mosaic" ? (T ? gt[a] / T : 1 / k) : 1, x0 = mode === "mosaic" ? x : a + 0.15, x1 = mode === "mosaic" ? x + w : a + 0.85, y = 0;
+        r.forEach(function (_, b) {
+          var p = prop[a][b];
+          if (p > 0) {
+            Lab.rect(F2, x0 + (mode === "mosaic" ? 0.004 : 0), y, x1 - (mode === "mosaic" ? 0.004 : 0), y + p, colors[b], .9);
+            if (p > .07 && F2.sx(x1) - F2.sx(x0) > 26) Lab.el("text", { x: F2.sx((x0 + x1) / 2), y: F2.sy(y + p / 2) + 4, "text-anchor": "middle", style: "fill:#fff;font-size:11px;font-weight:600" }, F2.svg, Math.round(p * 100) + "%");
+          }
+          y += p;
+        });
+        if (F2.sx(x1) - F2.sx(x0) > 20) Lab.el("text", { x: F2.sx((x0 + x1) / 2), y: F2.H - F2.M.b + 16, "text-anchor": "middle" }, F2.svg, V.groups[a]);
+        x += w;
+      });
+      $("g-title").textContent = mode === "mosaic" ? "Mosaic plot" : "Segmented bar chart"; $("g-sub").textContent = "each bar = 100%";
+    }
+
+    // readouts: conditional proportion of first segment category in each group
+    var ro = "";
+    V.groups.forEach(function (g, a) { ro += "<div class='stat'><div class='k'>" + V.segs[0] + " | " + g + "</div><div class='v'>" + (gt[a] ? N(prop[a][0], 3) : "n/a") + "</div></div>"; });
+    ro += "<div class='stat'><div class='k'>" + V.segs[0] + ", overall (marginal)</div><div class='v'>" + (T ? N(Lab.sum(V.m.map(function (r) { return r[0]; })) / T, 3) : "n/a") + "</div></div>";
+    $("readout").innerHTML = ro;
+
+    // calc
+    var c = "";
+    V.groups.forEach(function (g, a) {
+      c += "<div class='row h'><span>" + g + " (total " + gt[a] + ")</span><span></span></div>";
+      V.segs.forEach(function (s, b) { c += "<div class='row'><span>" + s + ": " + V.m[a][b] + " ÷ " + gt[a] + "</span><span>= " + (gt[a] ? N(prop[a][b], 3) : "n/a") + "</span></div>"; });
+    });
+    $("calcCond").innerHTML = c;
+    c = "<div class='row h'><span>" + S.rv + "</span><span></span></div>";
+    S.rows.forEach(function (r, i) { c += "<div class='row'><span>" + r + ": " + R[i] + " ÷ " + T + "</span><span>= " + (T ? N(R[i] / T, 3) : "n/a") + "</span></div>"; });
+    c += "<div class='row h'><span>" + S.cv + "</span><span></span></div>";
+    S.cols.forEach(function (cc, j) { c += "<div class='row'><span>" + cc + ": " + C[j] + " ÷ " + T + "</span><span>= " + (T ? N(C[j] / T, 3) : "n/a") + "</span></div>"; });
+    $("calcMarg").innerHTML = c;
+
+    story(V, prop, gt, R, T);
+  }
+
+  function story(V, prop, gt, R, T) {
+    var el = $("story");
+    if (!T || gt.some(function (x) { return !x; })) { el.innerHTML = "<p><b>Every group needs at least one individual</b> before you can compare conditional distributions.</p>"; return; }
+    var best = { d: 0 };
+    V.segs.forEach(function (s, b) {
+      var ps = prop.map(function (r) { return r[b]; }), hi = Math.max.apply(null, ps), lo = Math.min.apply(null, ps);
+      if (hi - lo > best.d) best = { d: hi - lo, s: s, hiG: V.groups[ps.indexOf(hi)], loG: V.groups[ps.indexOf(lo)], hi: hi, lo: lo };
+    });
+    var head, t = [];
+    if (best.d < 0.02) head = "<b>No association.</b> Every " + V.gName.toLowerCase() + " group has the same conditional distribution of " + V.sName.toLowerCase() + ", so knowing the group tells you nothing new.";
+    else if (best.d < 0.08) head = "<b>A weak association, at most.</b> The conditional distributions differ only a little (largest gap " + Lab.pct(best.d) + ").";
+    else head = "<b>There is an association between " + V.gName.toLowerCase() + " and " + V.sName.toLowerCase() + ".</b> " + Lab.pct(best.hi) + " of the " + best.hiG + " group fall in the \u201c" + best.s + "\u201d category, compared with " + Lab.pct(best.lo) + " of the " + best.loG + " group.";
+    var sizes = gt.slice(), big = Math.max.apply(null, sizes), small = Math.min.apply(null, sizes);
+    if (big >= 3 * small) t.push("The groups have very different sizes (" + small + " vs. " + big + "). A side-by-side chart of counts would be misleading. Use proportions: the segmented bar chart or mosaic plot.");
+    t.push("Switch which variable defines the groups. The bars change, but the answer to \"are they associated?\" does not: if one set of conditional distributions differs, so does the other.");
+    if (best.d >= 0.08) t.push("This is an association, not proof of cause. Unless the data come from a randomized experiment, a lurking variable could explain it.");
+    el.innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+
+  function seg(id, opts, get, set) {
+    var s = $(id); s.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1]; b.setAttribute("aria-pressed", String(get() === o[0]));
+      b.addEventListener("click", function () { set(o[0]); seg(id, opts, get, set); render(); });
+      s.appendChild(b);
+    });
+  }
+  seg("modeSeg", [["side", "Side-by-side"], ["seg", "Segmented"], ["mosaic", "Mosaic"]], function () { return mode; }, function (v) { mode = v; });
+  function condSeg() { seg("condSeg", [["rows", "Groups: rows"], ["cols", "Groups: columns"]], function () { return cond; }, function (v) { cond = v; }); }
+  condSeg();
+  PRESETS.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); $("scen").appendChild(b); });
+  load(PRESETS[0]);
+
+  var Q = [
+    { s: "In a two-way table of 300 adults classified by age group and preferred news source, what does the marginal distribution of news source show?", o: ["The proportion of each age group that prefers each source", "The proportion of all 300 adults who prefer each source", "Whether age and news source are associated", "The number of adults in each age group"], c: 1, w: "A marginal distribution uses only the totals for one variable, divided by the grand total. It ignores age, so it cannot show association (C)." },
+    { s: "Of 80 seniors, 52 have a part-time job. Of 120 juniors, 54 have a part-time job. What proportion of juniors have a part-time job?", o: ["0.27", "0.45", "0.51", "0.65"], c: 1, w: "Condition on juniors: 54 ÷ 120 = 0.45. Choice D is the seniors' proportion (52/80); choice A divides by the grand total of 200." },
+    { s: "Using the data in the previous question, which statement is best supported?", o: ["Grade and having a job are not associated because more juniors have jobs.", "Grade and having a job are associated because 65% of seniors have jobs compared with 45% of juniors.", "Having a job causes students to become seniors.", "The data cannot show association because the groups are different sizes."], c: 1, w: "Compare conditional proportions, not counts. 0.65 vs. 0.45 differ, so the variables are associated. Different group sizes are handled by using proportions." },
+    { s: "Which graph is best for comparing the distribution of a categorical variable across groups of very different sizes?", o: ["Side-by-side bar chart of counts", "Segmented bar chart of proportions", "Histogram", "Pie chart of the whole sample"], c: 1, w: "A segmented bar chart scales each group to 100%, so groups of different sizes can be compared fairly. A histogram is for quantitative data." },
+    { s: "In a segmented bar chart, the bars for three groups show identical segments. What can you conclude?", o: ["The groups have equal sizes.", "There is no association between the two variables in these data.", "There is a strong association.", "One variable causes the other."], c: 1, w: "Identical conditional distributions mean no association. The bars show proportions, so they say nothing about group sizes." },
+    { s: "In a mosaic plot, what does the width of each bar represent?", o: ["The proportion of individuals in that group", "The proportion in the first category of the response", "The count in the largest cell", "Nothing; all bars have equal width"], c: 0, w: "A mosaic plot is a segmented bar chart where each bar's width is proportional to its group's share of the total." },
+    { s: "A table shows 40 of 50 dog owners and 30 of 50 cat owners report exercising daily. What is the proportion of daily exercisers who own dogs?", o: ["0.40", "0.57", "0.70", "0.80"], c: 1, w: "Condition on daily exercisers: there are 40 + 30 = 70, and 40 own dogs. 40 ÷ 70 ≈ 0.571. Choice D is the proportion of dog owners who exercise daily, a different conditional." },
+    { s: "A study of 1,000 people found that coffee drinkers were more likely to have heart disease. The best conclusion is:", o: ["Coffee causes heart disease.", "Coffee drinking and heart disease are associated in this sample, but a lurking variable such as smoking could explain it.", "There is no association because this is not an experiment.", "Heart disease causes people to drink coffee."], c: 1, w: "Observational data can show association but not cause and effect. Smoking, for example, might be linked to both coffee drinking and heart disease." }
+  ];
+
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.1");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.1", compact: true, storageKey: "topic-2.1" });</script>
+</body>
+</html>

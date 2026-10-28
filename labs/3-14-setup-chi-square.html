@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting Up a Chi-Square Test Study Lab</title>
+<meta name="description" content="Decide between a chi-square test for homogeneity and for independence, write hypotheses, compute expected counts, and check conditions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl input[type="text"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl input[type="text"] { font-family: var(--body); }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 6px 8px; font-size: .86rem; text-align: right; vertical-align: middle; }
+.mini th:first-child, .mini td:first-child { text-align: left; }
+.mini td.tot, .mini th.tot { background: var(--paper); font-family: var(--mono); }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 56px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: right; }
+.mono { font-family: var(--mono); }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+.steps { display: grid; gap: 12px; }
+.steps .card h3 { display: flex; gap: 10px; align-items: baseline; }
+.steps .card h3 .tag { font-size: .74rem; }
+.steps .card p, .steps .card li { font-size: .95rem; }
+.steps .card ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .mini input[type="number"] { min-width: 0; } }
+
+.seg-bars { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: var(--muted); }
+.seg-bars span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--sw); }
+.mini td.big { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.mini td .f { display: block; font-size: .7rem; color: var(--muted); font-family: var(--mono); }
+.mini td.lowE { background: var(--bad-soft); color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.14</span>
+  <h1>Setting Up a Chi-Square Test Study Lab</h1>
+  <p class="lede">A chi-square test works on a two-way table of counts. The sampling design tells you whether it is a test for homogeneity or for independence. Pick the test, edit the observed counts, and watch the expected counts and conditions update.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Set up a chi-square test</h2>
+    <p>Chi-square tests compare observed counts in a two-way table with the counts we would expect if H₀ were true. First decide which test the study design calls for, then compute the expected counts and check the conditions.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">Expected = (row total × column total) ÷ table total</span> <span class="formula">df = (rows − 1)(columns − 1)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>The study</h3>
+      <p id="design" style="font-size:1.02rem"></p>
+      <div class="tag">Which test fits the design?</div>
+      <div class="seg" id="which" role="group" aria-label="Choose the test"></div>
+      <div class="story" id="whichFb" aria-live="polite"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>State: hypotheses</h3>
+      <div class="calc" id="hyp"></div>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:10px; align-content:start;">
+      <h3>Observed counts <small style="font-family:var(--body); font-weight:400; font-size:.82rem; color:var(--muted);">edit any cell</small></h3>
+      <div class="tbl-wrap"><table class="mini" id="obs"></table></div>
+    </div>
+    <div class="card" style="display:grid; gap:10px; align-content:start;">
+      <h3>Expected counts if H₀ is true</h3>
+      <div class="tbl-wrap"><table class="mini" id="exp"></table></div>
+      <p class="note">Each cell shows its calculation. Red cells have an expected count below 5.</p>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Plan: conditions</h3>
+      <div class="calc" id="cond"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Observed vs. expected distributions</h3>
+      <svg class="chart" id="g" role="img" aria-label="Segmented bar chart of conditional distributions for each row, plus the distribution expected under the null hypothesis"></svg>
+      <div class="seg-bars" id="leg"></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Rows × columns</div><div class="v" id="r-rc"></div></div>
+    <div class="stat"><div class="k">Degrees of freedom</div><div class="v" id="r-df"></div></div>
+    <div class="stat"><div class="k">Smallest expected count</div><div class="v" id="r-min"></div></div>
+    <div class="stat"><div class="k">Test</div><div class="v" id="r-test" style="font-size:.95rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Homogeneity</span><h3>Several groups, one variable</h3><p>Use a test for homogeneity when you have separate random samples (or treatment groups) and compare the distribution of one categorical variable across them.</p></div>
+    <div class="card"><span class="tag">Independence</span><h3>One group, two variables</h3><p>Use a test for independence when you have a single random sample and record two categorical variables for each individual, asking whether they are associated.</p></div>
+    <div class="card"><span class="tag">Hypotheses</span><h3>Written in words</h3><p>Homogeneity: H₀ says the distributions are the same in every population. Independence: H₀ says there is no association between the two variables.</p></div>
+    <div class="card"><span class="tag">Expected counts</span><h3>What H₀ predicts</h3><p>Expected count = (row total)(column total) ÷ table total. These are the counts you would expect if the rows all had the same distribution.</p></div>
+    <div class="card"><span class="tag">Conditions</span><h3>Random, 10%, expected ≥ 5</h3><p>Data from random samples or random assignment; each sample at most 10% of its population; and every expected count at least 5.</p></div>
+    <div class="card"><span class="tag">Degrees of freedom</span><h3>(r − 1)(c − 1)</h3><p>df depends only on the size of the table. A 3 × 4 table has (3 − 1)(4 − 1) = 6 degrees of freedom.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Choosing and setting up a chi-square test for a two-way table.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th></th><th>Test for homogeneity</th><th>Test for independence</th></tr></thead>
+    <tbody>
+      <tr><td><b>Design</b></td><td>Two or more independent samples or treatment groups</td><td>One sample</td></tr>
+      <tr><td><b>Variables</b></td><td>One categorical variable per group</td><td>Two categorical variables per individual</td></tr>
+      <tr><td><b>H₀</b></td><td>The distribution of the variable is the same for all populations</td><td>There is no association between the two variables</td></tr>
+      <tr><td><b>Hₐ</b></td><td>The distributions are not all the same</td><td>There is an association</td></tr>
+      <tr><td><b>Expected count</b></td><td>(row total)(column total) ÷ grand total</td><td>Same</td></tr>
+      <tr><td><b>df</b></td><td>(rows − 1)(columns − 1)</td><td>Same</td></tr>
+      <tr><td><b>Conditions</b></td><td>Random, 10%, all expected ≥ 5</td><td>Same</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Name the test exactly: "chi-square test for homogeneity" or "chi-square test for independence." The design decides which.</li>
+        <li>Write hypotheses in context with words, naming the populations or variables.</li>
+        <li>Show at least one expected count calculation: (80)(72) ÷ 240 = 24.</li>
+        <li>State that all expected counts are at least 5, and give the smallest one.</li>
+        <li>Give df = (r − 1)(c − 1) with numbers.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Choosing the test from the table's shape. Both tests use a two-way table; the sampling design decides.</li>
+        <li>Checking that observed counts are at least 5 instead of expected counts.</li>
+        <li>Rounding expected counts to whole numbers.</li>
+        <li>Writing hypotheses about a single proportion, like p₁ = p₂, when there are more than two categories.</li>
+        <li>Using df = n − 1 instead of (r − 1)(c − 1).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.14. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function P(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function btns(host, list, fn) {
+    host.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = x.name || x[0]; b.addEventListener("click", function () { fn(x, i); }); host.appendChild(b); });
+  }
+  function seg(host, opts, cur, fn) {
+    host.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { Array.prototype.forEach.call(host.children, function (c) { c.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); fn(o[0]); });
+      host.appendChild(b);
+    });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function zstar(c) { return Lab.invNorm(1 - (1 - c) / 2); }
+
+
+  var COLS_PAL = ["var(--accent)", "var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)"];
+  /* T = { rv, cv, rows: [names], cols: [names], obs: [[counts]] } */
+  function totals(T) {
+    var rt = T.obs.map(function (r) { return Lab.sum(r); }), ct = T.cols.map(function (_, j) { return Lab.sum(T.obs.map(function (r) { return r[j]; })); });
+    return { rt: rt, ct: ct, g: Lab.sum(rt) };
+  }
+  function chi(T) {
+    var t = totals(T), E = [], C = [], stat = 0, minE = Infinity;
+    T.obs.forEach(function (r, i) { E.push([]); C.push([]); r.forEach(function (o, j) { var e = t.g ? t.rt[i] * t.ct[j] / t.g : 0; E[i].push(e); var c = e > 0 ? (o - e) * (o - e) / e : 0; C[i].push(c); stat += c; minE = Math.min(minE, e); }); });
+    var df = (T.rows.length - 1) * (T.cols.length - 1);
+    return { t: t, E: E, C: C, stat: stat, df: df, minE: minE, p: Lab.chiCdf(stat, Infinity, df) };
+  }
+  function obsTable(host, T, onChange) {
+    var t = totals(T), h = '<thead><tr><th>' + esc(T.rv) + ' \\ ' + esc(T.cv) + '</th>';
+    T.cols.forEach(function (c) { h += "<th>" + esc(c) + "</th>"; });
+    h += '<th class="tot">Total</th></tr></thead><tbody>';
+    T.rows.forEach(function (r, i) {
+      h += "<tr><td>" + esc(r) + "</td>";
+      T.cols.forEach(function (c, j) { h += '<td><label class="sr" for="' + host.id + "-" + i + "-" + j + '">' + esc(r) + ", " + esc(c) + '</label><input type="number" min="0" step="1" id="' + host.id + "-" + i + "-" + j + '" value="' + T.obs[i][j] + '"></td>'; });
+      h += '<td class="tot" id="' + host.id + "-rt" + i + '"></td></tr>';
+    });
+    h += '<tr><td class="tot">Total</td>';
+    T.cols.forEach(function (c, j) { h += '<td class="tot" id="' + host.id + "-ct" + j + '"></td>'; });
+    h += '<td class="tot" id="' + host.id + '-g"></td></tr></tbody>';
+    host.innerHTML = h;
+    T.rows.forEach(function (r, i) { T.cols.forEach(function (c, j) {
+      $(host.id + "-" + i + "-" + j).addEventListener("input", function (e) { T.obs[i][j] = Math.max(0, Math.floor(+e.target.value) || 0); fillTotals(host, T); onChange(); });
+    }); });
+    fillTotals(host, T);
+  }
+  function fillTotals(host, T) {
+    var t = totals(T);
+    t.rt.forEach(function (v, i) { $(host.id + "-rt" + i).textContent = v; });
+    t.ct.forEach(function (v, j) { $(host.id + "-ct" + j).textContent = v; });
+    $(host.id + "-g").textContent = t.g;
+  }
+  /* grid(host, T, cellFn(i, j) -> {html, cls}) renders a read-only table shaped like T with totals hidden */
+  function grid(host, T, cell, corner) {
+    var h = "<thead><tr><th>" + (corner || "") + "</th>" + T.cols.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>";
+    T.rows.forEach(function (r, i) { h += "<tr><td>" + esc(r) + "</td>" + T.cols.map(function (c, j) { var x = cell(i, j); return '<td class="' + (x.cls || "") + '">' + x.html + "</td>"; }).join("") + "</tr>"; });
+    host.innerHTML = h + "</tbody>";
+  }
+  /* segmented bars: conditional distribution of the column variable for each row, plus an "if H0" bar */
+  function segBars(svg, T, R) {
+    var nb = T.rows.length + 1;
+    var F = Lab.frame(svg, { x: [0, nb], y: [0, 1], xLabel: T.rv, yLabel: "Proportion within row", xTicks: [], yTicks: [0, .25, .5, .75, 1], fmtY: function (v) { return N(v, 2); } });
+    var labels = T.rows.concat(["Expected (H₀)"]);
+    labels.forEach(function (lab, i) {
+      var tot = i < T.rows.length ? R.t.rt[i] : R.t.g, acc = 0;
+      T.cols.forEach(function (c, j) {
+        var v = i < T.rows.length ? T.obs[i][j] : R.t.ct[j], f = tot ? v / tot : 0;
+        Lab.el("rect", { x: F.sx(i + .18), y: F.sy(acc + f), width: F.sx(i + .82) - F.sx(i + .18), height: Math.max(0, F.sy(acc) - F.sy(acc + f)), fill: COLS_PAL[j % COLS_PAL.length], opacity: i < T.rows.length ? .9 : .45, stroke: "var(--surface)" }, F.g);
+        if (f > .07) Lab.el("text", { x: F.sx(i + .5), y: F.sy(acc + f / 2) + 4, "text-anchor": "middle", style: "fill:#fff;font-size:10.5px;font-weight:600" }, F.svg, Math.round(f * 100) + "%");
+        acc += f;
+      });
+      Lab.el("text", { x: F.sx(i + .5), y: F.H - F.M.b + 16, "text-anchor": "middle", style: "font-size:" + (nb > 4 ? 9.5 : 11) + "px" }, F.svg, lab);
+    });
+    return F;
+  }
+  function legendHtml(T) { return T.cols.map(function (c, j) { return '<span style="--sw:' + COLS_PAL[j % COLS_PAL.length] + '">' + esc(c) + "</span>"; }).join(""); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  var PRESETS = [
+    { name: "Music preference by grade (3 samples)", design: "A school takes <b>separate random samples</b> of 9th, 10th, and 11th graders and asks each student their favorite music genre.", test: "hom", groups: "9th, 10th, and 11th graders", T: { rv: "Grade", cv: "Genre", rows: ["9th", "10th", "11th"], cols: ["Pop", "Hip-hop", "Country", "Other"], obs: [[28, 22, 12, 18], [24, 30, 10, 16], [20, 28, 14, 18]] } },
+    { name: "Phone type and age group (1 sample)", design: "A researcher takes <b>one random sample</b> of 400 adults and records each person's age group and phone type.", test: "ind", T: { rv: "Age group", cv: "Phone", rows: ["18–34", "35–54", "55+"], cols: ["iPhone", "Android", "Other"], obs: [[78, 52, 6], [64, 66, 10], [40, 70, 14]] } },
+    { name: "Treatment and outcome (experiment)", design: "Volunteers are <b>randomly assigned</b> to three treatments for insomnia, and each person's outcome is recorded.", test: "hom", groups: "the three treatments", T: { rv: "Treatment", cv: "Outcome", rows: ["Therapy", "Medication", "Placebo"], cols: ["Improved", "No change", "Worse"], obs: [[38, 15, 7], [30, 22, 8], [18, 32, 10]] } },
+    { name: "Small counts (condition fails)", design: "One random sample of 50 club members records membership level and whether they renewed.", test: "ind", T: { rv: "Level", cv: "Renewed", rows: ["Basic", "Plus", "Premium"], cols: ["Yes", "No"], obs: [[18, 6], [12, 4], [8, 2]] } }
+  ];
+  var S = {}, pick = null;
+  function load(p) {
+    S = clone(p); pick = null;
+    $("design").innerHTML = S.design;
+    seg($("which"), [["hom", "Homogeneity"], ["ind", "Independence"]], null, function (v) { pick = v; renderWhich(); });
+    obsTable($("obs"), S.T, render);
+    renderWhich(); render();
+  }
+  function hypText(test, T, groups) {
+    if (test === "hom") return [["H₀: The distribution of " + esc(T.cv.toLowerCase()) + " is the same for " + esc(groups || ("all " + T.rv.toLowerCase() + " groups")) + ".", ""], ["Hₐ: The distribution of " + esc(T.cv.toLowerCase()) + " is not the same for all of them.", ""]];
+    return [["H₀: There is no association between " + esc(T.rv.toLowerCase()) + " and " + esc(T.cv.toLowerCase()) + " in the population.", ""], ["Hₐ: There is an association between " + esc(T.rv.toLowerCase()) + " and " + esc(T.cv.toLowerCase()) + ".", ""]];
+  }
+  function renderWhich() {
+    var fb = $("whichFb"), name = { hom: "homogeneity", ind: "independence" };
+    if (!pick) fb.innerHTML = "<p>Ask: how many samples or groups were there, and how many variables were measured on each person?</p>";
+    else if (pick === S.test) fb.innerHTML = "<p><b class='ok'>Correct: chi-square test for " + name[S.test] + ".</b> " + (S.test === "hom" ? "There are several separate samples (or treatment groups) and one categorical variable, so we compare that variable's distribution across groups." : "There is one sample with two categorical variables recorded for each individual, so we ask whether the variables are associated.") + "</p>";
+    else fb.innerHTML = "<p><b class='no'>Not quite.</b> " + (S.test === "hom" ? "The data come from separate samples or treatment groups, and only one variable is measured. That is homogeneity." : "There is a single sample, and two variables are measured on each individual. That is independence.") + "</p>";
+    $("hyp").innerHTML = pick === S.test ? rows(hypText(S.test, S.T, S.groups)) : rows([["Choose the correct test to see the hypotheses.", ""]]);
+    $("r-test").textContent = pick === S.test ? (S.test === "hom" ? "Homogeneity" : "Independence") : "?";
+  }
+  function render() {
+    var R = chi(S.T), T = S.T;
+    grid($("exp"), T, function (i, j) { var e = R.E[i][j]; return { html: N(e, 2) + '<span class="f">' + R.t.rt[i] + "×" + R.t.ct[j] + "/" + R.t.g + "</span>", cls: e < 5 ? "lowE" : "" }; });
+    var ok = R.minE >= 5;
+    $("cond").innerHTML = rows([
+      ["<b>Random:</b> " + (S.test === "hom" ? "independent random samples or random assignment" : "one random sample"), "✓"],
+      ["<b>10%:</b> each sample ≤ 10% of its population (not needed for an experiment)", "check"],
+      ["<b>Large counts:</b> all expected counts ≥ 5 (smallest = " + N(R.minE, 2) + ")", ok ? '<span class="ok">✓</span>' : '<span class="no">✗</span>'],
+      ["df = (" + T.rows.length + " − 1)(" + T.cols.length + " − 1)", "= " + R.df]]);
+    $("r-rc").textContent = T.rows.length + " × " + T.cols.length; $("r-df").textContent = R.df; $("r-min").textContent = N(R.minE, 2);
+    if (R.t.g) segBars($("g"), T, R);
+    $("leg").innerHTML = legendHtml(T);
+    var t = [], head = ok ? "<b>The large counts condition is met.</b> Every expected count is at least 5." : "<b>The large counts condition fails.</b> At least one expected count is below 5, so the chi-square distribution may not be a good model.";
+    t.push("Expected counts come from the totals, not the observed cells. If H₀ were true, every row would split across the columns in the same proportions as the column totals, which is the faded \"Expected\" bar.");
+    t.push("Compare the observed bars with the expected bar. The more they differ, the larger χ² will be. Topic 3.15 turns that difference into a p-value.");
+    t.push("Check the condition with <b>expected</b> counts, not observed counts. Expected counts can be decimals; do not round them.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  btns($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+ {
+  "s": "A researcher randomly samples 200 voters from each of three states and asks which of four issues matters most. Which test is appropriate?",
+  "o": [
+   "Chi-square test for independence",
+   "Chi-square test for homogeneity",
+   "Two-sample z-test for proportions",
+   "One-sample z-test"
+  ],
+  "c": 1,
+  "w": "Three separate samples and one categorical variable: compare the distribution of issue preference across states."
+ },
+ {
+  "s": "A random sample of 500 students records each student's grade level and preferred study time. Which test fits?",
+  "o": [
+   "Homogeneity",
+   "Independence",
+   "Two-sample t-test",
+   "One-sample z-test for a proportion"
+  ],
+  "c": 1,
+  "w": "One sample with two categorical variables per student is a test for independence."
+ },
+ {
+  "s": "In a two-way table, a cell's row total is 60, its column total is 90, and the table total is 300. What is the expected count?",
+  "o": [
+   "18",
+   "30",
+   "20",
+   "5,400"
+  ],
+  "c": 0,
+  "w": "Expected = (60)(90) ÷ 300 = 18."
+ },
+ {
+  "s": "What are the degrees of freedom for a chi-square test on a 4 × 3 table?",
+  "o": [
+   "12",
+   "6",
+   "11",
+   "7"
+  ],
+  "c": 1,
+  "w": "df = (4 − 1)(3 − 1) = 6."
+ },
+ {
+  "s": "Which is the correct large counts condition for a chi-square test?",
+  "o": [
+   "All observed counts are at least 5",
+   "All expected counts are at least 5",
+   "The total sample size is at least 30",
+   "Each row total is at least 10"
+  ],
+  "c": 1,
+  "w": "The chi-square model is reliable when every expected count is at least 5."
+ },
+ {
+  "s": "Which null hypothesis is correct for a test of independence between pet ownership and housing type?",
+  "o": [
+   "Pet ownership and housing type are associated.",
+   "There is no association between pet ownership and housing type in the population.",
+   "The proportion of pet owners is 0.5.",
+   "The sample shows no association."
+  ],
+  "c": 1,
+  "w": "H₀ for independence says there is no association, and it is about the population."
+ },
+ {
+  "s": "Why are expected counts computed from row and column totals?",
+  "o": [
+   "Because H₀ says each row has the same distribution as the overall column totals",
+   "To make the counts whole numbers",
+   "Because the observed counts are unreliable",
+   "To guarantee χ² is 0"
+  ],
+  "c": 0,
+  "w": "If H₀ is true, the proportions in each column should be the same for every row, matching the overall column proportions."
+ },
+ {
+  "s": "Volunteers are randomly assigned to three diets, and each is classified as lost weight, no change, or gained. Which test and condition list is right?",
+  "o": [
+   "Independence; random, 10%, expected ≥ 5",
+   "Homogeneity; random assignment, expected ≥ 5 (10% not needed)",
+   "Homogeneity; 10% condition required",
+   "Two-sample z-test; large counts ≥ 10"
+  ],
+  "c": 1,
+  "w": "Treatment groups make this homogeneity. With random assignment of volunteers, the 10% condition does not apply."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.14");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.14", compact: true, storageKey: "topic-3.14" });</script>
+</body>
+</html>

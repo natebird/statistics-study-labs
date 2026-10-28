@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justifying a Claim with a Two-Proportion Interval Study Lab</title>
+<meta name="description" content="Decide whether a confidence interval for p₁ − p₂ supports, fails to support, or contradicts a claim, and see what controls its width.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl input[type="text"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl input[type="text"] { font-family: var(--body); }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 6px 8px; font-size: .86rem; text-align: right; vertical-align: middle; }
+.mini th:first-child, .mini td:first-child { text-align: left; }
+.mini td.tot, .mini th.tot { background: var(--paper); font-family: var(--mono); }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 56px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: right; }
+.mono { font-family: var(--mono); }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+.steps { display: grid; gap: 12px; }
+.steps .card h3 { display: flex; gap: 10px; align-items: baseline; }
+.steps .card h3 .tag { font-size: .74rem; }
+.steps .card p, .steps .card li { font-size: .95rem; }
+.steps .card ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .mini input[type="number"] { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.11</span>
+  <h1>Justifying a Claim with a Two-Proportion Interval Study Lab</h1>
+  <p class="lede">Once you have a confidence interval for p₁ − p₂, you can use it to judge claims. Is there a difference? Which group is higher? Is a specific difference plausible? Pick a claim and see whether every plausible value agrees with it.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Does the interval support the claim?</h2>
+    <p>A confidence interval gives the plausible values of p₁ − p₂. A claim is supported only if every plausible value agrees with it. Pick a study, choose a claim, and see the verdict.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">0 in the interval → "no difference" is plausible</span> <span class="formula">entire interval &gt; 0 → p₁ &gt; p₂</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>The interval</h3>
+      <p class="note" id="ctx"></p>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="lo">Lower endpoint</label><input type="number" id="lo" step="0.001"></div>
+        <div class="ctl"><label for="hi">Upper endpoint</label><input type="number" id="hi" step="0.001"></div>
+      </div>
+      <div class="tag">The claim</div>
+      <div class="seg" id="claim" role="group" aria-label="Choose a claim"></div>
+      <div class="ctl" id="dbox"><label for="d">Claim value d <output id="d-o"></output></label><input type="range" id="d" min="-0.3" max="0.3" step="0.01"><span class="hint" id="d-h"></span></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Interval vs. claim <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Confidence interval drawn against the values that agree with the claim"></svg>
+      <div class="legend"><span class="l-ad">Confidence interval</span><span class="l-c2">Values that agree with the claim</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Point estimate</div><div class="v" id="r-pt"></div></div>
+    <div class="stat"><div class="k">Margin of error</div><div class="v" id="r-me"></div></div>
+    <div class="stat"><div class="k">Contains 0?</div><div class="v" id="r-0"></div></div>
+    <div class="stat"><div class="k">Verdict</div><div class="v" id="r-v" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">What controls the width?</h3>
+    <p>Keep the same sample proportions and change the sample size or the confidence level. A narrower interval can turn "not convincing" into "convincing."</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="wp1">p̂₁ <output id="wp1-o"></output></label><input type="range" id="wp1" min="0.05" max="0.95" step="0.01" value="0.55"></div>
+        <div class="ctl"><label for="wp2">p̂₂ <output id="wp2-o"></output></label><input type="range" id="wp2" min="0.05" max="0.95" step="0.01" value="0.48"></div>
+        <div class="ctl"><label for="wn">n in each group <output id="wn-o"></output></label><input type="range" id="wn" min="20" max="2000" step="10" value="200"></div>
+        <div class="ctl"><label>Confidence level</label><div class="seg" id="wc" role="group" aria-label="Confidence level"></div></div>
+      </div>
+      <div class="calc" id="wcalc"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Interval at three sample sizes <small id="w-sub"></small></h3>
+      <svg class="chart" id="w" role="img" aria-label="Three confidence intervals at different sample sizes"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Plausible values</span><h3>The interval is the evidence</h3><p>Values inside a confidence interval are plausible for the parameter. Values outside are not plausible at that confidence level.</p></div>
+    <div class="card"><span class="tag">Zero</span><h3>Is there a difference?</h3><p>If 0 is in the interval for p₁ − p₂, no difference is plausible, so there is not convincing evidence the proportions differ. If 0 is outside, there is.</p></div>
+    <div class="card"><span class="tag">Direction</span><h3>Which group is higher?</h3><p>An interval entirely above 0 supports p₁ > p₂. An interval entirely below 0 supports p₁ < p₂. Check the order of subtraction before you decide.</p></div>
+    <div class="card"><span class="tag">Careful</span><h3>Plausible is not proven</h3><p>A value inside the interval is plausible, not established. "0 is in the interval" never proves the proportions are equal; it means we cannot rule equality out.</p></div>
+    <div class="card"><span class="tag">Width</span><h3>Sample size and confidence</h3><p>Larger samples give narrower intervals. Higher confidence gives wider intervals. To halve the margin of error, use about four times as many people in each group.</p></div>
+    <div class="card"><span class="tag">Scope</span><h3>Cause and generalization</h3><p>Random assignment lets you conclude cause and effect. Random sampling lets you generalize to the populations. A claim needs the right design, not just the right interval.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Reading a 95% interval for p₁ − p₂ against common claims.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Interval</th><th>Claim</th><th>Verdict</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>(0.03, 0.12)</td><td>p₁ ≠ p₂</td><td><b>Supported</b></td><td>0 is not in the interval</td></tr>
+      <tr><td>(−0.04, 0.07)</td><td>p₁ ≠ p₂</td><td><b>Not convincing</b></td><td>0 is plausible</td></tr>
+      <tr><td>(0.03, 0.12)</td><td>p₁ − p₂ &gt; 0.10</td><td><b>Not convincing</b></td><td>Values from 0.03 to 0.10 are also plausible</td></tr>
+      <tr><td>(0.03, 0.12)</td><td>p₁ − p₂ = 0.05</td><td><b>Plausible</b></td><td>0.05 is inside; other values are too</td></tr>
+      <tr><td>(−0.14, −0.03)</td><td>p₁ &gt; p₂</td><td><b>Contradicted</b></td><td>Every plausible value is negative</td></tr>
+      <tr><td>Any</td><td>Wider at 99% than 95%</td><td>Always true</td><td>Larger z*</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Refer to the interval explicitly: "Because 0 is not contained in the interval (0.03, 0.12)…"</li>
+        <li>Tie the decision to the parameter and context: "…there is convincing evidence that the true proportion of A is greater than that of B."</li>
+        <li>For a specific claimed value, say whether it is in the interval and call it plausible or not plausible.</li>
+        <li>If the interval includes values on both sides of a claim, say the data do not provide convincing evidence for the claim.</li>
+        <li>When asked about width, name the cause: a larger sample size reduces the standard error; a higher confidence level increases z*.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Saying "the interval proves there is no difference." It only shows no difference is plausible.</li>
+        <li>Ignoring the order of subtraction and reversing the direction of the conclusion.</li>
+        <li>Claiming causation from an observational study.</li>
+        <li>Using the point estimate alone ("0.075 is greater than 0, so p₁ &gt; p₂") without checking the whole interval.</li>
+        <li>Thinking a higher confidence level makes the interval more precise. It is less precise (wider).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.11. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function P(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function btns(host, list, fn) {
+    host.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = x.name || x[0]; b.addEventListener("click", function () { fn(x, i); }); host.appendChild(b); });
+  }
+  function seg(host, opts, cur, fn) {
+    host.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { Array.prototype.forEach.call(host.children, function (c) { c.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); fn(o[0]); });
+      host.appendChild(b);
+    });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function zstar(c) { return Lab.invNorm(1 - (1 - c) / 2); }
+
+
+  var PRESETS = [
+    { name: "Homework app: helps vs. no app", ctx: "p₁ − p₂ = proportion passing with the app minus without, 95% confidence. Randomized experiment.", lo: 0.024, hi: 0.161, claim: "gt", d: 0 },
+    { name: "Recycling: town A vs. town B", ctx: "p₁ − p₂ = proportion of households that recycle in town A minus town B, 95% confidence.", lo: -0.038, hi: 0.072, claim: "ne", d: 0 },
+    { name: "Ad claim: \"at least 10 points higher\"", ctx: "p₁ − p₂ = proportion who remember the new ad minus the old ad, 90% confidence.", lo: 0.062, hi: 0.148, claim: "gtd", d: 0.10 },
+    { name: "Is a 5-point difference plausible?", ctx: "p₁ − p₂ = proportion of juniors minus seniors who drive to school, 99% confidence.", lo: -0.011, hi: 0.093, claim: "eq", d: 0.05 },
+    { name: "Treatment is worse", ctx: "p₁ − p₂ = proportion with side effects on the new dose minus the old dose, 95% confidence.", lo: -0.142, hi: -0.031, claim: "gt", d: 0 }
+  ];
+  var CLAIMS = [["ne", "p₁ ≠ p₂"], ["gt", "p₁ > p₂"], ["lt", "p₁ < p₂"], ["gtd", "p₁ − p₂ > d"], ["eq", "p₁ − p₂ = d is plausible"]];
+  var S = { lo: 0.024, hi: 0.161, claim: "gt", d: 0, ctx: "" };
+  function load(p) { S.lo = p.lo; S.hi = p.hi; S.claim = p.claim; S.d = p.d; S.ctx = p.ctx; $("lo").value = p.lo; $("hi").value = p.hi; $("d").value = p.d; $("ctx").textContent = p.ctx; seg($("claim"), CLAIMS, S.claim, function (v) { S.claim = v; render(); }); render(); }
+  $("lo").addEventListener("input", function (e) { S.lo = +e.target.value; render(); });
+  $("hi").addEventListener("input", function (e) { S.hi = +e.target.value; render(); });
+  $("d").addEventListener("input", function (e) { S.d = +e.target.value; render(); });
+
+  // region of values that agree with the claim, as [a, b]
+  function region() {
+    var big = 1;
+    switch (S.claim) {
+      case "ne": return null; // everything except 0
+      case "gt": return [0, big];
+      case "lt": return [-big, 0];
+      case "gtd": return [S.d, big];
+      case "eq": return [S.d, S.d];
+    }
+  }
+  function render() {
+    var lo = Math.min(S.lo, S.hi), hi = Math.max(S.lo, S.hi), pt = (lo + hi) / 2, me = (hi - lo) / 2;
+    var useD = S.claim === "gtd" || S.claim === "eq";
+    $("dbox").hidden = !useD; $("d-o").textContent = N(S.d, 2);
+    $("d-h").textContent = S.claim === "eq" ? "Is this specific difference among the plausible values?" : "The claimed minimum difference.";
+    var verdict, cls, why;
+    var has0 = lo <= 0 && 0 <= hi;
+    if (S.claim === "ne") {
+      if (!has0) { verdict = "Supported"; cls = "ok"; why = "0 is not in the interval, so \"no difference\" is not plausible. The data give convincing evidence that the proportions differ."; }
+      else { verdict = "Not convincing"; cls = "no"; why = "0 is in the interval, so \"no difference\" is a plausible value. The data do not give convincing evidence of a difference. That is not the same as proving the proportions are equal."; }
+    } else if (S.claim === "gt" || S.claim === "lt" || S.claim === "gtd") {
+      var cut = S.claim === "gtd" ? S.d : 0, up = S.claim !== "lt";
+      var all = up ? lo > cut : hi < cut, none = up ? hi <= cut : lo >= cut;
+      if (all) { verdict = "Supported"; cls = "ok"; why = "Every value in the interval is " + (up ? "greater" : "less") + " than " + N(cut, 2) + ", so the claim agrees with all plausible values."; }
+      else if (none) { verdict = "Contradicted"; cls = "no"; why = "No value in the interval agrees with the claim. The data give evidence against it."; }
+      else { verdict = "Not convincing"; cls = "no"; why = "Some plausible values agree with the claim and some do not, including " + N(cut, 2) + ". The interval does not give convincing evidence for the claim."; }
+    } else {
+      if (lo <= S.d && S.d <= hi) { verdict = "Plausible"; cls = "ok"; why = N(S.d, 2) + " is inside the interval, so it is a plausible value for p₁ − p₂. Other values are plausible too, so the interval does not prove the difference is exactly " + N(S.d, 2) + "."; }
+      else { verdict = "Not plausible"; cls = "no"; why = N(S.d, 2) + " is outside the interval, so it is not a plausible value for p₁ − p₂ at this confidence level."; }
+    }
+    $("r-pt").textContent = N(pt, 3); $("r-me").textContent = N(me, 3); $("r-0").textContent = has0 ? "Yes" : "No";
+    $("r-v").innerHTML = '<span class="' + cls + '">' + verdict + "</span>";
+
+    var a = Math.min(lo, useD ? S.d : 0, 0), b = Math.max(hi, useD ? S.d : 0, 0), pad = Math.max((b - a) * 0.25, 0.03);
+    var ticks = Lab.niceTicks(a - pad, b + pad, 6);
+    var F = Lab.frame($("g"), { x: [ticks[0], ticks[ticks.length - 1]], y: [0, 10], xLabel: "p₁ − p₂", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 2); }, height: 230 });
+    var r = region();
+    if (S.claim === "ne") { Lab.rect(F, F.xr[0], 0, F.xr[1], 10, "var(--c2)", .13); Lab.vline(F, 0, "var(--bad)", 2.5, "5 4"); Lab.tag(F, 0, 9.3, "0 (excluded by claim)", "var(--bad)", "middle"); }
+    else if (S.claim === "eq") { Lab.vline(F, S.d, "var(--c2)", 3); Lab.tag(F, S.d, 9.3, "d = " + N(S.d, 2), "var(--c2)", "middle"); }
+    else { Lab.rect(F, r[0], 0, r[1], 10, "var(--c2)", .16); Lab.vline(F, r[0] > -1 ? r[0] : r[1], "var(--c2)", 2, "5 4"); }
+    if (S.claim !== "ne") { Lab.vline(F, 0, "var(--muted)", 1, "2 3"); }
+    Lab.line(F, [[lo, 5], [hi, 5]], "var(--accent)", 6);
+    Lab.line(F, [[lo, 3.8], [lo, 6.2]], "var(--accent)", 3); Lab.line(F, [[hi, 3.8], [hi, 6.2]], "var(--accent)", 3);
+    Lab.tag(F, lo, 7.3, N(lo, 3), "var(--accent)", "middle"); Lab.tag(F, hi, 7.3, N(hi, 3), "var(--accent)", "middle");
+    $("g-sub").textContent = CLAIMS.filter(function (c) { return c[0] === S.claim; })[0][1].replace("d", N(S.d, 2));
+
+    var t = [why];
+    if (S.claim !== "eq") t.push("AP wording: \"Because " + (has0 ? "0 is" : "all values in the interval are " + (lo > 0 ? "positive" : "negative") + ", and 0 is not") + " in the interval, " + (has0 ? "it is plausible that there is no difference in the true proportions." : "there is convincing evidence that p₁ " + (lo > 0 ? ">" : "<") + " p₂.") + "\"");
+    if (/experiment/i.test(S.ctx)) t.push("Because the groups were formed by <b>random assignment</b>, a convincing difference can be attributed to the treatment (cause and effect).");
+    else t.push("Without random assignment, a difference shows an association, not cause and effect.");
+    $("story").innerHTML = "<p><b>" + verdict + ".</b> " + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+    if (S.ctx) $("ctx").textContent = S.ctx;
+  }
+
+  // ---- width explorer
+  var W = { p1: .55, p2: .48, n: 200, c: .95 };
+  seg($("wc"), [[.90, "90%"], [.95, "95%"], [.99, "99%"]], W.c, function (v) { W.c = v; renderW(); });
+  ["wp1", "wp2", "wn"].forEach(function (k) { $(k).addEventListener("input", function (e) { W[k.slice(1)] = +e.target.value; renderW(); }); });
+  function ci(n) { var se = Math.sqrt(W.p1 * (1 - W.p1) / n + W.p2 * (1 - W.p2) / n), me = zstar(W.c) * se, d = W.p1 - W.p2; return { lo: d - me, hi: d + me, me: me }; }
+  function renderW() {
+    $("wp1-o").textContent = N(W.p1); $("wp2-o").textContent = N(W.p2); $("wn-o").textContent = W.n;
+    var ns = [Math.max(5, Math.round(W.n / 4)), W.n, W.n * 4], cs = ns.map(ci), d = W.p1 - W.p2;
+    var a = Math.min(cs[0].lo, 0), b = Math.max(cs[0].hi, 0), pad = (b - a) * .1 + 0.01, ticks = Lab.niceTicks(a - pad, b + pad, 6);
+    var F = Lab.frame($("w"), { x: [ticks[0], ticks[ticks.length - 1]], y: [0, 4], xLabel: "p₁ − p₂", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 2); }, height: 250 });
+    Lab.vline(F, 0, "var(--c1)", 2, "6 4");
+    cs.forEach(function (c, i) {
+      var y = 3 - i, col = c.lo > 0 || c.hi < 0 ? "var(--accent)" : "var(--ghost)";
+      Lab.line(F, [[c.lo, y], [c.hi, y]], col, 6); Lab.dot(F, d, y, "var(--ink)", false);
+      Lab.tag(F, F.xr[0] + (F.xr[1] - F.xr[0]) * .01, y + .3, "n = " + ns[i] + (i === 1 ? " (current)" : ""), "var(--ink)");
+    });
+    $("w-sub").textContent = Math.round(W.c * 100) + "% · gray = contains 0";
+    $("wcalc").innerHTML = rows(cs.map(function (c, i) { return ["n = " + ns[i] + ": (" + N(c.lo, 3) + ", " + N(c.hi, 3) + ")", "width " + N(c.hi - c.lo, 3)]; })
+      .concat([["Quadrupling n halves the width; one-fourth of n doubles it.", ""]]));
+  }
+  btns($("scen"), PRESETS, load);
+  load(PRESETS[0]); renderW();
+
+  var Q = [
+ {
+  "s": "A 95% CI for p₁ − p₂ is (−0.02, 0.09). Which conclusion is correct?",
+  "o": [
+   "There is convincing evidence p₁ > p₂.",
+   "There is convincing evidence p₁ ≠ p₂.",
+   "It is plausible that p₁ = p₂, so there is not convincing evidence of a difference.",
+   "The data prove p₁ = p₂."
+  ],
+  "c": 2,
+  "w": "0 is inside the interval, so no difference is plausible. That is not proof of equality (D)."
+ },
+ {
+  "s": "A 95% CI for p_new − p_old is (0.04, 0.15). Which statement is supported?",
+  "o": [
+   "The new proportion is plausibly lower.",
+   "The new proportion is greater than the old, by somewhere between 4 and 15 percentage points.",
+   "The difference is exactly 0.095.",
+   "0.20 is a plausible difference."
+  ],
+  "c": 1,
+  "w": "Every plausible value is positive, between 0.04 and 0.15."
+ },
+ {
+  "s": "A company claims its success rate is at least 10 percentage points higher than a rival's. A 95% CI for p_company − p_rival is (0.06, 0.18). Do the data support the claim?",
+  "o": [
+   "Yes, because 0.10 is in the interval",
+   "Yes, because the interval is above 0",
+   "No, the data do not provide convincing evidence, because values below 0.10 are also plausible",
+   "No, because the interval contradicts the claim"
+  ],
+  "c": 2,
+  "w": "Some plausible values (0.06 to 0.10) are below the claimed 10 points, so the claim is plausible but not established."
+ },
+ {
+  "s": "Which change would most likely make a two-proportion interval exclude 0 when it currently barely includes it?",
+  "o": [
+   "Lowering the sample sizes",
+   "Raising the confidence level",
+   "Increasing the sample sizes, if the sample proportions stay about the same",
+   "Switching the order of subtraction"
+  ],
+  "c": 2,
+  "w": "Larger samples shrink the margin of error. Switching the order only flips the signs, so 0 stays in."
+ },
+ {
+  "s": "A 99% CI and a 90% CI are built from the same data. Which is true?",
+  "o": [
+   "The 90% interval is wider.",
+   "The 99% interval is wider.",
+   "They have the same width.",
+   "They have different centers."
+  ],
+  "c": 1,
+  "w": "Both are centered at p̂₁ − p̂₂, but z* is larger for 99%, so that interval is wider."
+ },
+ {
+  "s": "An observational study gives a 95% CI for p_coffee − p_none of (0.05, 0.13) for the proportion who report good sleep. What can be concluded?",
+  "o": [
+   "Drinking coffee causes better sleep.",
+   "There is convincing evidence of an association between coffee and good sleep in these populations, but not causation.",
+   "There is no difference.",
+   "Nothing, because the interval is too wide."
+  ],
+  "c": 1,
+  "w": "The interval excludes 0, so there is a difference, but without random assignment it cannot be attributed to coffee."
+ },
+ {
+  "s": "A 95% CI for p₁ − p₂ is (−0.12, −0.01). Which is true?",
+  "o": [
+   "p₁ > p₂ is supported",
+   "p₁ < p₂ is supported",
+   "No difference is plausible",
+   "The interval is invalid because it is negative"
+  ],
+  "c": 1,
+  "w": "The entire interval is below 0, so p₁ − p₂ < 0, meaning p₁ < p₂."
+ },
+ {
+  "s": "To cut the margin of error of a two-proportion interval in half, about how should each sample size change?",
+  "o": [
+   "Double it",
+   "Multiply it by 4",
+   "Halve it",
+   "Multiply it by √2"
+  ],
+  "c": 1,
+  "w": "The margin of error is proportional to 1/√n, so you need 4 times as many observations."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.11");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.11", compact: true, storageKey: "topic-3.11" });</script>
+</body>
+</html>

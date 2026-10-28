@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrying Out a Chi-Square Test Study Lab</title>
+<meta name="description" content="Compute expected counts, components, the χ² statistic, df, and p-value for a two-way table, then write the conclusion in context.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl input[type="text"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl input[type="text"] { font-family: var(--body); }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 6px 8px; font-size: .86rem; text-align: right; vertical-align: middle; }
+.mini th:first-child, .mini td:first-child { text-align: left; }
+.mini td.tot, .mini th.tot { background: var(--paper); font-family: var(--mono); }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 56px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: right; }
+.mono { font-family: var(--mono); }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+.steps { display: grid; gap: 12px; }
+.steps .card h3 { display: flex; gap: 10px; align-items: baseline; }
+.steps .card h3 .tag { font-size: .74rem; }
+.steps .card p, .steps .card li { font-size: .95rem; }
+.steps .card ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .mini input[type="number"] { min-width: 0; } }
+
+.seg-bars { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: var(--muted); }
+.seg-bars span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--sw); }
+.mini td.big { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.mini td .f { display: block; font-size: .7rem; color: var(--muted); font-family: var(--mono); }
+.mini td.lowE { background: var(--bad-soft); color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.15</span>
+  <h1>Carrying Out a Chi-Square Test Study Lab</h1>
+  <p class="lede">The chi-square statistic measures how far a table of observed counts is from what H₀ predicts. Edit the table and watch each component, the shaded p-value, and the four-step write-up update. The biggest components show where the difference comes from.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Run a chi-square test</h2>
+    <p>Edit the observed counts, choose the test and α, and follow the calculation from expected counts to the χ² statistic, the p-value, and a conclusion in context.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">χ² = Σ (Observed − Expected)² ÷ Expected</span> <span class="formula">df = (r − 1)(c − 1)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>Observed counts <small style="font-family:var(--body); font-weight:400; font-size:.82rem; color:var(--muted);">edit any cell</small></h3>
+      <p class="note" id="design"></p>
+      <div class="tbl-wrap"><table class="mini" id="obs"></table></div>
+      <div class="ctlrow"><span class="tag">Test</span><div class="seg" id="tt" role="group" aria-label="Type of chi-square test"></div></div>
+      <div class="ctlrow"><span class="tag"><span class="nc">α</span></span><div class="seg" id="al" role="group" aria-label="Significance level"></div></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Chi-square distribution <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Chi-square density curve with the test statistic marked and the p-value shaded"></svg>
+      <div class="legend"><span class="l-ad">p-value area</span><span class="l-c1">Observed χ²</span><span class="l-ghost">Critical value at α</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">χ² statistic</div><div class="v" id="r-x"></div></div>
+    <div class="stat"><div class="k">Degrees of freedom</div><div class="v" id="r-df"></div></div>
+    <div class="stat"><div class="k">p-value</div><div class="v" id="r-p"></div></div>
+    <div class="stat"><div class="k">Decision</div><div class="v" id="r-dec" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:10px; align-content:start;">
+      <h3>Expected counts</h3>
+      <div class="tbl-wrap"><table class="mini" id="exp"></table></div>
+    </div>
+    <div class="card" style="display:grid; gap:10px; align-content:start;">
+      <h3>Components (O − E)² ÷ E</h3>
+      <div class="tbl-wrap"><table class="mini" id="cmp"></table></div>
+      <p class="note">Highlighted cells contribute the most to χ². Add every component to get the statistic.</p>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="card"><h3><span class="tag">Step 1</span> State</h3><div class="calc" id="s1"></div></div>
+    <div class="card"><h3><span class="tag">Step 2</span> Plan</h3><div class="calc" id="s2"></div></div>
+    <div class="card"><h3><span class="tag">Step 3</span> Do</h3><div class="calc" id="s3"></div></div>
+    <div class="card"><h3><span class="tag">Step 4</span> Conclude</h3><p id="s4"></p></div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Statistic</span><h3>Distance from H₀</h3><p>χ² = Σ (O − E)² / E adds up how far each observed count is from its expected count, relative to the expected count. χ² = 0 means a perfect match.</p></div>
+    <div class="card"><span class="tag">Distribution</span><h3>Right-skewed, depends on df</h3><p>Chi-square distributions take only nonnegative values and are skewed right. Their mean equals df, and they become more symmetric as df grows.</p></div>
+    <div class="card"><span class="tag">p-value</span><h3>Always the right tail</h3><p>The p-value is P(χ² ≥ observed) using df = (r − 1)(c − 1). Large χ² values give small p-values.</p></div>
+    <div class="card"><span class="tag">Follow-up</span><h3>Which cells matter most?</h3><p>Look at the largest components to see where the observed counts differ most from expected, and say whether each is above or below expected.</p></div>
+    <div class="card"><span class="tag">Conclusion</span><h3>In context</h3><p>Homogeneity: convincing evidence the distributions differ among the populations. Independence: convincing evidence of an association between the variables.</p></div>
+    <div class="card"><span class="tag">Scope</span><h3>Design limits claims</h3><p>A randomized experiment supports cause and effect. Random samples support generalizing to the populations. An association in observational data is not causation.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>The four steps of a chi-square test.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Step</th><th>What to write</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>State</b></td><td>H₀ and Hₐ in words, α</td><td>H₀: no association between age group and phone type; α = 0.05</td></tr>
+      <tr><td><b>Plan</b></td><td>Name the test; random, 10%, all expected ≥ 5</td><td>Chi-square test for independence; smallest expected count 9.3</td></tr>
+      <tr><td><b>Do</b></td><td>χ², df, p-value</td><td>χ² = 17.69, df = 4, p-value = 0.0014</td></tr>
+      <tr><td><b>Conclude</b></td><td>Compare p to α; conclusion in context</td><td>Reject H₀. There is convincing evidence of an association…</td></tr>
+      <tr><td><b>Calculator</b></td><td>χ²-Test with matrix [A] of observed counts</td><td>Expected counts appear in matrix [B]</td></tr>
+      <tr><td><b>Never</b></td><td>"Accept H₀" or use a two-tailed p-value</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Show the formula and at least one component: (38 − 28.67)² ÷ 28.67 = 3.04.</li>
+        <li>Report χ², df, and the p-value together.</li>
+        <li>Compare the p-value to α and state the decision about H₀.</li>
+        <li>Write the conclusion in context using the language of the test (distributions differ / association).</li>
+        <li>When asked which cells contributed most, name the cell and say whether the observed count was above or below expected.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Using df = n − 1 or the number of cells instead of (r − 1)(c − 1).</li>
+        <li>Dividing by the observed count instead of the expected count in each component.</li>
+        <li>Shading the left tail or doubling the p-value.</li>
+        <li>Concluding causation from a test for independence on observational data.</li>
+        <li>Saying "the data prove the variables are independent" after failing to reject H₀.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.15. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function P(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function btns(host, list, fn) {
+    host.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = x.name || x[0]; b.addEventListener("click", function () { fn(x, i); }); host.appendChild(b); });
+  }
+  function seg(host, opts, cur, fn) {
+    host.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { Array.prototype.forEach.call(host.children, function (c) { c.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); fn(o[0]); });
+      host.appendChild(b);
+    });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function zstar(c) { return Lab.invNorm(1 - (1 - c) / 2); }
+
+
+  var COLS_PAL = ["var(--accent)", "var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)"];
+  /* T = { rv, cv, rows: [names], cols: [names], obs: [[counts]] } */
+  function totals(T) {
+    var rt = T.obs.map(function (r) { return Lab.sum(r); }), ct = T.cols.map(function (_, j) { return Lab.sum(T.obs.map(function (r) { return r[j]; })); });
+    return { rt: rt, ct: ct, g: Lab.sum(rt) };
+  }
+  function chi(T) {
+    var t = totals(T), E = [], C = [], stat = 0, minE = Infinity;
+    T.obs.forEach(function (r, i) { E.push([]); C.push([]); r.forEach(function (o, j) { var e = t.g ? t.rt[i] * t.ct[j] / t.g : 0; E[i].push(e); var c = e > 0 ? (o - e) * (o - e) / e : 0; C[i].push(c); stat += c; minE = Math.min(minE, e); }); });
+    var df = (T.rows.length - 1) * (T.cols.length - 1);
+    return { t: t, E: E, C: C, stat: stat, df: df, minE: minE, p: Lab.chiCdf(stat, Infinity, df) };
+  }
+  function obsTable(host, T, onChange) {
+    var t = totals(T), h = '<thead><tr><th>' + esc(T.rv) + ' \\ ' + esc(T.cv) + '</th>';
+    T.cols.forEach(function (c) { h += "<th>" + esc(c) + "</th>"; });
+    h += '<th class="tot">Total</th></tr></thead><tbody>';
+    T.rows.forEach(function (r, i) {
+      h += "<tr><td>" + esc(r) + "</td>";
+      T.cols.forEach(function (c, j) { h += '<td><label class="sr" for="' + host.id + "-" + i + "-" + j + '">' + esc(r) + ", " + esc(c) + '</label><input type="number" min="0" step="1" id="' + host.id + "-" + i + "-" + j + '" value="' + T.obs[i][j] + '"></td>'; });
+      h += '<td class="tot" id="' + host.id + "-rt" + i + '"></td></tr>';
+    });
+    h += '<tr><td class="tot">Total</td>';
+    T.cols.forEach(function (c, j) { h += '<td class="tot" id="' + host.id + "-ct" + j + '"></td>'; });
+    h += '<td class="tot" id="' + host.id + '-g"></td></tr></tbody>';
+    host.innerHTML = h;
+    T.rows.forEach(function (r, i) { T.cols.forEach(function (c, j) {
+      $(host.id + "-" + i + "-" + j).addEventListener("input", function (e) { T.obs[i][j] = Math.max(0, Math.floor(+e.target.value) || 0); fillTotals(host, T); onChange(); });
+    }); });
+    fillTotals(host, T);
+  }
+  function fillTotals(host, T) {
+    var t = totals(T);
+    t.rt.forEach(function (v, i) { $(host.id + "-rt" + i).textContent = v; });
+    t.ct.forEach(function (v, j) { $(host.id + "-ct" + j).textContent = v; });
+    $(host.id + "-g").textContent = t.g;
+  }
+  /* grid(host, T, cellFn(i, j) -> {html, cls}) renders a read-only table shaped like T with totals hidden */
+  function grid(host, T, cell, corner) {
+    var h = "<thead><tr><th>" + (corner || "") + "</th>" + T.cols.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>";
+    T.rows.forEach(function (r, i) { h += "<tr><td>" + esc(r) + "</td>" + T.cols.map(function (c, j) { var x = cell(i, j); return '<td class="' + (x.cls || "") + '">' + x.html + "</td>"; }).join("") + "</tr>"; });
+    host.innerHTML = h + "</tbody>";
+  }
+  /* segmented bars: conditional distribution of the column variable for each row, plus an "if H0" bar */
+  function segBars(svg, T, R) {
+    var nb = T.rows.length + 1;
+    var F = Lab.frame(svg, { x: [0, nb], y: [0, 1], xLabel: T.rv, yLabel: "Proportion within row", xTicks: [], yTicks: [0, .25, .5, .75, 1], fmtY: function (v) { return N(v, 2); } });
+    var labels = T.rows.concat(["Expected (H₀)"]);
+    labels.forEach(function (lab, i) {
+      var tot = i < T.rows.length ? R.t.rt[i] : R.t.g, acc = 0;
+      T.cols.forEach(function (c, j) {
+        var v = i < T.rows.length ? T.obs[i][j] : R.t.ct[j], f = tot ? v / tot : 0;
+        Lab.el("rect", { x: F.sx(i + .18), y: F.sy(acc + f), width: F.sx(i + .82) - F.sx(i + .18), height: Math.max(0, F.sy(acc) - F.sy(acc + f)), fill: COLS_PAL[j % COLS_PAL.length], opacity: i < T.rows.length ? .9 : .45, stroke: "var(--surface)" }, F.g);
+        if (f > .07) Lab.el("text", { x: F.sx(i + .5), y: F.sy(acc + f / 2) + 4, "text-anchor": "middle", style: "fill:#fff;font-size:10.5px;font-weight:600" }, F.svg, Math.round(f * 100) + "%");
+        acc += f;
+      });
+      Lab.el("text", { x: F.sx(i + .5), y: F.H - F.M.b + 16, "text-anchor": "middle", style: "font-size:" + (nb > 4 ? 9.5 : 11) + "px" }, F.svg, lab);
+    });
+    return F;
+  }
+  function legendHtml(T) { return T.cols.map(function (c, j) { return '<span style="--sw:' + COLS_PAL[j % COLS_PAL.length] + '">' + esc(c) + "</span>"; }).join(""); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  var PRESETS = [
+    { name: "Insomnia treatments (experiment)", design: "Volunteers were randomly assigned to three treatments.", test: "hom", exp: true, groups: "therapy, medication, and placebo", T: { rv: "Treatment", cv: "Outcome", rows: ["Therapy", "Medication", "Placebo"], cols: ["Improved", "No change", "Worse"], obs: [[38, 15, 7], [30, 22, 8], [18, 32, 10]] } },
+    { name: "Phone type and age (one sample)", design: "One random sample of 400 adults.", test: "ind", exp: false, T: { rv: "Age group", cv: "Phone", rows: ["18–34", "35–54", "55+"], cols: ["iPhone", "Android", "Other"], obs: [[78, 52, 6], [64, 66, 10], [40, 70, 14]] } },
+    { name: "Music by grade (no evidence)", design: "Separate random samples of 80 students from each grade.", test: "hom", exp: false, groups: "9th, 10th, and 11th graders", T: { rv: "Grade", cv: "Genre", rows: ["9th", "10th", "11th"], cols: ["Pop", "Hip-hop", "Country", "Other"], obs: [[28, 22, 12, 18], [24, 30, 10, 16], [20, 28, 14, 18]] } },
+    { name: "Seat location and grade (2 × 2)", design: "One random sample of 200 students.", test: "ind", exp: false, T: { rv: "Seat", cv: "Grade", rows: ["Front half", "Back half"], cols: ["A or B", "C or below"], obs: [[64, 36], [48, 52]] } },
+    { name: "Identical rows (χ² = 0)", design: "Separate random samples of 100 from each of two towns.", test: "hom", exp: false, groups: "the two towns", T: { rv: "Town", cv: "Commute", rows: ["Town A", "Town B"], cols: ["Car", "Bus", "Bike/walk"], obs: [[60, 25, 15], [60, 25, 15]] } }
+  ];
+  var S = {};
+  function load(p) {
+    S = clone(p);
+    $("design").textContent = S.design;
+    obsTable($("obs"), S.T, render);
+    seg($("tt"), [["hom", "Homogeneity"], ["ind", "Independence"]], S.test, function (v) { S.test = v; render(); });
+    seg($("al"), [[.01, "0.01"], [.05, "0.05"], [.10, "0.10"]], S.al || .05, function (v) { S.al = v; render(); });
+    S.al = S.al || .05;
+    render();
+  }
+  function invChi(area, df) { var lo = 0, hi = 200; for (var i = 0; i < 90; i++) { var m = (lo + hi) / 2; if (Lab.chiCdf(0, m, df) < area) lo = m; else hi = m; } return (lo + hi) / 2; }
+
+  function render() {
+    var T = S.T, R = chi(T);
+    if (!R.t.g || R.t.rt.some(function (v) { return v === 0; }) || R.t.ct.some(function (v) { return v === 0; })) {
+      $("story").innerHTML = "<p>Every row and column needs at least one observation to compute expected counts.</p>"; return;
+    }
+    var big = []; R.C.forEach(function (r, i) { r.forEach(function (c, j) { big.push({ c: c, i: i, j: j }); }); });
+    big.sort(function (a, b) { return b.c - a.c; });
+    var top = big.slice(0, 2).filter(function (x) { return x.c > 0.5; });
+    var isTop = function (i, j) { return top.some(function (x) { return x.i === i && x.j === j; }); };
+    grid($("exp"), T, function (i, j) { return { html: N(R.E[i][j], 2), cls: R.E[i][j] < 5 ? "lowE" : "" }; });
+    grid($("cmp"), T, function (i, j) { return { html: N(R.C[i][j], 3) + '<span class="f">(' + T.obs[i][j] + "−" + N(R.E[i][j], 2) + ")²/" + N(R.E[i][j], 2) + "</span>", cls: isTop(i, j) ? "big" : "" }; });
+    var rej = R.p < S.al, crit = invChi(1 - S.al, R.df), ok = R.minE >= 5;
+    $("r-x").textContent = N(R.stat, 3); $("r-df").textContent = R.df; $("r-p").textContent = P(R.p);
+    $("r-dec").innerHTML = rej ? '<span class="ok">Reject H₀</span>' : '<span class="no">Fail to reject H₀</span>';
+
+    var xmax = Math.max(R.df + 4 * Math.sqrt(2 * R.df) + 2, R.stat * 1.15, crit * 1.15);
+    var ys = []; for (var k = 1; k <= 60; k++) ys.push(Lab.chiPdf(xmax * k / 60, R.df));
+    var ymax = Math.min(Math.max.apply(null, ys), R.df === 1 ? 0.6 : 1) * 1.12;
+    var ticks = Lab.niceTicks(0, xmax, 7);
+    var F = Lab.frame($("g"), { x: [0, ticks[ticks.length - 1]], y: [0, ymax], xLabel: "χ²", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 1); } });
+    var f = function (x) { return Lab.chiPdf(Math.max(x, 1e-6), R.df); };
+    Lab.curve(F, f, "var(--accent)", R.stat, 1e9);
+    Lab.vline(F, crit, "var(--ghost)", 2, "6 4");
+    Lab.tag(F, crit, ymax * 0.78, "critical " + N(crit, 2), "var(--muted)", "middle");
+    Lab.vline(F, R.stat, "var(--c1)", 2.5);
+    Lab.tag(F, R.stat, ymax * 0.93, "χ² = " + N(R.stat, 2), "var(--c1)", "middle");
+    $("g-sub").textContent = "df = " + R.df + " · shaded area = " + P(R.p);
+
+    var hyp = S.test === "hom"
+      ? ["H₀: The distribution of " + esc(T.cv.toLowerCase()) + " is the same for " + esc(S.groups || "all groups") + ".", "Hₐ: The distribution of " + esc(T.cv.toLowerCase()) + " is not the same for all of them."]
+      : ["H₀: There is no association between " + esc(T.rv.toLowerCase()) + " and " + esc(T.cv.toLowerCase()) + ".", "Hₐ: There is an association between " + esc(T.rv.toLowerCase()) + " and " + esc(T.cv.toLowerCase()) + "."];
+    $("s1").innerHTML = rows([[hyp[0], ""], [hyp[1], ""], ["α = " + S.al, ""]]);
+    $("s2").innerHTML = rows([
+      ["Chi-square test for " + (S.test === "hom" ? "homogeneity" : "independence"), ""],
+      ["Random: " + esc(S.design), "✓"],
+      ["10%: " + (S.exp ? "not needed (experiment)" : "each sample ≤ 10% of its population"), S.exp ? "—" : "assume ✓"],
+      ["All expected counts ≥ 5 (smallest " + N(R.minE, 2) + ")", ok ? '<span class="ok">✓</span>' : '<span class="no">✗</span>']]);
+    var first = big.slice().sort(function (a, b) { return a.i - b.i || a.j - b.j; }).slice(0, 3).map(function (x) { return N(R.C[x.i][x.j], 3); });
+    $("s3").innerHTML = rows([
+      ["χ² = " + first.join(" + ") + (big.length > 3 ? " + …" : ""), "= " + N(R.stat, 3)],
+      ["df = (" + T.rows.length + " − 1)(" + T.cols.length + " − 1)", "= " + R.df],
+      ["p-value = P(χ² ≥ " + N(R.stat, 3) + ") with df = " + R.df, "= " + P(R.p)]]);
+    $("s4").innerHTML = "Because the p-value of " + P(R.p) + " is " + (rej ? "less than" : "greater than") + " α = " + S.al + ", we " + (rej ? "reject H₀" : "fail to reject H₀") + ". There " + (rej ? "is" : "is not") + " convincing evidence that " +
+      (S.test === "hom" ? "the distribution of " + esc(T.cv.toLowerCase()) + " differs among " + esc(S.groups || "the groups") : "there is an association between " + esc(T.rv.toLowerCase()) + " and " + esc(T.cv.toLowerCase()) + " in the population") + ".";
+
+    var t = [], head = rej ? "<b>Significant at α = " + S.al + ":</b> the observed counts are too far from the expected counts to blame on chance." : "<b>Not significant at α = " + S.al + ":</b> differences this large could easily happen by chance if H₀ were true.";
+    if (R.stat < 1e-9) t.push("Every observed count equals its expected count, so χ² = 0 and the p-value is 1. The rows have identical distributions.");
+    top.forEach(function (x) {
+      var o = T.obs[x.i][x.j], e = R.E[x.i][x.j];
+      t.push("<b>" + esc(T.rows[x.i]) + ", " + esc(T.cols[x.j]) + "</b> contributes " + N(x.c, 2) + ": observed " + o + " is " + (o > e ? "more" : "fewer") + " than the " + N(e, 1) + " expected.");
+    });
+    if (!ok) t.push('<span class="no">Caution:</span> an expected count is below 5, so the p-value from the chi-square model may be inaccurate.');
+    if (rej && S.exp) t.push("Because treatments were randomly assigned, the differences can be attributed to the treatments.");
+    if (rej && !S.exp && S.test === "ind") t.push("An association is not causation. These data come from an observational sample.");
+    t.push("A chi-square test is always right-tailed: only large values of χ² count as evidence against H₀.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  btns($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+ {
+  "s": "A cell has observed count 30 and expected count 24. What is its contribution to χ²?",
+  "o": [
+   "0.25",
+   "1.2",
+   "1.5",
+   "6"
+  ],
+  "c": 2,
+  "w": "(30 − 24)² ÷ 24 = 36 ÷ 24 = 1.5. Divide by the expected count."
+ },
+ {
+  "s": "A chi-square test on a 3 × 3 table gives χ² = 10.2. What is the p-value? (df = 4)",
+  "o": [
+   "About 0.006",
+   "About 0.037",
+   "About 0.12",
+   "About 0.96"
+  ],
+  "c": 1,
+  "w": "With df = (3 − 1)(3 − 1) = 4, P(χ² ≥ 10.2) ≈ 0.037."
+ },
+ {
+  "s": "Which statement about chi-square distributions is true?",
+  "o": [
+   "They are symmetric for all df.",
+   "They are skewed right and their mean equals df.",
+   "They can take negative values.",
+   "Their p-values use both tails."
+  ],
+  "c": 1,
+  "w": "Chi-square values are nonnegative, the curves are right-skewed, and the mean is df."
+ },
+ {
+  "s": "A test for independence gives p-value = 0.21 with α = 0.05. Which conclusion is correct?",
+  "o": [
+   "The variables are independent.",
+   "There is convincing evidence of an association.",
+   "There is not convincing evidence of an association between the variables.",
+   "Accept H₀."
+  ],
+  "c": 2,
+  "w": "Fail to reject H₀. That does not prove independence."
+ },
+ {
+  "s": "If every observed count equals its expected count, the χ² statistic is:",
+  "o": [
+   "0",
+   "1",
+   "equal to df",
+   "impossible to compute"
+  ],
+  "c": 0,
+  "w": "Each (O − E)² term is 0, so χ² = 0 and the p-value is 1."
+ },
+ {
+  "s": "A random sample of adults shows a significant association between hours of screen time (low/medium/high) and sleep quality. What can be concluded?",
+  "o": [
+   "Screen time causes poor sleep.",
+   "There is an association in the population of adults, but not necessarily cause and effect.",
+   "Sleep quality causes screen time.",
+   "The result applies only to the sample."
+  ],
+  "c": 1,
+  "w": "Random sampling lets us generalize to the population, but without random assignment we cannot claim causation."
+ },
+ {
+  "s": "Which cell would contribute most to χ²?",
+  "o": [
+   "O = 50, E = 48",
+   "O = 12, E = 20",
+   "O = 105, E = 100",
+   "O = 30, E = 31"
+  ],
+  "c": 1,
+  "w": "(12 − 20)² ÷ 20 = 3.2. The others are 0.08, 0.25, and about 0.03."
+ },
+ {
+  "s": "Increasing all counts in a table by a factor of 4 (same proportions) changes χ² how?",
+  "o": [
+   "It stays the same.",
+   "It is multiplied by 4.",
+   "It is multiplied by 16.",
+   "It is divided by 4."
+  ],
+  "c": 1,
+  "w": "Each (O − E)² is multiplied by 16 and each E by 4, so each component is multiplied by 4. Same pattern, more data, stronger evidence."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.15");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.15", compact: true, storageKey: "topic-3.15" });</script>
+</body>
+</html>

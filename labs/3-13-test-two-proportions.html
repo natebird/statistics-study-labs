@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrying Out a Test for a Difference in Proportions Study Lab</title>
+<meta name="description" content="Run a complete two-sample z-test for p₁ − p₂: pooled SE, test statistic, p-value, decision, and conclusion in context.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl input[type="text"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl input[type="text"] { font-family: var(--body); }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 6px 8px; font-size: .86rem; text-align: right; vertical-align: middle; }
+.mini th:first-child, .mini td:first-child { text-align: left; }
+.mini td.tot, .mini th.tot { background: var(--paper); font-family: var(--mono); }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 56px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: right; }
+.mono { font-family: var(--mono); }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+.steps { display: grid; gap: 12px; }
+.steps .card h3 { display: flex; gap: 10px; align-items: baseline; }
+.steps .card h3 .tag { font-size: .74rem; }
+.steps .card p, .steps .card li { font-size: .95rem; }
+.steps .card ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .mini input[type="number"] { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.13</span>
+  <h1>Carrying Out a Test for a Difference in Proportions Study Lab</h1>
+  <p class="lede">A two-sample z-test decides whether an observed difference between two sample proportions is too big to blame on chance. Enter the data, pick Hₐ and α, and see the test statistic, the shaded p-value, and a full four-step write-up.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Run a two-sample z-test</h2>
+    <p>Enter the data, choose the alternative and significance level, and follow all four steps: State, Plan, Do, Conclude.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">z = (p̂₁ − p̂₂ − 0) ÷ √( p̂c(1 − p̂c)(1/n₁ + 1/n₂) )</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>Data and choices</h3>
+      <p class="note" id="ctx"></p>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="x1">Successes x₁</label><input type="number" id="x1" min="0" step="1"></div>
+        <div class="ctl"><label for="x2">Successes x₂</label><input type="number" id="x2" min="0" step="1"></div>
+        <div class="ctl"><label for="n1">Sample size n₁</label><input type="number" id="n1" min="1" step="1"></div>
+        <div class="ctl"><label for="n2">Sample size n₂</label><input type="number" id="n2" min="1" step="1"></div>
+      </div>
+      <div class="ctlrow"><span class="tag">Hₐ</span><div class="seg" id="ha" role="group" aria-label="Alternative hypothesis"></div></div>
+      <div class="ctlrow"><span class="tag"><span class="nc">α</span></span><div class="seg" id="al" role="group" aria-label="Significance level"></div></div>
+      <p class="note" id="msg" aria-live="polite"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>Standard normal model <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Standard normal curve with the test statistic marked and the p-value shaded"></svg>
+      <div class="legend"><span class="l-ad">p-value area</span><span class="l-c1">Observed z</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">p̂₁ − p̂₂</div><div class="v" id="r-d"></div></div>
+    <div class="stat"><div class="k">Pooled p̂c</div><div class="v" id="r-c"></div></div>
+    <div class="stat"><div class="k">Test statistic z</div><div class="v" id="r-z"></div></div>
+    <div class="stat"><div class="k">p-value</div><div class="v" id="r-p"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="steps">
+    <div class="card"><h3><span class="tag">Step 1</span> State</h3><div class="calc" id="s1"></div></div>
+    <div class="card"><h3><span class="tag">Step 2</span> Plan</h3><div class="calc" id="s2"></div></div>
+    <div class="card"><h3><span class="tag">Step 3</span> Do</h3><div class="calc" id="s3"></div></div>
+    <div class="card"><h3><span class="tag">Step 4</span> Conclude</h3><p id="s4"></p></div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Test statistic</span><h3>Standardized difference</h3><p>z = (statistic − null value) ÷ standard error. It counts how many null standard errors the observed difference p̂₁ − p̂₂ is from 0.</p></div>
+    <div class="card"><span class="tag">p-value</span><h3>Probability, assuming H₀</h3><p>The p-value is the probability of getting a difference at least as extreme as the one observed, in the direction of Hₐ, if H₀ is true. For ≠, double the one-tail area.</p></div>
+    <div class="card"><span class="tag">Decision</span><h3>Compare p to α</h3><p>If p-value &lt; α, reject H₀: the result is statistically significant. If p-value ≥ α, fail to reject H₀. Never "accept" H₀.</p></div>
+    <div class="card"><span class="tag">Conclusion</span><h3>Context and evidence</h3><p>Say whether there is convincing evidence for Hₐ, in the words of the problem. Mention the p-value and α.</p></div>
+    <div class="card"><span class="tag">Scope</span><h3>Cause or generalization</h3><p>With random assignment, a significant result supports causation. With random sampling, the result generalizes to the populations. Without either, be careful.</p></div>
+    <div class="card"><span class="tag">Significance vs. importance</span><h3>Big n finds small effects</h3><p>With very large samples, tiny differences can be statistically significant. Statistical significance is not the same as practical importance.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>From test statistic to conclusion.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Hₐ</th><th>p-value</th><th>Calculator</th></tr></thead>
+    <tbody>
+      <tr><td>p₁ − p₂ &gt; 0</td><td>P(Z ≥ z)</td><td>normalcdf(z, 1E99, 0, 1)</td></tr>
+      <tr><td>p₁ − p₂ &lt; 0</td><td>P(Z ≤ z)</td><td>normalcdf(−1E99, z, 0, 1)</td></tr>
+      <tr><td>p₁ − p₂ ≠ 0</td><td>2 · P(Z ≥ |z|)</td><td>2 · normalcdf(|z|, 1E99, 0, 1)</td></tr>
+      <tr><td>p-value &lt; α</td><td>Reject H₀</td><td>Convincing evidence for Hₐ</td></tr>
+      <tr><td>p-value ≥ α</td><td>Fail to reject H₀</td><td>Not convincing evidence for Hₐ</td></tr>
+      <tr><td>All steps</td><td>2-PropZTest</td><td>Still write the formula, z, and p-value</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Show the test statistic with numbers: z = (0.47 − 0.39 − 0) ÷ √(0.43(0.57)(1/300 + 1/300)) = 1.98.</li>
+        <li>Give the p-value and how you got it (normal curve, area, direction).</li>
+        <li>Compare the p-value to α explicitly: "Because 0.024 &lt; 0.05, we reject H₀."</li>
+        <li>Write the conclusion about the parameters in context: "There is convincing evidence that the true proportion…"</li>
+        <li>If asked, interpret the p-value: "Assuming there is no difference, the probability of observing a difference of 0.08 or more by chance is 0.024."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Concluding "H₀ is true" or "we accept H₀." Say "fail to reject" and "not convincing evidence."</li>
+        <li>Interpreting the p-value as the probability that H₀ is true.</li>
+        <li>Forgetting to double the tail area for a two-sided test.</li>
+        <li>Using unpooled SE in the test statistic.</li>
+        <li>Claiming causation from random samples, or generalizing from a volunteer experiment to all people.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.13. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function P(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function btns(host, list, fn) {
+    host.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = x.name || x[0]; b.addEventListener("click", function () { fn(x, i); }); host.appendChild(b); });
+  }
+  function seg(host, opts, cur, fn) {
+    host.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { Array.prototype.forEach.call(host.children, function (c) { c.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); fn(o[0]); });
+      host.appendChild(b);
+    });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function zstar(c) { return Lab.invNorm(1 - (1 - c) / 2); }
+
+
+  var PRESETS = [
+    { name: "Reminder texts and vaccination (experiment)", g1: "reminder", g2: "no reminder", s: "get vaccinated", exp: true, x1: 141, n1: 300, x2: 117, n2: 300, ha: "gt", al: .05 },
+    { name: "Men vs. women on a ballot measure", g1: "men", g2: "women", s: "support the measure", exp: false, x1: 118, n1: 250, x2: 151, n2: 280, ha: "ne", al: .05 },
+    { name: "New coating and cracking (experiment)", g1: "new coating", g2: "old coating", s: "crack", exp: true, x1: 9, n1: 120, x2: 21, n2: 120, ha: "lt", al: .05 },
+    { name: "Tiny difference, huge samples", g1: "website A", g2: "website B", s: "make a purchase", exp: true, x1: 2150, n1: 50000, x2: 2010, n2: 50000, ha: "ne", al: .01 },
+    { name: "No evidence: 52% vs. 48%", g1: "juniors", g2: "seniors", s: "have a part-time job", exp: false, x1: 52, n1: 100, x2: 48, n2: 100, ha: "ne", al: .05 }
+  ];
+  var HA = [["ne", "p₁ − p₂ ≠ 0"], ["gt", "p₁ − p₂ > 0"], ["lt", "p₁ − p₂ < 0"]], SYM = { ne: "≠", gt: ">", lt: "<" };
+  var S = {};
+  function load(p) {
+    S = JSON.parse(JSON.stringify(p));
+    ["x1", "n1", "x2", "n2"].forEach(function (k) { $(k).value = S[k]; });
+    $("ctx").textContent = "Group 1 = " + S.g1 + ", group 2 = " + S.g2 + ". Success = " + S.s + ". " + (S.exp ? "Randomized experiment." : "Independent random samples.");
+    seg($("ha"), HA, S.ha, function (v) { S.ha = v; render(); });
+    seg($("al"), [[.01, "0.01"], [.05, "0.05"], [.10, "0.10"]], S.al, function (v) { S.al = v; render(); });
+    render();
+  }
+  ["x1", "n1", "x2", "n2"].forEach(function (k) { $(k).addEventListener("input", function (e) { S[k] = Math.floor(+e.target.value); render(); }); });
+  function pval(z, ha) { return ha === "gt" ? Lab.normCdf(z, Infinity) : ha === "lt" ? Lab.normCdf(-Infinity, z) : 2 * Lab.normCdf(Math.abs(z), Infinity); }
+
+  function render() {
+    var bad = !(S.n1 >= 1 && S.n2 >= 1 && S.x1 >= 0 && S.x2 >= 0 && S.x1 <= S.n1 && S.x2 <= S.n2) || (S.x1 + S.x2 === 0) || (S.x1 + S.x2 === S.n1 + S.n2);
+    $("msg").textContent = bad ? "Enter whole-number successes between 0 and each sample size, with at least one success and one failure overall." : "";
+    if (bad) return;
+    var a = S.x1 / S.n1, b = S.x2 / S.n2, d = a - b, pc = (S.x1 + S.x2) / (S.n1 + S.n2), se = Math.sqrt(pc * (1 - pc) * (1 / S.n1 + 1 / S.n2)), z = d / se, p = pval(z, S.ha);
+    var rej = p < S.al;
+    $("r-d").textContent = N(d, 4); $("r-c").textContent = N(pc, 4); $("r-z").textContent = N(z, 2); $("r-p").textContent = P(p);
+
+    var m = Math.max(4, Math.abs(z) + 0.6), ticks = Lab.niceTicks(-m, m, 8);
+    var F = Lab.frame($("g"), { x: [ticks[0], ticks[ticks.length - 1]], y: [0, 0.45], xLabel: "z", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 1); } });
+    var f = function (x) { return Lab.normPdf(x); };
+    if (S.ha === "gt") Lab.curve(F, f, "var(--accent)", z, 99);
+    else if (S.ha === "lt") Lab.curve(F, f, "var(--accent)", -99, z);
+    else { Lab.curve(F, f, "var(--accent)", Math.abs(z), 99); Lab.curve(F, f, "var(--accent)", -99, -Math.abs(z)); }
+    Lab.vline(F, z, "var(--c1)", 2.5);
+    Lab.tag(F, z, 0.42, "z = " + N(z, 2), "var(--c1)", "middle");
+    if (S.ha === "ne") Lab.vline(F, -z, "var(--c1)", 1.5, "5 4");
+    $("g-sub").textContent = "shaded area = " + P(p);
+
+    var ex = [S.n1 * pc, S.n1 * (1 - pc), S.n2 * pc, S.n2 * (1 - pc)], ok = ex.every(function (v) { return v >= 10; });
+    $("s1").innerHTML = rows([
+      ["p₁ = true proportion who " + esc(S.s) + " (" + esc(S.g1) + "); p₂ = same for " + esc(S.g2), ""],
+      ["H₀: p₁ − p₂ = 0", ""], ["Hₐ: p₁ − p₂ " + SYM[S.ha] + " 0", ""], ["α = " + S.al, ""]]);
+    $("s2").innerHTML = rows([
+      ["Two-sample z-test for p₁ − p₂", ""],
+      ["Random: " + (S.exp ? "random assignment to treatments" : "independent random samples"), "✓"],
+      ["10%: " + (S.exp ? "not needed (experiment)" : "each n ≤ 10% of its population"), S.exp ? "—" : "assume ✓"],
+      ["Large counts with p̂c = " + N(pc, 4) + ": " + ex.map(function (v) { return N(v, 1); }).join(", "), ok ? '<span class="ok">all ≥ 10 ✓</span>' : '<span class="no">not all ≥ 10 ✗</span>']]);
+    $("s3").innerHTML = rows([
+      ["p̂₁ = " + S.x1 + "/" + S.n1 + " = " + N(a, 4) + ", p̂₂ = " + S.x2 + "/" + S.n2 + " = " + N(b, 4), ""],
+      ["SE = √( " + N(pc, 4) + "(" + N(1 - pc, 4) + ")(1/" + S.n1 + " + 1/" + S.n2 + ") )", "= " + N(se, 4)],
+      ["z = (" + N(a, 4) + " − " + N(b, 4) + " − 0) ÷ " + N(se, 4), "= " + N(z, 2)],
+      ["p-value = " + (S.ha === "gt" ? "P(Z ≥ " + N(z, 2) + ")" : S.ha === "lt" ? "P(Z ≤ " + N(z, 2) + ")" : "2 × P(Z ≥ " + N(Math.abs(z), 2) + ")"), "= " + P(p)]]);
+    var dir = { ne: "is different from", gt: "is greater than", lt: "is less than" }[S.ha];
+    var concl = "Because the p-value of " + P(p) + " is " + (rej ? "less than" : "greater than") + " α = " + S.al + ", we " + (rej ? "reject H₀" : "fail to reject H₀") + ". There " + (rej ? "is" : "is not") + " convincing evidence that the true proportion who " + esc(S.s) + " for " + esc(S.g1) + " " + dir + " the true proportion for " + esc(S.g2) + ".";
+    $("s4").innerHTML = concl;
+
+    var t = [], head = rej ? "<b>Statistically significant at α = " + S.al + ".</b>" : "<b>Not statistically significant at α = " + S.al + ".</b>";
+    t.push("If there were truly no difference, the probability of getting a difference in sample proportions " + (S.ha === "ne" ? "at least as far from 0 as " : S.ha === "gt" ? "at least as large as " : "at least as small as ") + N(d, 4) + " by chance alone is " + P(p) + ".");
+    if (!ok) t.push('<span class="no">Caution:</span> the large counts condition fails, so this p-value from the normal model may be inaccurate.');
+    if (rej && S.exp) t.push("Because treatments were randomly assigned, we can conclude the treatment <b>caused</b> the difference.");
+    if (rej && !S.exp) t.push("These are random samples, so the result generalizes to the populations, but it does not show cause and effect.");
+    if (!rej) t.push("Failing to reject H₀ does not prove the proportions are equal. The data just are not strong enough to rule out no difference.");
+    if (Math.abs(d) < 0.01 && rej) t.push("With very large samples, even a tiny difference (" + N(d * 100, 2) + " percentage points) can be statistically significant. Ask whether it matters in practice.");
+    if (S.ha !== "ne" && ((S.ha === "gt" && d < 0) || (S.ha === "lt" && d > 0))) t.push("The sample difference points the <b>opposite</b> way from Hₐ, so the p-value is above 0.5. Data like this can never support this Hₐ.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  btns($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+ {
+  "s": "x₁ = 60 of n₁ = 100 and x₂ = 45 of n₂ = 100. What is the test statistic for H₀: p₁ = p₂? (Pooled p̂c = 0.525.)",
+  "o": [
+   "z ≈ 1.36",
+   "z ≈ 2.13",
+   "z ≈ 2.16",
+   "z ≈ 0.15"
+  ],
+  "c": 1,
+  "w": "SE = √(0.525 · 0.475 · (1/100 + 1/100)) ≈ 0.0706, and z = (0.60 − 0.45) ÷ 0.0706 ≈ 2.13."
+ },
+ {
+  "s": "For Hₐ: p₁ − p₂ ≠ 0, the test statistic is z = −2.10. What is the p-value?",
+  "o": [
+   "0.018",
+   "0.036",
+   "0.982",
+   "0.964"
+  ],
+  "c": 1,
+  "w": "The one-tail area below −2.10 is about 0.018. For a two-sided test, double it: 0.036."
+ },
+ {
+  "s": "A two-proportion test gives p-value = 0.08 with α = 0.05. Which conclusion is correct?",
+  "o": [
+   "Reject H₀; there is convincing evidence of a difference.",
+   "Fail to reject H₀; there is not convincing evidence of a difference.",
+   "Accept H₀; the proportions are equal.",
+   "Reject H₀ because 0.08 is small."
+  ],
+  "c": 1,
+  "w": "0.08 > 0.05, so we fail to reject H₀. That is not proof the proportions are equal."
+ },
+ {
+  "s": "Which is a correct interpretation of a p-value of 0.012 in a test of H₀: p₁ = p₂ vs. Hₐ: p₁ > p₂?",
+  "o": [
+   "There is a 1.2% chance that H₀ is true.",
+   "Assuming p₁ = p₂, there is a 1.2% chance of getting a difference in sample proportions as large as or larger than the one observed.",
+   "There is a 1.2% chance that p₁ > p₂.",
+   "1.2% of the sample had the outcome."
+  ],
+  "c": 1,
+  "w": "A p-value is computed assuming H₀ is true. It is not the probability that a hypothesis is true."
+ },
+ {
+  "s": "A randomized experiment finds a statistically significant higher recovery rate for a new therapy. What can be concluded?",
+  "o": [
+   "The new therapy causes a higher recovery rate for subjects like those in the study.",
+   "Only an association exists.",
+   "The therapy works for everyone in the country.",
+   "Nothing, because p-values cannot show differences."
+  ],
+  "c": 0,
+  "w": "Random assignment allows a cause-and-effect conclusion. Generalizing to everyone would need random sampling."
+ },
+ {
+  "s": "In a test with n = 40,000 per group, p̂₁ = 0.501 and p̂₂ = 0.494, and the p-value is 0.048. What is the best comment?",
+  "o": [
+   "The result is significant and important.",
+   "The result is statistically significant at α = 0.05, but a 0.7 percentage point difference may not be practically important.",
+   "The test must be wrong.",
+   "The p-value is too large to matter."
+  ],
+  "c": 1,
+  "w": "Huge samples detect tiny differences. Significance does not guarantee practical importance."
+ },
+ {
+  "s": "For Hₐ: p₁ − p₂ < 0, the observed p̂₁ − p̂₂ = 0.04. What can you say about the p-value?",
+  "o": [
+   "It is less than 0.05",
+   "It is exactly 0.5",
+   "It is greater than 0.5",
+   "It cannot be computed"
+  ],
+  "c": 2,
+  "w": "The data point the opposite way from Hₐ, so the area to the left of a positive z is more than half."
+ },
+ {
+  "s": "Which change makes it easier to reject H₀ if the true proportions really differ?",
+  "o": [
+   "Decreasing α from 0.05 to 0.01",
+   "Decreasing the sample sizes",
+   "Increasing the sample sizes",
+   "Switching from a one-sided to a two-sided test"
+  ],
+  "c": 2,
+  "w": "Larger samples shrink the standard error, so a real difference produces a larger |z| and a smaller p-value."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.13");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.13", compact: true, storageKey: "topic-3.13" });</script>
+</body>
+</html>

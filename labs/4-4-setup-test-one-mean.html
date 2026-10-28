@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting Up a Test for a Mean Study Lab</title>
+<meta name="description" content="Practice choosing the parameter, hypotheses, procedure, and conditions for a one-sample or paired t test, and see which t values would count as evidence for the alternative.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl select { width: 100%; }
+.cond { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: .92rem; }
+.cond li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+.cond .ok { color: var(--good); font-weight: 700; } .cond .no { color: var(--bad); font-weight: 700; } .cond .maybe { color: var(--c1); font-weight: 700; }
+.steps { display: grid; gap: 10px; }
+.steps .card { display: grid; gap: 6px; align-content: start; }
+.steps .tag { color: var(--accent); }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.setup { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.setup .ctl select { font-size: .88rem; }
+.fbk { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 6px; font-size: .92rem; }
+.fbk li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+.fbk .ok { color: var(--good); font-weight: 700; } .fbk .no { color: var(--bad); font-weight: 700; }
+.preview { font-family: var(--mono); font-size: .92rem; background: var(--accent-soft); border-radius: 8px; padding: 10px 14px; display: grid; gap: 4px; }
+.scn { font-size: 1rem; max-width: 80ch; }
+@media (max-width: 860px) { .setup { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 4 · Topic 4.4</span>
+  <h1>Setting Up a Test for a Mean Study Lab</h1>
+  <p class="lede">Before any calculation, a significance test needs a clear setup: define the <b>parameter</b> in context, write <b>H₀</b> and <b>Hₐ</b>, name the <b>procedure</b>, and check the <b>conditions</b>. Work through each scenario, check your choices, and see what the alternative hypothesis means on the t distribution.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Set up the test</h2>
+    <p>Pick a scenario, make your four choices, then check them.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">H₀: μ = μ₀</span> <span class="formula">Hₐ: μ &lt; μ₀, μ &gt; μ₀, or μ ≠ μ₀</span> <span class="formula">Paired: H₀: μ<sub>d</sub> = 0</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Scenarios</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:14px;">
+    <p class="scn" id="scnText"></p>
+    <div class="setup">
+      <div class="ctl"><label for="selP">1. Parameter</label><select id="selP"></select></div>
+      <div class="ctl"><label for="selProc">2. Procedure</label><select id="selProc"></select></div>
+      <div class="ctl"><label for="selH0">3. Null hypothesis H₀</label><select id="selH0"></select></div>
+      <div class="ctl"><label for="selHa">4. Alternative hypothesis Hₐ</label><select id="selHa"></select></div>
+    </div>
+    <div class="scenarios">
+      <button type="button" class="primary" id="check">Check my setup</button>
+      <button type="button" id="reveal">Show the answer</button>
+    </div>
+    <ul class="fbk" id="fbk" aria-live="polite"></ul>
+  </div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Your setup, written out</h3>
+      <div class="preview" id="preview"></div>
+      <h3 style="margin-top:6px;">Conditions for this scenario</h3>
+      <ul class="cond" id="conds"></ul>
+    </div>
+    <div class="card graph-card">
+      <h3>What would count as evidence for Hₐ? <small id="t-sub"></small></h3>
+      <svg class="chart" id="tg" role="img" aria-label="t distribution if the null hypothesis is true, with the tail or tails that favor the alternative shaded"></svg>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <label for="alpha" class="note">Significance level α</label>
+        <select id="alpha"><option>0.01</option><option selected>0.05</option><option>0.10</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Procedure</div><div class="v" id="r-proc" style="font-size:.95rem"></div></div>
+    <div class="stat"><div class="k">n, df</div><div class="v" id="r-df"></div></div>
+    <div class="stat"><div class="k">Direction of Hₐ</div><div class="v" id="r-dir"></div></div>
+    <div class="stat"><div class="k">t values beyond</div><div class="v" id="r-crit"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Parameter</span><h3>Hypotheses are about μ, never x̄</h3><p>Hypotheses describe the population, so they use the parameter μ (or μ<sub>d</sub>). Define it in context: "μ = the true mean delivery time of all pizzas from this chain."</p></div>
+    <div class="card"><span class="tag">Null</span><h3>H₀ has the equals sign</h3><p>The null hypothesis is the claim of "no effect" or "no change": μ = μ₀, or for paired data μ<sub>d</sub> = 0. We assume it is true while we check how surprising the data are.</p></div>
+    <div class="card"><span class="tag">Alternative</span><h3>Hₐ is what you suspect</h3><p>Read the question for direction words: "more than," "less than," "different from." Choose Hₐ before looking at the data. Use ≠ when either direction matters.</p></div>
+    <div class="card"><span class="tag">Paired or not?</span><h3>Same subjects twice → paired</h3><p>If each subject gives two measurements (before/after, left/right, two conditions), or subjects are matched in pairs, test μ<sub>d</sub> using the differences. Define the order of subtraction.</p></div>
+    <div class="card"><span class="tag">Conditions</span><h3>Random, 10%, Normal/Large</h3><p>Random sample or random assignment; n ≤ 10% of the population when sampling without replacement; population normal, n ≥ 30, or a graph of the sample (or differences) with no strong skew or outliers.</p></div>
+    <div class="card"><span class="tag">Significance level</span><h3>α is set in advance</h3><p>α is the cutoff for "convincing." Common choices are 0.05 and 0.01. A smaller α demands stronger evidence before rejecting H₀.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Wording in the question and the hypotheses it leads to.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>The question says…</th><th>Parameter</th><th>H₀</th><th>Hₐ</th><th>Procedure</th></tr></thead>
+    <tbody>
+      <tr><td>"…the mean is greater than 30 minutes"</td><td>μ</td><td>μ = 30</td><td><b>μ &gt; 30</b></td><td>One-sample t test</td></tr>
+      <tr><td>"…the mean is less than the advertised 20 hours"</td><td>μ</td><td>μ = 20</td><td><b>μ &lt; 20</b></td><td>One-sample t test</td></tr>
+      <tr><td>"…the mean differs from 500 mL"</td><td>μ</td><td>μ = 500</td><td><b>μ ≠ 500</b></td><td>One-sample t test</td></tr>
+      <tr><td>"…scores improve after the course" (same students)</td><td>μ<sub>d</sub>, d = after − before</td><td>μ<sub>d</sub> = 0</td><td><b>μ<sub>d</sub> &gt; 0</b></td><td>Paired t test</td></tr>
+      <tr><td>"…two brands wear differently" (both on each car)</td><td>μ<sub>d</sub>, d = A − B</td><td>μ<sub>d</sub> = 0</td><td><b>μ<sub>d</sub> ≠ 0</b></td><td>Paired t test</td></tr>
+      <tr><td>Two separate random samples (e.g., juniors vs. seniors)</td><td>μ₁ − μ₂</td><td>μ₁ − μ₂ = 0</td><td>depends</td><td>Two-sample t test (topics 4.9–4.10)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Write both hypotheses with the parameter symbol <b>and</b> define it in words: "where μ = the true mean delivery time for all pizzas from this chain."</li>
+        <li>For paired data, define the difference: "μ<sub>d</sub> = the true mean difference in score (music − silence) for volunteers like these."</li>
+        <li>Name the test: "one-sample t test for a mean" or "paired t test for a mean difference."</li>
+        <li>Check each condition with a reason tied to the problem, such as "25 &lt; 10% of all deliveries" or "the dotplot of differences shows no outliers."</li>
+        <li>State α if it is given; otherwise use α = 0.05 and say so.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Writing hypotheses about x̄ ("H₀: x̄ = 30"). We already know x̄; the question is about μ.</li>
+        <li>Putting the suspected claim in H₀, or using ≥ or ≤ in H₀ (on the AP exam, H₀ uses =).</li>
+        <li>Choosing the direction of Hₐ after seeing the sample result.</li>
+        <li>Using a two-sample test when the same subjects were measured twice.</li>
+        <li>Saying "the population is normal" without evidence. For small samples, look at a graph of the data.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 4.4. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-4.html">Unit 4 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  var PROCS = ["One-sample t test for μ", "Paired t test for μd", "Two-sample t test for μ₁ − μ₂", "One-sample z test for a proportion p"];
+  // Each scenario: text, sym (μ or μd), null value, correct Ha (lt, gt, ne), procedure index, parameter options (first is correct), n, conditions [status, text]
+  var SC = [
+    { name: "Pizza delivery", text: "A pizza chain advertises a mean delivery time of 30 minutes. A customer group suspects deliveries take <b>longer</b> on average. They take a random sample of 25 deliveries. A dotplot of the 25 times shows no strong skew or outliers.",
+      sym: "μ", v: 30, ha: "gt", proc: 0, n: 25,
+      params: ["μ = the true mean delivery time of all deliveries from this chain", "x̄ = the mean delivery time of the 25 sampled deliveries", "μ = the mean delivery time of the 25 sampled deliveries", "p = the proportion of deliveries that take longer than 30 minutes"],
+      conds: [["ok", "<b>Random:</b> a random sample of deliveries."], ["ok", "<b>10%:</b> 25 is less than 10% of all deliveries from the chain."], ["ok", "<b>Normal/Large:</b> n = 25 &lt; 30, but the dotplot shows no strong skew or outliers."]] },
+    { name: "Phone battery claim", text: "A phone maker says its battery lasts 20 hours on average. A consumer group thinks the true mean is <b>less</b> than advertised. They test a random sample of 40 phones.",
+      sym: "μ", v: 20, ha: "lt", proc: 0, n: 40,
+      params: ["μ = the true mean battery life of all phones of this model", "x̄ = the mean battery life of the 40 phones tested", "μ = the mean battery life of the 40 phones tested", "p = the proportion of phones whose battery lasts less than 20 hours"],
+      conds: [["ok", "<b>Random:</b> random sample of phones."], ["ok", "<b>10%:</b> 40 is less than 10% of all phones of this model."], ["ok", "<b>Normal/Large:</b> n = 40 ≥ 30, so the CLT applies."]] },
+    { name: "Water bottle fill", text: "Bottles are supposed to contain 500 mL on average. Quality control wants to know whether the machine's mean fill is <b>different</b> from 500 mL, in either direction. They measure a random sample of 15 bottles. Fill amounts from this machine are known to be approximately normal.",
+      sym: "μ", v: 500, ha: "ne", proc: 0, n: 15,
+      params: ["μ = the true mean fill of all bottles from this machine", "x̄ = the mean fill of the 15 bottles", "μ = the mean fill of the 15 bottles", "p = the proportion of bottles with exactly 500 mL"],
+      conds: [["ok", "<b>Random:</b> random sample of bottles."], ["ok", "<b>10%:</b> 15 is less than 10% of all bottles the machine fills."], ["ok", "<b>Normal/Large:</b> n = 15 &lt; 30, but fill amounts are approximately normal."]] },
+    { name: "Music and memory (paired)", text: "Eighteen volunteers each took a memory test twice, once with music and once in silence, in a randomly assigned order. Researchers suspect music <b>lowers</b> scores. Let d = music − silence. A dotplot of the 18 differences shows no outliers.",
+      sym: "μd", v: 0, ha: "lt", proc: 1, n: 18,
+      params: ["μd = the true mean difference in score (music − silence) for volunteers like these", "μ₁ − μ₂ = the difference between the mean scores of two separate groups", "x̄d = the mean difference for the 18 volunteers", "μ = the true mean score with music"],
+      conds: [["ok", "<b>Random:</b> the order of the two conditions was randomly assigned."], ["ok", "<b>10%:</b> not needed for an experiment with random assignment (we generalize only to volunteers like these)."], ["ok", "<b>Normal/Large:</b> n = 18 &lt; 30, but the dotplot of differences shows no outliers."]] },
+    { name: "Two shoe soles (paired)", text: "Twelve randomly chosen runners wore one shoe with sole A and one with sole B (foot chosen at random). After a month, researchers measured wear. Is there a <b>difference</b> in mean wear? Let d = A − B. The differences are roughly symmetric with no outliers.",
+      sym: "μd", v: 0, ha: "ne", proc: 1, n: 12,
+      params: ["μd = the true mean difference in wear (A − B) for all runners like these", "μ₁ − μ₂ = the difference in mean wear between two groups of runners", "x̄d = the mean difference in wear for the 12 runners", "μ = the true mean wear of sole A"],
+      conds: [["ok", "<b>Random:</b> random sample of runners and random assignment of the foot."], ["ok", "<b>10%:</b> 12 is less than 10% of all runners."], ["ok", "<b>Normal/Large:</b> n = 12 &lt; 30, but the differences show no strong skew or outliers."]] },
+    { name: "Homework time (watch the 10%)", text: "A teacher claims seniors at her school spend 60 minutes a night on homework on average. A student suspects it is <b>different</b>. He randomly selects 20 of the school's 120 seniors. A boxplot of their times shows no outliers.",
+      sym: "μ", v: 60, ha: "ne", proc: 0, n: 20,
+      params: ["μ = the true mean nightly homework time of all 120 seniors at the school", "x̄ = the mean homework time of the 20 sampled seniors", "μ = the mean homework time of the 20 sampled seniors", "p = the proportion of seniors who do 60 minutes of homework"],
+      conds: [["ok", "<b>Random:</b> random sample of seniors."], ["no", "<b>10%:</b> 20 is more than 10% of 120 (that would be 12). The observations are not independent enough; the test's p-value will be off. Note this and proceed with caution."], ["ok", "<b>Normal/Large:</b> n = 20 &lt; 30, but the boxplot shows no outliers."]] }
+  ];
+  var cur;
+  var HA = { lt: "<", gt: ">", ne: "≠" };
+  function opt(sel, items) { sel.innerHTML = '<option value="">Choose…</option>' + items.map(function (t, i) { return '<option value="' + i + '">' + t + "</option>"; }).join(""); }
+  function scramble(arr, seed) { var r = Lab.rng(seed); return r.shuffle(arr.map(function (t, i) { return [t, i]; })); }
+  function load(k) {
+    cur = SC[k];
+    Array.prototype.forEach.call($("scen").children, function (b, i) { b.setAttribute("aria-pressed", String(i === k)); });
+    $("scnText").innerHTML = cur.text;
+    cur.pOrder = scramble(cur.params, k + 7);
+    opt($("selP"), cur.pOrder.map(function (x) { return x[0]; }));
+    opt($("selProc"), PROCS);
+    var s = cur.sym, v = cur.v;
+    cur.h0 = [s + " = " + v, s + " " + HA[cur.ha] + " " + v, (s === "μ" ? "x̄" : "x̄d") + " = " + v, s + " ≠ " + v];
+    cur.h0Order = scramble(cur.h0, k + 3);
+    opt($("selH0"), cur.h0Order.map(function (x) { return x[0]; }));
+    cur.haList = [["lt", s + " < " + v], ["gt", s + " > " + v], ["ne", s + " ≠ " + v], ["x", (s === "μ" ? "x̄" : "x̄d") + " " + HA[cur.ha] + " " + v]];
+    opt($("selHa"), cur.haList.map(function (x) { return x[1]; }));
+    $("fbk").innerHTML = "";
+    render();
+  }
+  function choice() {
+    var p = $("selP").value, pr = $("selProc").value, h0 = $("selH0").value, ha = $("selHa").value;
+    return { p: p === "" ? null : cur.pOrder[+p][1], proc: pr === "" ? null : +pr, h0: h0 === "" ? null : cur.h0Order[+h0][1], ha: ha === "" ? null : cur.haList[+ha][0] };
+  }
+  function check() {
+    var c = choice(), out = [];
+    out.push(c.p === 0 ? ["ok", "Parameter: correct. It names the population and is a parameter, not a sample statistic."] :
+      ["no", c.p == null ? "Parameter: make a choice." : c.p === 1 || c.p === 2 ? "Parameter: that describes the sample. Hypotheses are about the population parameter." : "Parameter: wrong kind of parameter for this question about a " + (cur.sym === "μd" ? "mean difference" : "mean") + "."]);
+    out.push(c.proc === cur.proc ? ["ok", "Procedure: correct."] :
+      ["no", c.proc == null ? "Procedure: make a choice." : cur.proc === 1 ? (c.proc === 2 ? "Procedure: the same subjects were measured twice, so the data are paired, not two independent samples." : "Procedure: this is paired quantitative data, so use a paired t test.") : (c.proc === 1 ? "Procedure: there is only one measurement per subject, so this is not paired." : "Procedure: this is one sample of a quantitative variable with σ unknown, so use a one-sample t test.")]);
+    out.push(c.h0 === 0 ? ["ok", "H₀: correct. It uses the parameter and an equals sign."] :
+      ["no", c.h0 == null ? "H₀: make a choice." : c.h0 === 2 ? "H₀: hypotheses use the parameter, not the statistic." : "H₀: the null hypothesis always uses “=”. The suspicion goes in Hₐ."]);
+    out.push(c.ha === cur.ha ? ["ok", "Hₐ: correct direction."] :
+      ["no", c.ha == null ? "Hₐ: make a choice." : c.ha === "x" ? "Hₐ: use the parameter, not x̄." : "Hₐ: reread the question. The key word is in bold."]);
+    $("fbk").innerHTML = out.map(function (x) { return '<li><span class="' + x[0] + '">' + (x[0] === "ok" ? "✓" : "✗") + "</span><span>" + x[1] + "</span></li>"; }).join("");
+    render();
+  }
+  function reveal() {
+    $("selP").value = String(cur.pOrder.findIndex(function (x) { return x[1] === 0; }));
+    $("selProc").value = String(cur.proc);
+    $("selH0").value = String(cur.h0Order.findIndex(function (x) { return x[1] === 0; }));
+    $("selHa").value = String(cur.haList.findIndex(function (x) { return x[0] === cur.ha; }));
+    check();
+  }
+  function render() {
+    var c = choice(), a = +$("alpha").value, df = cur.n - 1;
+    var chosen = c.ha && c.ha !== "x", dir = chosen ? c.ha : "ne";
+    // preview
+    var pv = [];
+    pv.push("H₀: " + (c.h0 != null ? cur.h0[c.h0] : "?"));
+    pv.push("Hₐ: " + (c.ha != null ? cur.haList.filter(function (x) { return x[0] === c.ha; })[0][1] : "?"));
+    pv.push("where " + (c.p != null ? cur.params[c.p] : "? (define the parameter)"));
+    pv.push("Procedure: " + (c.proc != null ? PROCS[c.proc] : "?") + ", α = " + a);
+    $("preview").innerHTML = pv.map(function (x) { return "<div>" + x + "</div>"; }).join("");
+    $("conds").innerHTML = cur.conds.map(function (x) { return '<li><span class="' + x[0] + '">' + (x[0] === "ok" ? "✓" : "✗") + "</span><span>" + x[1] + "</span></li>"; }).join("");
+
+    // t graph
+    var f = function (x) { return Lab.tPdf(x, df); };
+    var F = Lab.frame($("tg"), { x: [-4.5, 4.5], y: [0, 0.42], xLabel: "t (if H₀ is true)", yLabel: "Density", xTicks: [-4, -3, -2, -1, 0, 1, 2, 3, 4], yTicks: [0, 0.1, 0.2, 0.3, 0.4], fmtX: String, fmtY: function (v) { return N(v, 1); } });
+    var crit = dir === "ne" ? Lab.invT(1 - a / 2, df) : Lab.invT(1 - a, df);
+    function sh(lo, hi) { Lab.curve(F, f, "var(--accent)", lo, hi, "var(--bad)"); }
+    if (dir === "gt") sh(crit, 4.5); else if (dir === "lt") sh(-4.5, -crit); else { sh(crit, 4.5); sh(-4.5, -crit); }
+    Lab.fn(F, f, "var(--accent)", 3, null, 160);
+    if (dir !== "lt") { Lab.vline(F, crit, "var(--bad)", 1.5, "4 3"); Lab.tag(F, crit + 0.1, 0.15, N(crit, 3), "var(--bad)"); }
+    if (dir !== "gt") { Lab.vline(F, -crit, "var(--bad)", 1.5, "4 3"); Lab.tag(F, -crit - 0.1, 0.15, "−" + N(crit, 3), "var(--bad)", "end"); }
+    Lab.tag(F, 0, 0.405, "H₀ true: t centered at 0", "var(--muted)", "middle");
+    $("t-sub").textContent = "df = " + df + (chosen ? " · Hₐ: " + cur.sym + " " + HA[dir] + " " + cur.v : " · choose Hₐ to set the tail");
+
+    $("r-proc").textContent = c.proc == null ? "Not chosen" : PROCS[c.proc].replace(/ for .*/, "");
+    $("r-df").textContent = cur.n + ", " + df;
+    $("r-dir").textContent = !chosen ? "Not chosen" : dir === "gt" ? "Right-tailed" : dir === "lt" ? "Left-tailed" : "Two-sided";
+    $("r-crit").textContent = dir === "gt" ? "t > " + N(crit, 3) : dir === "lt" ? "t < −" + N(crit, 3) : "|t| > " + N(crit, 3);
+
+    var t = [];
+    var head = "<b>If H₀ is true</b>, the test statistic t = (" + (cur.sym === "μ" ? "x̄" : "x̄d") + " − " + cur.v + ") ÷ (s/√n) follows a t distribution with df = " + df + ", centered at 0.";
+    if (!chosen) t.push("Choose Hₐ above to see which t values would count as evidence. Until then the graph shows both tails.");
+    else t.push(dir === "gt" ? "Hₐ says the mean is <b>greater</b> than " + cur.v + ", so only large positive t values count as evidence for it. The p-value will be the area to the right of the observed t." :
+      dir === "lt" ? "Hₐ says the mean is <b>less</b> than " + cur.v + ", so only large negative t values count as evidence. The p-value will be the area to the left of the observed t." :
+      "Hₐ says the mean is <b>different</b> from " + cur.v + ", so t values far out in either direction count. The p-value will include both tails.");
+    t.push("The red region holds the most extreme " + N(a * 100, 0) + "% of t values when H₀ is true. An observed t landing there would give a p-value below α = " + a + ".");
+    if (cur.conds.some(function (x) { return x[0] !== "ok"; })) t.push("<b>Condition problem:</b> one condition fails, so any p-value from this test should be treated with caution.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  SC.forEach(function (s, k) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = s.name;
+    b.addEventListener("click", function () { load(k); });
+    $("scen").appendChild(b);
+  });
+  ["selP", "selProc", "selH0", "selHa", "alpha"].forEach(function (id) { $(id).addEventListener("change", render); });
+  $("check").addEventListener("click", check);
+  $("reveal").addEventListener("click", reveal);
+  load(0);
+
+  var Q = [
+    { s: "A company claims its light bulbs last 1,000 hours on average. An inspector suspects they last less. Which hypotheses are correct?", o: ["H₀: μ = 1000, Hₐ: μ < 1000", "H₀: μ < 1000, Hₐ: μ = 1000", "H₀: x̄ = 1000, Hₐ: x̄ < 1000", "H₀: μ = 1000, Hₐ: μ ≠ 1000"], c: 0, w: "H₀ is the claim with an equals sign, Hₐ is the suspicion (less than), and both use the parameter μ, not the statistic x̄." },
+    { s: "Twenty students took a reading test before and after a speed-reading course. To test whether the course increases mean score, the parameter should be:", o: ["μ = the true mean score after the course", "μ₁ − μ₂ = difference in mean scores of two independent groups", "μd = the true mean of (after − before) for students like these", "x̄d = the mean of the 20 differences"], c: 2, w: "The same students were measured twice, so the data are paired. The parameter is the population mean difference μd, defined with an order of subtraction." },
+    { s: "For the speed-reading study (d = after − before), which alternative hypothesis matches “the course increases scores”?", o: ["Hₐ: μd < 0", "Hₐ: μd > 0", "Hₐ: μd ≠ 0", "Hₐ: μd = 0"], c: 1, w: "If scores increase, after − before is positive on average, so Hₐ: μd > 0." },
+    { s: "A researcher writes H₀: x̄ = 12. What is wrong?", o: ["It should use ≥ instead of =.", "Hypotheses must be about a parameter such as μ, not the sample mean.", "The null value should be 0.", "Nothing is wrong."], c: 1, w: "x̄ is known once you have the data. Hypotheses are statements about the unknown population parameter μ." },
+    { s: "A random sample of 14 test scores is used for a one-sample t test. Which is the best check of the Normal/Large condition?", o: ["n = 14 is at least 10.", "The population size is more than 140.", "A dotplot of the 14 scores shows no strong skew or outliers.", "The sample was selected randomly."], c: 2, w: "With n < 30 and no information that the population is normal, check a graph of the sample data for strong skew or outliers. B is the 10% condition and D is Random." },
+    { s: "A nutritionist wants to know whether the mean sodium content of a soup differs from the 800 mg on the label. Which alternative hypothesis fits?", o: ["μ < 800", "μ > 800", "μ ≠ 800", "μ = 800"], c: 2, w: "“Differs from” means either direction, so the alternative is two-sided: μ ≠ 800." },
+    { s: "A study randomly selects 50 students from a school of 400. Which condition is violated for a one-sample t test?", o: ["Random", "10%", "Normal/Large", "None of them"], c: 1, w: "10% of 400 is 40, and 50 > 40, so the 10% condition fails. n = 50 ≥ 30 satisfies Normal/Large." },
+    { s: "When is a paired t test, rather than a two-sample t test, the correct procedure?", o: ["When the two samples have the same size", "When each observation in one group is naturally matched with one in the other group", "When the population standard deviation is known", "When both samples are random"], c: 1, w: "Paired procedures are for matched data, such as the same subjects measured twice or matched pairs. Equal sample sizes alone do not make data paired." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("4.4");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [4], topic: "4.4", compact: true, storageKey: "topic-4.4" });</script>
+</body>
+</html>

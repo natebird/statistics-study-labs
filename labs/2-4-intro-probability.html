@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduction to Probability Study Lab</title>
+<meta name="description" content="List a sample space, count the outcomes in an event, and use the complement rule; then check whether a probability model is valid.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.ss{display:grid;gap:4px}.ss .o{font-family:var(--mono);font-size:.8rem;text-align:center;padding:6px 2px;border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--muted)}
+.ss .o.in{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
+.ss .h{font-family:var(--mono);font-size:.74rem;color:var(--muted);text-align:center;align-self:center}
+.pm{min-width:0}.pm th,.pm td{padding:6px 8px;vertical-align:middle}.pm input[type=number]{font:inherit;font-family:var(--mono);font-size:.88rem;width:100%;min-width:60px;padding:5px 6px;border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--ink)}
+.pm input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}.pm tfoot td{font-family:var(--mono);background:var(--paper)}
+.ok{color:var(--good);font-weight:600}.bad{color:var(--bad);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.4</span>
+  <h1>Introduction to Probability Study Lab</h1>
+  <p class="lede">When all outcomes are equally likely, the probability of an event is the number of outcomes in the event divided by the number in the sample space. Pick an experiment, choose an event, and see every outcome that counts. Then build a probability model and check that it follows the rules.</p>
+</header>
+
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Count outcomes in a sample space</h2>
+    <p>Choose an experiment and an event. Highlighted outcomes are in the event.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">P(E) = outcomes in E ÷ outcomes in the sample space</span> <span class="formula">P(not E) = 1 − P(E)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:10px;">
+    <div class="tag">Experiment</div>
+    <div class="scenarios" id="exp"></div>
+    <div class="tag">Event</div>
+    <div class="scenarios" id="evs"></div>
+    <label style="display:inline-flex;gap:8px;align-items:center;font-size:.92rem"><input type="checkbox" id="comp" style="width:18px;height:18px;accent-color:var(--accent)"> Show the complement (the event does <b>not</b> happen)</label>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:10px; align-content:start;">
+      <h3>Sample space <small style="font-family:var(--body);font-weight:400;font-size:.82rem;color:var(--muted)" id="ss-sub"></small></h3>
+      <div class="ss" id="ss"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="calc" id="calc"></div>
+      <div class="story" id="story" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Outcomes in sample space</div><div class="v" id="r-n"></div></div>
+    <div class="stat"><div class="k">Outcomes in event</div><div class="v" id="r-k"></div></div>
+    <div class="stat"><div class="k">P(event)</div><div class="v" id="r-p"></div></div>
+    <div class="stat"><div class="k">P(complement)</div><div class="v" id="r-c"></div></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Build a probability model</h3>
+    <p>A valid model gives every outcome a probability between 0 and 1, and the probabilities add to exactly 1. Edit the values, leave one blank to solve for it, and check the outcomes in your event.</p>
+  </div>
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset models</div>
+    <div class="scenarios" id="pmScen"></div>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:10px; align-content:start;">
+      <h3 id="pm-title"></h3>
+      <div class="tbl-wrap"><table class="pm" id="pm"></table></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Check the model</h3>
+      <div class="calc" id="pmCalc"></div>
+      <div class="story" id="pmStory" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Sample space</span><h3>Every possible outcome</h3><p>The sample space S is the list of all possible outcomes of a random process. Listing it carefully, often in a grid or tree, is the first step in most probability problems.</p></div>
+    <div class="card"><span class="tag">Event</span><h3>A set of outcomes</h3><p>An event is any collection of outcomes from the sample space, such as "the sum is 7." An event happens if the outcome of the process is one of its outcomes.</p></div>
+    <div class="card"><span class="tag">Equally likely</span><h3>Count and divide</h3><p>Only when all outcomes are equally likely can you find P(E) by counting. Sums of two dice are not equally likely (7 is more likely than 2), but the 36 ordered pairs are.</p></div>
+    <div class="card"><span class="tag">Range</span><h3>Between 0 and 1</h3><p>Every probability is between 0 (impossible) and 1 (certain). The probabilities of all the outcomes in a sample space add to 1.</p></div>
+    <div class="card"><span class="tag">Complement</span><h3>"Not E"</h3><p>The complement Eᶜ is every outcome not in E. P(Eᶜ) = 1 − P(E). It is often easier: P(at least one 6) = 1 − P(no 6s).</p></div>
+    <div class="card"><span class="tag">Interpreting</span><h3>Long-run meaning</h3><p>P(E) = 0.25 means that if the process were repeated many, many times, E would happen in about 25% of the repetitions. It does not promise exactly 1 out of every 4.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Worked examples</h2>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Question</th><th>Setup</th><th>Work</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Roll two fair dice. P(sum is 8)?</td><td>36 equally likely ordered pairs</td><td>(2,6), (3,5), (4,4), (5,3), (6,2) → 5 ÷ 36</td><td><b>0.139</b></td></tr>
+      <tr><td>Flip three coins. P(at least one head)?</td><td>8 outcomes; complement is TTT</td><td>1 − 1/8</td><td><b>0.875</b></td></tr>
+      <tr><td>Blood types: O 0.45, A 0.40, B 0.11. P(AB)?</td><td>Probabilities must add to 1</td><td>1 − (0.45 + 0.40 + 0.11)</td><td><b>0.04</b></td></tr>
+      <tr><td>Draw one card. P(not a heart)?</td><td>13 hearts out of 52</td><td>1 − 13/52</td><td><b>0.75</b></td></tr>
+      <tr><td>Is P(A) = 0.5, P(B) = 0.3, P(C) = 0.3 a valid model?</td><td>Check the sum</td><td>0.5 + 0.3 + 0.3 = 1.1</td><td><b>No</b>, the sum is not 1</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Define the event in words before calculating: "Let E = the sum of the two dice is at least 10."</li>
+        <li>Show the counting or the complement: "P(at least one defect) = 1 − P(no defects) = 1 − 0.92 = 0.08."</li>
+        <li>Interpret a probability as a long-run relative frequency, in context.</li>
+        <li>When you list a sample space, make it complete and organized (grid, table, or tree) so the grader can count with you.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Treating outcomes as equally likely when they are not, such as saying P(sum = 2) = 1/11 because there are 11 possible sums.</li>
+        <li>Counting (3, 5) and (5, 3) as one outcome. With two dice, order matters for equally likely outcomes.</li>
+        <li>Writing "at least one" as "exactly one."</li>
+        <li>Reporting a probability greater than 1 or less than 0. If you get one, check your work.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.4. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  var SUITS = ["♠", "♥", "♦", "♣"], RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+  var EXP = [
+    { name: "Roll two dice", cols: 6, rowHead: function (i) { return "1st: " + (i + 1); }, colHead: function (j) { return "2nd " + (j + 1); },
+      outs: (function () { var a = []; for (var i = 1; i <= 6; i++) for (var j = 1; j <= 6; j++) a.push({ a: i, b: j, l: i + "," + j }); return a; })(),
+      events: [["Sum is 7", function (o) { return o.a + o.b === 7; }], ["Sum is 8", function (o) { return o.a + o.b === 8; }], ["Doubles", function (o) { return o.a === o.b; }], ["At least one 6", function (o) { return o.a === 6 || o.b === 6; }], ["Sum is at least 10", function (o) { return o.a + o.b >= 10; }], ["Sum is 13", function (o) { return o.a + o.b === 13; }], ["Sum is 2 to 12", function () { return true; }]] },
+    { name: "Flip three coins", cols: 4,
+      outs: ["HHH", "HHT", "HTH", "THH", "HTT", "THT", "TTH", "TTT"].map(function (s) { return { l: s, h: s.split("H").length - 1 }; }),
+      events: [["Exactly 2 heads", function (o) { return o.h === 2; }], ["At least one head", function (o) { return o.h >= 1; }], ["All the same", function (o) { return o.h === 0 || o.h === 3; }], ["First flip is heads", function (o) { return o.l[0] === "H"; }]] },
+    { name: "Spin a 4-color spinner twice", cols: 4, rowHead: function (i) { return "1st: " + "RBGY"[i]; }, colHead: function (j) { return "2nd " + "RBGY"[j]; },
+      outs: (function () { var a = []; "RBGY".split("").forEach(function (x) { "RBGY".split("").forEach(function (y) { a.push({ a: x, b: y, l: x + y }); }); }); return a; })(),
+      events: [["Same color twice", function (o) { return o.a === o.b; }], ["At least one red", function (o) { return o.a === "R" || o.b === "R"; }], ["No yellow", function (o) { return o.a !== "Y" && o.b !== "Y"; }], ["Red then blue", function (o) { return o.a === "R" && o.b === "B"; }]] },
+    { name: "Draw one card", cols: 13, rowHead: function (i) { return SUITS[i]; }, colHead: function (j) { return RANKS[j]; },
+      outs: (function () { var a = []; SUITS.forEach(function (s, i) { RANKS.forEach(function (r, j) { a.push({ s: s, r: r, j: j, red: i === 1 || i === 2, l: r + s }); }); }); return a; })(),
+      events: [["Heart", function (o) { return o.s === "♥"; }], ["Face card (J, Q, K)", function (o) { return o.j >= 10; }], ["Ace", function (o) { return o.r === "A"; }], ["Red card", function (o) { return o.red; }], ["Red face card", function (o) { return o.red && o.j >= 10; }]] }
+  ];
+  var E = EXP[0], ev = 0, comp = false;
+  function chips(id, list, cur, fn) {
+    var box = $(id); box.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = x; b.setAttribute("aria-pressed", String(i === cur)); b.addEventListener("click", function () { fn(i); }); box.appendChild(b); });
+  }
+  function setExp(i) { E = EXP[i]; ev = 0; chips("exp", EXP.map(function (x) { return x.name; }), i, setExp); setEv(0); }
+  function setEv(i) { ev = i; chips("evs", E.events.map(function (x) { return x[0]; }), i, setEv); render(); }
+  function render() {
+    var f = E.events[ev][1], name = E.events[ev][0], n = E.outs.length;
+    var inE = E.outs.map(function (o) { return !!f(o) !== comp; }), k = inE.filter(Boolean).length;
+    var ss = $("ss"), h = "";
+    var grid = !!E.rowHead;
+    ss.style.gridTemplateColumns = (grid ? "auto " : "") + "repeat(" + E.cols + ", minmax(0,1fr))";
+    if (grid) { h += "<div></div>"; for (var j = 0; j < E.cols; j++) h += "<div class='h'>" + E.colHead(j) + "</div>"; }
+    E.outs.forEach(function (o, i) {
+      if (grid && i % E.cols === 0) h += "<div class='h'>" + E.rowHead(i / E.cols) + "</div>";
+      h += "<div class='o" + (inE[i] ? " in" : "") + "'>" + o.l + "</div>";
+    });
+    ss.innerHTML = h;
+    var en = comp ? "not (" + name.toLowerCase() + ")" : name.toLowerCase();
+    $("ss-sub").textContent = n + " equally likely outcomes · " + k + " in the event";
+    var listed = E.outs.filter(function (o, i) { return inE[i]; }).map(function (o) { return o.l; });
+    var c = "<div class='row'><span>Event E: " + en + "</span><span></span></div>";
+    c += "<div class='row'><span style='white-space:normal'>Outcomes in E: " + (k ? (k > 14 ? listed.slice(0, 14).join("; ") + "; … (" + k + " in all)" : listed.join("; ")) : "none") + "</span><span>" + k + "</span></div>";
+    c += "<div class='row'><span>P(E) = " + k + " ÷ " + n + "</span><span>= " + N(k / n, 4) + "</span></div>";
+    c += "<div class='row'><span>P(Eᶜ) = 1 − " + N(k / n, 4) + "</span><span>= " + N(1 - k / n, 4) + "</span></div>";
+    $("calc").innerHTML = c;
+    $("r-n").textContent = n; $("r-k").textContent = k; $("r-p").textContent = k + "/" + n + " ≈ " + N(k / n, 3); $("r-c").textContent = N(1 - k / n, 3);
+    var st;
+    if (k === 0) st = "<b>Impossible event.</b> No outcome is in it, so its probability is 0.";
+    else if (k === n) st = "<b>Certain event.</b> Every outcome is in it, so its probability is 1.";
+    else st = "<b>About " + Lab.pct(k / n, 0) + " of the time.</b> If you repeated this many times, the event would happen in about " + N(k / n * 100, 1) + "% of the repetitions.";
+    if (comp) st += " Showing the complement: count the outcomes that are <i>not</i> in the original event, or just subtract from 1.";
+    else if (/at least one/i.test(name)) st += " Shortcut: P(at least one) = 1 − P(none). Tick the complement box to see the “none” outcomes.";
+    if (E === EXP[0] && /Sum is/.test(name)) st += " Remember that the 11 possible sums are not equally likely. Count the 36 ordered pairs instead.";
+    $("story").innerHTML = "<p>" + st + "</p>";
+  }
+  $("comp").addEventListener("change", function (e) { comp = e.target.checked; render(); });
+  setExp(0);
+
+  // ---- probability model checker
+  var PM = [
+    { name: "Blood types (solve for AB)", title: "U.S. blood types", rows: [["O", 0.45], ["A", 0.40], ["B", 0.11], ["AB", null]], ev: [0, 2] },
+    { name: "Loaded die", title: "A loaded die", rows: [["1", 0.10], ["2", 0.10], ["3", 0.10], ["4", 0.10], ["5", 0.10], ["6", 0.50]], ev: [5] },
+    { name: "Invalid: adds to more than 1", title: "Grades in a class", rows: [["A", 0.30], ["B", 0.40], ["C", 0.25], ["D or F", 0.15]], ev: [0, 1] },
+    { name: "Invalid: a negative value", title: "Transportation to school", rows: [["Bus", 0.55], ["Car", 0.50], ["Walk", -0.05]], ev: [2] }
+  ];
+  var M;
+  function loadPM(p) { M = JSON.parse(JSON.stringify(p)); buildPM(); renderPM(); }
+  function buildPM() {
+    $("pm-title").textContent = M.title;
+    var h = "<thead><tr><th>Outcome</th><th>Probability</th><th>In event?</th></tr></thead><tbody>";
+    M.rows.forEach(function (r, i) { h += "<tr><td>" + r[0] + "</td><td><label class='sr' for='pm" + i + "'>Probability of " + r[0] + "</label><input type='number' step='0.01' id='pm" + i + "' value='" + (r[1] == null ? "" : r[1]) + "' placeholder='?'></td><td><label class='sr' for='pe" + i + "'>Include " + r[0] + "</label><input type='checkbox' id='pe" + i + "'" + (M.ev.indexOf(i) >= 0 ? " checked" : "") + "></td></tr>"; });
+    h += "</tbody><tfoot><tr><td>Sum</td><td id='pm-sum'></td><td></td></tr></tfoot>";
+    $("pm").innerHTML = h;
+    M.rows.forEach(function (r, i) {
+      $("pm" + i).addEventListener("input", function (e) { r[1] = e.target.value === "" ? null : +e.target.value; renderPM(); });
+      $("pe" + i).addEventListener("change", function (e) { var k = M.ev.indexOf(i); if (e.target.checked && k < 0) M.ev.push(i); if (!e.target.checked && k >= 0) M.ev.splice(k, 1); renderPM(); });
+    });
+  }
+  function renderPM() {
+    var blanks = M.rows.filter(function (r) { return r[1] == null; }), known = M.rows.filter(function (r) { return r[1] != null; });
+    var sum = Lab.sum(known.map(function (r) { return r[1]; })), c = "", vals = M.rows.map(function (r) { return r[1]; });
+    if (blanks.length === 1) {
+      var miss = 1 - sum, bi = M.rows.indexOf(blanks[0]); vals[bi] = miss;
+      c += "<div class='row'><span>Solve: P(" + blanks[0][0] + ") = 1 − (" + known.map(function (r) { return N(r[1], 3); }).join(" + ") + ")</span><span>= " + N(miss, 3) + "</span></div>";
+    }
+    var tot = vals.every(function (v) { return v != null; }) ? Lab.sum(vals) : NaN;
+    $("pm-sum").textContent = isNaN(tot) ? N(sum, 3) + " + ?" : N(tot, 3);
+    var neg = vals.filter(function (v) { return v != null && (v < 0 || v > 1); });
+    var ok = !isNaN(tot) && Math.abs(tot - 1) < 1e-9 && !neg.length;
+    c += "<div class='row'><span>Each probability between 0 and 1?</span><span class='" + (neg.length ? "bad" : "ok") + "'>" + (neg.length ? "No: " + neg.map(function (v) { return N(v, 3); }).join(", ") : "Yes") + "</span></div>";
+    c += "<div class='row'><span>Sum = " + (isNaN(tot) ? "?" : vals.map(function (v) { return N(v, 3); }).join(" + ")) + "</span><span class='" + (isNaN(tot) ? "" : Math.abs(tot - 1) < 1e-9 ? "ok" : "bad") + "'>" + (isNaN(tot) ? "?" : N(tot, 3)) + "</span></div>";
+    var evp = M.ev.map(function (i) { return vals[i]; });
+    if (ok && M.ev.length) {
+      var pe = Lab.sum(evp);
+      c += "<div class='row'><span>P(" + M.ev.map(function (i) { return M.rows[i][0]; }).join(" or ") + ") = " + evp.map(function (v) { return N(v, 3); }).join(" + ") + "</span><span>= " + N(pe, 3) + "</span></div>";
+      c += "<div class='row'><span>P(complement) = 1 − " + N(pe, 3) + "</span><span>= " + N(1 - pe, 3) + "</span></div>";
+    }
+    $("pmCalc").innerHTML = c;
+    var st;
+    if (blanks.length > 1) st = "<b>Too many unknowns.</b> Leave at most one probability blank so the rule “probabilities add to 1” can find it.";
+    else if (neg.length) st = "<b>Not a valid model.</b> A probability can never be negative or greater than 1.";
+    else if (Math.abs(tot - 1) >= 1e-9) st = "<b>Not a valid model.</b> The probabilities add to " + N(tot, 3) + ", not 1. Every possible outcome must be covered exactly once.";
+    else st = "<b>Valid model.</b> Every probability is between 0 and 1, and they add to 1." + (M.ev.length ? " Because these outcomes cannot happen together, the probability of the event is the sum of their probabilities." : " Tick some outcomes to find the probability of an event.");
+    $("pmStory").innerHTML = "<p>" + st + "</p>";
+  }
+  PM.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { loadPM(p); }); $("pmScen").appendChild(b); });
+  loadPM(PM[0]);
+
+  var Q = [
+    { s: "Two fair dice are rolled. What is the probability that the sum is 9?", o: ["1/11", "4/36", "5/36", "9/36"], c: 1, w: "The pairs (3,6), (4,5), (5,4), (6,3) give a sum of 9: 4 of the 36 equally likely outcomes. The 11 possible sums are not equally likely, so 1/11 is wrong." },
+    { s: "A weather forecaster says there is a 30% chance of rain tomorrow. What is the best interpretation?", o: ["It will rain for 30% of the day.", "In the long run, on days with conditions like tomorrow's, it rains on about 30% of them.", "It will not rain, because 30% is less than 50%.", "Exactly 3 of the next 10 days will have rain."], c: 1, w: "Probability is a long-run relative frequency over many repetitions of the same situation." },
+    { s: "A spinner has four regions with P(red) = 0.2, P(blue) = 0.35, P(green) = 0.15. What is P(yellow), the only other region?", o: ["0.25", "0.30", "0.70", "Cannot be determined"], c: 1, w: "The probabilities must add to 1: 1 − (0.2 + 0.35 + 0.15) = 1 − 0.70 = 0.30." },
+    { s: "Three fair coins are flipped. What is P(at least one tail)?", o: ["1/8", "3/8", "1/2", "7/8"], c: 3, w: "The complement of “at least one tail” is HHH, which has probability 1/8. So the answer is 1 − 1/8 = 7/8." },
+    { s: "Which of the following is a valid probability model for outcomes A, B, C?", o: ["0.5, 0.5, 0.5", "0.6, 0.3, 0.1", "0.7, 0.4, −0.1", "0.2, 0.2, 0.2"], c: 1, w: "Each value must be between 0 and 1 and the three must add to 1. Only 0.6 + 0.3 + 0.1 = 1 with no negatives." },
+    { s: "A card is drawn from a standard 52-card deck. What is the probability that it is NOT a face card (J, Q, K)?", o: ["12/52", "40/52", "3/13", "36/52"], c: 1, w: "There are 12 face cards, so 52 − 12 = 40 are not face cards. P = 40/52 ≈ 0.769." },
+    { s: "A student says, “When I roll a die, either I get a 6 or I don't, so P(6) = 1/2.” What is wrong?", o: ["Nothing; there are two outcomes.", "The two outcomes are not equally likely; “not 6” includes five faces.", "P(6) should be 6/6.", "Probability cannot be used for dice."], c: 1, w: "Counting only works for equally likely outcomes. The six faces are equally likely, so P(6) = 1/6." },
+    { s: "The probability that a randomly chosen student has a job is 0.38. What is the probability that the student does not have a job?", o: ["0.38", "0.62", "1.38", "0.50"], c: 1, w: "Complement rule: 1 − 0.38 = 0.62." }
+  ];
+
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.4");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.4", compact: true, storageKey: "topic-2.4" });</script>
+</body>
+</html>

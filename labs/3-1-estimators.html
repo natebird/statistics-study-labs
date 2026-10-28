@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estimators Study Lab</title>
+<meta name="description" content="Take hundreds of samples and see what makes an estimator biased or variable, and why bigger samples fix one but not the other.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.k-acc { color: var(--accent); } .k-c1 { color: var(--c1); } .k-c2 { color: var(--c2); } .k-bad { color: var(--bad); } .k-ghost { color: var(--ghost); }
+.steps { display: grid; gap: 10px; }
+.steps .card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.05rem; }
+.steps .card h4 .tag { margin-right: 8px; }
+.steps .card p { font-size: .95rem; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.1</span>
+  <h1>Estimators Study Lab</h1>
+  <p class="lede">A sample statistic used to guess a population parameter is called an estimator. Good estimators are <b>unbiased</b> (right on average) and have <b>low variability</b> (consistent from sample to sample). Simulate six estimators and see which is which.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Bias and variability simulator</h2>
+    <p>An <b>estimator</b> is a rule that turns sample data into a guess for a parameter. Pick an estimator, take many samples, and look at the distribution of its estimates. Its center tells you about <b>bias</b>; its spread tells you about <b>variability</b>.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Choose an estimator</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="est-name"></h3>
+      <p class="note" id="est-desc"></p>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl">
+          <label for="par" id="par-l">True parameter <output id="par-o"></output></label>
+          <input type="range" id="par" min="0.1" max="0.9" step="0.01" value="0.4">
+          <span class="hint" id="par-h">The value we are trying to estimate</span>
+        </div>
+        <div class="ctl">
+          <label for="n">Sample size n <output id="n-o"></output></label>
+          <input type="range" id="n" min="5" max="400" step="1" value="40">
+          <span class="hint">Bigger samples, less variability</span>
+        </div>
+      </div>
+      <div class="tag">Take samples</div>
+      <div class="scenarios" id="draw"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Estimates from repeated samples <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Histogram of the estimates from many samples, with the true parameter marked"></svg>
+      <div class="marker-key"><span class="k-c1">True parameter</span><span class="k-acc">Mean of the estimates</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">True parameter</div><div class="v" id="r-par"></div></div>
+    <div class="stat"><div class="k">Mean of estimates</div><div class="v" id="r-mean"></div></div>
+    <div class="stat"><div class="k">Estimated bias</div><div class="v" id="r-bias"></div></div>
+    <div class="stat"><div class="k">SD of estimates</div><div class="v" id="r-sd"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Show the work</h3>
+      <div class="calc" id="calc"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Where does this estimator land?</h3>
+      <svg class="chart" id="quad" role="img" aria-label="Bias versus variability chart showing where this estimator falls"></svg>
+      <p class="note">Each dot is one of the six estimators at the current sample size; the highlighted one is selected (hover a gray dot to see its name). Lower left is the goal: low bias and low variability.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Vocabulary</span><h3>Parameter vs. statistic</h3><p>A parameter describes the population (p, μ, σ) and is usually unknown. A statistic describes a sample (p̂, x̄, s) and is used as a point estimate of the parameter.</p></div>
+    <div class="card"><span class="tag">Sampling distribution</span><h3>Every statistic has one</h3><p>The sampling distribution is the distribution of a statistic's values over all possible samples of the same size. Simulation approximates it by taking many samples.</p></div>
+    <div class="card"><span class="tag">Bias</span><h3>Is it right on average?</h3><p>An estimator is unbiased when the mean of its sampling distribution equals the parameter. p̂, x̄, and s² (with n − 1) are unbiased. Bad sampling methods cause bias.</p></div>
+    <div class="card"><span class="tag">Variability</span><h3>How much do estimates disagree?</h3><p>Variability is the spread of the sampling distribution. Larger random samples give less variability. The population size barely matters if the sample is under 10% of it.</p></div>
+    <div class="card"><span class="tag">Trade-offs</span><h3>Bias and variability are different</h3><p>A biased method with a huge sample gives precise but wrong answers. An unbiased method with a tiny sample is right on average but often far off. You want both low.</p></div>
+    <div class="card"><span class="tag">Target picture</span><h3>Darts on a bullseye</h3><p>Bias is aiming off-center; variability is how scattered the darts are. Low bias + low variability means tight shots centered on the bullseye.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>How common estimators behave when the data come from a random sample.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Estimator</th><th>Estimates</th><th>Unbiased?</th><th>Variability</th></tr></thead>
+    <tbody>
+      <tr><td><b>p̂</b> = X ÷ n</td><td>Population proportion p</td><td>Yes</td><td>σ = √(p(1 − p) ÷ n)</td></tr>
+      <tr><td><b>x̄</b></td><td>Population mean μ</td><td>Yes</td><td>σ ÷ √n</td></tr>
+      <tr><td><b>s²</b> (divide by n − 1)</td><td>Population variance σ²</td><td>Yes</td><td>Shrinks as n grows</td></tr>
+      <tr><td>Variance dividing by n</td><td>σ²</td><td><span class="shift">No, too small</span></td><td>Shrinks as n grows</td></tr>
+      <tr><td>Sample maximum</td><td>Population maximum</td><td><span class="shift">No, too small</span></td><td>Shrinks as n grows</td></tr>
+      <tr><td>p̂ from a convenience or voluntary sample</td><td>p</td><td><span class="shift">Usually not</span></td><td>Shrinks as n grows, but around the wrong value</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Define bias by the center: "The estimator is unbiased because the mean of its sampling distribution equals the parameter."</li>
+        <li>When a dotplot of simulated estimates is given, compare its center to the parameter (bias) and its spread (variability), and mention both.</li>
+        <li>To choose between two estimators, name the trade-off: "Estimator A is unbiased but more variable; Estimator B has slight bias but much less variability."</li>
+        <li>Say what a larger sample does: it reduces variability. It does not reduce bias from a flawed sampling method.</li>
+        <li>Use context: "p̂ estimates the proportion of all students at the school who want a later start."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Saying an unbiased estimator gives the right answer every time. It is right on average, not in every sample.</li>
+        <li>Thinking a bigger sample removes bias. It only makes the estimates cluster more tightly around whatever center they already have.</li>
+        <li>Mixing up variability of the data (s) with variability of a statistic (the SD of its sampling distribution).</li>
+        <li>Believing a sample must be a large fraction of the population to be accurate. Sample size matters, not the fraction.</li>
+        <li>Using the word "bias" to mean any error. Bias is systematic error in one direction.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.1. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  // ---------- helpers shared by the Unit 3 labs (inline on purpose) ----------
+  function buttons(id, list) {
+    var box = $(id); box.innerHTML = "";
+    list.forEach(function (x) { var b = document.createElement("button"); b.type = "button"; b.textContent = x[0]; b.addEventListener("click", x[1]); box.appendChild(b); });
+  }
+  function seg(id, opts, cur, onPick) {
+    var box = $(id); box.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { onPick(o[0]); seg(id, opts, o[0], onPick); });
+      box.appendChild(b);
+    });
+  }
+  function fmtP(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function zStar(C) { return Lab.invNorm(1 - (1 - C) / 2); }
+  function sym(alt) { return alt === "lt" ? "<" : alt === "gt" ? ">" : "≠"; }
+  /* hist(svg, vals, o): density-scaled histogram on a fixed axis so a curve can be laid on top.
+     o = { lo, hi, w, xLabel, ticks, yMax, curve: f(x), colorOf(lo, hi) -> color, lines: [{ x, color, label, dash }] } */
+  function hist(svg, vals, o) {
+    var nb = Math.round((o.hi - o.lo) / o.w), cnt = new Array(nb).fill(0);
+    vals.forEach(function (v) { var i = Math.floor((v - o.lo) / o.w + 1e-9); if (i >= 0 && i < nb) cnt[i]++; else if (i === nb && Math.abs(v - o.hi) < 1e-9) cnt[nb - 1]++; });
+    var dens = cnt.map(function (c) { return vals.length ? c / vals.length / o.w : 0; });
+    var top = o.yMax || Math.max.apply(null, dens.concat([o.curve ? o.curve(o.peak != null ? o.peak : (o.lo + o.hi) / 2) : 0, 1e-9])) * 1.15;
+    var F = Lab.frame(svg, { x: [o.lo, o.hi], y: [0, top], xLabel: o.xLabel || "", yLabel: o.yLabel || "", xTicks: (o.ticks || Lab.niceTicks(o.lo, o.hi, 6)).filter(function (t) { return t >= o.lo - 1e-9 && t <= o.hi + 1e-9; }), yTicks: [], fmtX: o.fmt || function (v) { return N(v, 2); } });
+    dens.forEach(function (dv, i) {
+      if (!dv) return; var a = o.lo + i * o.w, b = a + o.w;
+      Lab.el("rect", { x: F.sx(a) + .3, y: F.sy(dv), width: Math.max(0, F.sx(b) - F.sx(a) - .6), height: F.sy(0) - F.sy(dv), fill: (o.colorOf && o.colorOf(a, b)) || "var(--accent)", opacity: .55 }, F.g);
+    });
+    if (o.curve) Lab.fn(F, o.curve, o.curveColor || "var(--ink)", 2, null, 160);
+    (o.lines || []).forEach(function (l, k) {
+      Lab.vline(F, l.x, l.color, 2.5, l.dash || null);
+      if (l.label) Lab.tag(F, l.x + (o.hi - o.lo) * 0.01 * (l.left ? -1 : 1), top * (0.93 - 0.1 * k), l.label, l.color, l.left ? "end" : "start");
+    });
+    return F;
+  }
+  function binom(r, n, p) { var k = 0; for (var i = 0; i < n; i++) if (r() < p) k++; return k; }
+  function story(id, head, items) { $(id).innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+  function rows(id, list) { $(id).innerHTML = list.map(function (r) { return '<div class="row' + (r[2] ? " h" : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function slider(id, outId, fmt, onChange) { var s = $(id); function u() { $(outId).textContent = fmt(+s.value); } s.addEventListener("input", function () { u(); onChange(+s.value); }); u(); return { set: function (v) { s.value = v; u(); } }; }
+
+  // An estimator: param(p) gives the true value for slider p; draw(r, p, n) gives one estimate.
+  var EST = [
+    { id: "srs", name: "Sample proportion p̂ from a random sample", short: "p̂ (random sample)", desc: "Ask a simple random sample of n students whether they want a later school start. The estimate is p̂ = (number who say yes) ÷ n.",
+      parLabel: "True proportion p", lo: 0, hi: 1, w: 0.02, param: function (p) { return p; }, draw: function (r, p, n) { return binom(r, n, p) / n; } },
+    { id: "conv", name: "p̂ from a convenience sample", short: "p̂ (convenience)", desc: "Ask the first n students arriving late to first period. They are more likely than the population to want a later start, so each person says yes with probability p + 0.15.",
+      parLabel: "True proportion p", lo: 0, hi: 1, w: 0.02, param: function (p) { return p; }, draw: function (r, p, n) { return binom(r, n, Math.min(0.99, p + 0.15)) / n; } },
+    { id: "plus4", name: "Plus-four estimate (X + 2) ÷ (n + 4)", short: "Plus four", desc: "Add 2 successes and 2 failures before dividing. It pulls every estimate a little toward 0.5: slightly biased, but a bit less variable, most noticeably for small n.",
+      parLabel: "True proportion p", lo: 0, hi: 1, w: 0.02, param: function (p) { return p; }, draw: function (r, p, n) { return (binom(r, n, p) + 2) / (n + 4); } },
+    { id: "var1", name: "Sample variance s² (divide by n − 1)", short: "s² with n − 1", desc: "Roll a fair die n times and compute the sample variance dividing by n − 1. The population variance of one die roll is σ² = 35/12 ≈ 2.917.",
+      parLabel: "(fixed) σ² of a die roll", lo: 0, hi: 7, w: 0.14, fixed: 35 / 12, param: function () { return 35 / 12; }, draw: function (r, p, n) { var a = []; for (var i = 0; i < n; i++) a.push(r.int(1, 6)); return Lab.variance(a); } },
+    { id: "var0", name: "Variance dividing by n instead", short: "Variance with n", desc: "Same die rolls, but divide the sum of squared deviations by n. It comes out too small on average, especially with small samples. This is why s uses n − 1.",
+      parLabel: "(fixed) σ² of a die roll", lo: 0, hi: 7, w: 0.14, fixed: 35 / 12, param: function () { return 35 / 12; }, draw: function (r, p, n) { var a = []; for (var i = 0; i < n; i++) a.push(r.int(1, 6)); return Lab.variance(a, true); } },
+    { id: "max", name: "Sample maximum to estimate the largest serial number", short: "Sample max", desc: "A city has buses numbered 1 to 200. You spot n different buses at random and use the largest number you see. The sample max can never be above 200, so it tends to come out low.",
+      parLabel: "(fixed) Largest serial number", lo: 0, hi: 210, w: 4, fixed: 200, nMax: 150, param: function () { return 200; }, draw: function (r, p, n) { var s = r.sample(ALLBUS, Math.min(n, 200)); return Math.max.apply(null, s); } }
+  ];
+  var ALLBUS = []; for (var b = 1; b <= 200; b++) ALLBUS.push(b);
+  var S = { e: EST[0], p: 0.4, n: 40, vals: [] }, R = Lab.rng(7);
+  var parS = slider("par", "par-o", function (v) { return N(v, 2); }, function (v) { S.p = v; S.vals = []; render(); });
+  var nS = slider("n", "n-o", function (v) { return v; }, function (v) { S.n = v; S.vals = []; render(); });
+
+  function pick(e) {
+    S.e = e; S.vals = [];
+    $("est-name").textContent = e.name; $("est-desc").textContent = e.desc;
+    $("par").disabled = !!e.fixed; $("par-l").firstChild.nodeValue = e.parLabel + " ";
+    $("par-h").textContent = e.fixed ? "Fixed for this estimator" : "The value we are trying to estimate";
+    $("n").max = e.nMax || 400; if (S.n > (e.nMax || 400)) { S.n = e.nMax; nS.set(S.n); }
+    Array.prototype.forEach.call($("scen").children, function (b, i) { b.setAttribute("aria-pressed", String(EST[i] === e)); });
+    take(200);
+  }
+  function take(k) { for (var i = 0; i < k; i++) S.vals.push(S.e.draw(R, S.p, S.n)); render(); }
+
+  function render() {
+    var e = S.e, par = e.param(S.p), v = S.vals, m = v.length ? Lab.mean(v) : NaN, sd = v.length > 1 ? Lab.sd(v) : NaN;
+    $("par-o").textContent = e.fixed ? N(e.fixed, 3) : N(S.p, 2);
+    var lines = [{ x: par, color: "var(--c1)", label: "true = " + N(par, 3), left: v.length && m > par }];
+    if (v.length) lines.push({ x: m, color: "var(--accent)", label: "mean = " + N(m, 3), dash: "6 4", left: m < par });
+    // proportion estimates live on a grid of 1/n (or 1/(n + 4)); line the bins up with it so none sit empty
+    var lo = e.lo, hi = e.hi, w = e.w;
+    if (e.lo === 0 && e.hi === 1) { var step = 1 / (e.id === "plus4" ? S.n + 4 : S.n); w = step * Math.max(1, Math.ceil(0.02 / step - 1e-9)); lo = -w / 2; hi = lo + Math.ceil((1 + w) / w) * w; }
+    hist($("g"), v, { lo: lo, hi: hi, w: w, ticks: e.hi === 1 ? [0, 0.2, 0.4, 0.6, 0.8, 1] : null, xLabel: e.id.indexOf("var") === 0 ? "Estimate of σ²" : e.id === "max" ? "Estimate of the largest serial number" : "Estimate of p", lines: lines });
+    $("g-sub").textContent = v.length + " samples of size " + S.n;
+    $("r-par").textContent = N(par, 3);
+    $("r-mean").textContent = v.length ? N(m, 3) : "–";
+    $("r-bias").textContent = v.length ? (m - par >= 0 ? "+" : "") + N(m - par, 3) : "–";
+    $("r-sd").textContent = v.length > 1 ? N(sd, 3) : "–";
+    rows("calc", [
+      ["Parameter (the target)", N(par, 3)],
+      ["Mean of " + v.length + " estimates", v.length ? N(m, 4) : "–"],
+      ["Bias ≈ mean of estimates − parameter", v.length ? N(m, 4) + " − " + N(par, 3) + " = " + N(m - par, 4) : "–"],
+      ["Variability: SD of the estimates", v.length > 1 ? N(sd, 4) : "–"],
+      e.id === "srs" ? ["Theory: σ = √(p(1 − p) ÷ n)", "√(" + N(S.p, 2) + "·" + N(1 - S.p, 2) + " ÷ " + S.n + ") = " + N(Math.sqrt(S.p * (1 - S.p) / S.n), 4)] : null
+    ].filter(Boolean));
+    quad();
+    var noise = v.length > 1 ? 2.5 * sd / Math.sqrt(v.length) : Infinity, biased = Math.abs(m - par) > Math.max(noise, Math.abs(par) * 0.01);
+    var head, t = [];
+    if (!v.length) head = "<b>No samples yet.</b> Take some samples to build the sampling distribution of this estimator.";
+    else if (v.length < 50) head = "<b>Only " + v.length + " samples so far.</b> Take more so the pattern is clear.";
+    else if (biased) head = "<b>This estimator looks biased.</b> Its estimates center on about " + N(m, 3) + ", " + (m > par ? "above" : "below") + " the true value of " + N(par, 3) + ". Taking more samples, or bigger ones, will not fix that.";
+    else head = "<b>This estimator looks unbiased.</b> Its estimates center on about " + N(m, 3) + ", right at the true value of " + N(par, 3) + " (within random noise).";
+    if (v.length) {
+      t.push("The estimates typically vary by about " + N(sd, 3) + " from their mean. That is the estimator's <b>variability</b>.");
+      if (e.id === "conv") t.push("Bias comes from <b>how the data were collected</b>, not from the sample size. Slide n up: the histogram gets narrower but stays off target.");
+      else if (e.id === "plus4") t.push("The bias of plus-four is largest when p is far from 0.5 and n is small. Try p = 0.1 with n = 10, then n = 300.");
+      else if (e.id === "var0") t.push("Compare with the n − 1 version: dividing by n makes the average estimate about (n − 1)/n × σ². With n = 5 that is only 80% of σ².");
+      else if (e.id === "max") t.push("The sample max is biased low, but its variability shrinks as n grows. A small fix (max × (n + 1)/n − 1) removes most of the bias.");
+      else t.push("Raise n to see the spread shrink. For p̂, the SD is √(p(1 − p)/n), so quadrupling n cuts the variability in half.");
+    }
+    story("story", head, t);
+  }
+
+  // Bias-variability map: rerun each estimator at the current n (small simulation, fixed seed)
+  function quad() {
+    var pts = EST.map(function (e) {
+      var r = Lab.rng(99), vals = [], nn = Math.min(S.n, e.nMax || 400);
+      for (var i = 0; i < 300; i++) vals.push(e.draw(r, S.p, nn));
+      var par = e.param(S.p), scale = Math.abs(par) || 1;
+      return { e: e, bias: Math.abs(Lab.mean(vals) - par) / scale, sd: Lab.sd(vals) / scale };
+    });
+    var bx = Math.max(0.3, Math.max.apply(null, pts.map(function (q) { return q.bias; })) * 1.15), sy = Math.max(0.3, Math.max.apply(null, pts.map(function (q) { return q.sd; })) * 1.15);
+    var F = Lab.frame($("quad"), { x: [0, bx], y: [0, sy], xLabel: "Bias (relative to the parameter)", yLabel: "Variability (relative SD)", xTicks: Lab.niceTicks(0, bx, 4), yTicks: Lab.niceTicks(0, sy, 4), fmtX: function (v) { return N(v, 2); }, fmtY: function (v) { return N(v, 2); } });
+    pts.forEach(function (q) {
+      var cur = q.e === S.e;
+      Lab.dot(F, q.bias, q.sd, cur ? "var(--accent)" : "var(--ghost)", false);
+      var c = Lab.el("circle", { cx: F.sx(q.bias), cy: F.sy(q.sd), r: 10, fill: "transparent" }, F.svg); Lab.el("title", {}, c, q.e.short);
+      if (cur) { var right = q.bias > bx * 0.6; Lab.tag(F, q.bias + (right ? -1 : 1) * bx * 0.03, q.sd + sy * 0.04, q.e.short, "var(--accent)", right ? "end" : "start"); }
+    });
+  }
+
+  buttons("scen", EST.map(function (e) { return [e.short, function () { pick(e); }]; }));
+  buttons("draw", [["+1 sample", function () { take(1); }], ["+50 samples", function () { take(50); }], ["+500 samples", function () { take(500); }], ["Clear", function () { S.vals = []; render(); }]]);
+  pick(EST[0]);
+
+  var Q = [
+ {
+  "s": "A statistic is called an unbiased estimator of a parameter when:",
+  "o": [
+   "Its value equals the parameter in every sample",
+   "The mean of its sampling distribution equals the parameter",
+   "Its sampling distribution has a small standard deviation",
+   "It is computed from a large sample"
+  ],
+  "c": 1,
+  "w": "Unbiased describes the center of the sampling distribution. Individual estimates still miss (A). Small spread is low variability (C), and a large sample reduces variability, not bias (D)."
+ },
+ {
+  "s": "A researcher increases the sample size from 100 to 400 using the same random sampling method. What happens to the standard deviation of the sampling distribution of p̂?",
+  "o": [
+   "It is cut in half",
+   "It is cut to one-fourth",
+   "It doubles",
+   "It does not change"
+  ],
+  "c": 0,
+  "w": "σ = √(p(1 − p)/n). Multiplying n by 4 divides σ by √4 = 2."
+ },
+ {
+  "s": "A radio host asks listeners to call in and vote on a new law. 83% of 2,000 callers oppose it. Which is true?",
+  "o": [
+   "The large sample makes the estimate unbiased.",
+   "The estimate is likely biased because of voluntary response, and a larger sample would not fix it.",
+   "The estimate has high variability because 2,000 is a small sample.",
+   "The estimate is unbiased because each caller was counted once."
+  ],
+  "c": 1,
+  "w": "People with strong opinions are more likely to call. Bias comes from the method of collecting data; increasing n only reduces variability around the wrong center."
+ },
+ {
+  "s": "Four estimators of a parameter have sampling distributions described below. Which is best?",
+  "o": [
+   "Center above the parameter, small spread",
+   "Center at the parameter, large spread",
+   "Center at the parameter, small spread",
+   "Center below the parameter, large spread"
+  ],
+  "c": 2,
+  "w": "The ideal estimator is unbiased (centered on the parameter) and has low variability (small spread)."
+ },
+ {
+  "s": "Why does the sample variance s² divide by n − 1 instead of n?",
+  "o": [
+   "Dividing by n − 1 makes s² an unbiased estimator of σ².",
+   "Dividing by n − 1 makes the variance smaller.",
+   "It removes the effect of outliers.",
+   "Dividing by n would make s² larger than σ² on average."
+  ],
+  "c": 0,
+  "w": "Dividing by n gives estimates that are too small on average. Dividing by n − 1 corrects this, so the mean of the sampling distribution of s² equals σ²."
+ },
+ {
+  "s": "Which statement about the variability of a statistic is correct (assuming the sample is less than 10% of the population)?",
+  "o": [
+   "It depends mainly on the size of the population.",
+   "It depends mainly on the size of the sample.",
+   "It is always zero for a random sample.",
+   "It increases as the sample size increases."
+  ],
+  "c": 1,
+  "w": "As long as the population is at least 10 times the sample, variability depends on n, not on the population size. A random sample of 1,000 is just as precise for a city as for a country."
+ },
+ {
+  "s": "A simulation takes 1,000 samples and the histogram of an estimator's values is centered at 0.52 when the parameter is 0.40. The bias is approximately:",
+  "o": [
+   "0.12",
+   "−0.12",
+   "0.52",
+   "0.40"
+  ],
+  "c": 0,
+  "w": "Bias ≈ mean of the estimates − parameter = 0.52 − 0.40 = 0.12. A positive bias means the estimator tends to overestimate."
+ },
+ {
+  "s": "The sample maximum is used to estimate the largest serial number in a population. This estimator is:",
+  "o": [
+   "Unbiased, because the max is a data value",
+   "Biased low, because the sample max can never exceed the population max",
+   "Biased high, because it picks the largest value",
+   "Unbiased if the sample size is large"
+  ],
+  "c": 1,
+  "w": "Every sample max is at or below the true largest number, and it is usually below, so the sampling distribution centers below the parameter."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.1");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.1", compact: true, storageKey: "topic-3.1" });</script>
+</body>
+</html>

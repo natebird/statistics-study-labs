@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Describing Distributions Study Lab</title>
+<meta name="description" content="Describe a quantitative distribution's shape, center, variability, and unusual features, and practice naming shapes from a histogram.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.6</span>
+  <h1>Describing Distributions Study Lab</h1>
+  <p class="lede">To describe a distribution of a quantitative variable, talk about its shape, center, variability, and any unusual features, always in context. Generate samples from five population shapes, add an outlier, and read a model description written from the data.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Describe it like a statistician</h2>
+    <p>Every description of a quantitative distribution covers four things, in context: <b>shape</b>, <b>center</b>, <b>variability (spread)</b>, and <b>unusual features</b> such as outliers, gaps, and clusters.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Population shape</div>
+    <div class="seg" id="shapeSeg" role="group" aria-label="Choose the population shape"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>Controls</h3>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl"><label for="n">Sample size n <output id="n-o"></output></label><input type="range" id="n" min="20" max="300" step="10" value="80"></div>
+        <div class="ctl"><label for="sp">Spread <output id="sp-o"></output></label><input type="range" id="sp" min="0.5" max="1.6" step="0.1" value="1"><span class="hint">Stretch or squeeze the variability.</span></div>
+      </div>
+      <div class="scenarios">
+        <button type="button" class="primary" id="resample">New random sample</button>
+        <button type="button" id="outBtn" aria-pressed="false">Add an outlier</button>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Graph</span><div class="seg" id="viewSeg" role="group" aria-label="Choose the graph"></div></div>
+    </div>
+    <div class="card graph-card">
+      <h3><span id="g-title"></span> <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Graph of the simulated sample"></svg>
+      <div class="legend"><span class="l-ad">Mean</span><span class="l-c1">Median</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Mean</div><div class="v" id="r-mean"></div></div>
+    <div class="stat"><div class="k">Median</div><div class="v" id="r-med"></div></div>
+    <div class="stat"><div class="k">IQR</div><div class="v" id="r-iqr"></div></div>
+    <div class="stat"><div class="k">Range</div><div class="v" id="r-range"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Game: name that shape</h3>
+    <p>A mystery sample appears below. Pick the word that best describes its shape.</p>
+  </div>
+  <div class="lab">
+    <div class="card graph-card">
+      <h3>Mystery sample <small id="gm-sub"></small></h3>
+      <svg class="chart" id="gm" role="img" aria-label="Histogram of a mystery sample"></svg>
+    </div>
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <div class="scenarios" id="gameOpts"></div>
+      <div class="story" id="gameStory" aria-live="polite"></div>
+      <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="gameScore"></span><button type="button" id="gameNext">Next sample</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Shape</span><h3>Symmetric or skewed</h3><p>Symmetric: the two halves are near mirror images. Skewed right: a long tail toward larger values. Skewed left: a long tail toward smaller values. Name the skew for the tail, not the peak.</p></div>
+    <div class="card"><span class="tag">Peaks</span><h3>Modes</h3><p>Unimodal distributions have one peak, bimodal have two, and uniform distributions have no clear peak. Two peaks often mean two different groups are mixed together.</p></div>
+    <div class="card"><span class="tag">Center</span><h3>Typical value</h3><p>Report the median for skewed data or data with outliers, and the mean for roughly symmetric data. Give the value with units.</p></div>
+    <div class="card"><span class="tag">Variability</span><h3>How spread out</h3><p>Report the IQR with the median, or the standard deviation with the mean. The range is a quick but non-resistant measure.</p></div>
+    <div class="card"><span class="tag">Unusual</span><h3>Outliers, gaps, clusters</h3><p>Outliers are values that fall outside the overall pattern (check with the 1.5 × IQR rule). Gaps are empty stretches; clusters are groups of values separated by gaps.</p></div>
+    <div class="card"><span class="tag">Context</span><h3>Name the variable</h3><p>“The distribution of call length (minutes) is skewed right with a median of 4.6 minutes…” A description without context loses credit.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Shape at a glance</h2>
+    <p>How each shape looks and what it does to the mean and median.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Shape</th><th>What you see</th><th>Mean vs. median</th><th>Example</th><th>Report</th></tr></thead>
+    <tbody>
+      <tr><td><b>Symmetric, unimodal</b></td><td>One peak, mirror-image sides</td><td>About equal</td><td>Adult heights</td><td>Mean and SD</td></tr>
+      <tr><td><b>Skewed right</b></td><td>Peak on the left, long tail to the right</td><td>Mean &gt; median</td><td>Incomes, call lengths</td><td>Median and IQR</td></tr>
+      <tr><td><b>Skewed left</b></td><td>Peak on the right, long tail to the left</td><td>Mean &lt; median</td><td>Scores on an easy test</td><td>Median and IQR</td></tr>
+      <tr><td><b>Uniform</b></td><td>Bars about equal height</td><td>About equal</td><td>Random digits</td><td>Mean and SD, or median and IQR</td></tr>
+      <tr><td><b>Bimodal</b></td><td>Two peaks</td><td>Depends; often between the peaks</td><td>Geyser wait times</td><td>Describe each cluster</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Use all four parts every time: shape, center, variability, unusual features, with the variable's name and units.</li>
+        <li>Give numbers, not just words: “median of 22 minutes, IQR of 12 minutes.” Estimates read from a graph are fine if they're reasonable.</li>
+        <li>When comparing distributions (topic 1.9), use comparison words like “greater than” or “more variable than,” not just two separate lists.</li>
+        <li>Back up an outlier claim with the 1.5 × IQR rule when you have the quartiles.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Naming skew by where the peak is. A peak on the left with a tail to the right is skewed right.</li>
+        <li>Describing a bar chart (categorical data) as skewed or symmetric.</li>
+        <li>Saying “the range is 20 to 80.” The range is a single number: 80 − 20 = 60.</li>
+        <li>Leaving out context: “The data are skewed” earns less than “The distribution of phone call lengths is skewed right.”</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.6. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function btn(parent, text, onclick, cls) { var b = document.createElement("button"); b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.addEventListener("click", onclick); parent.appendChild(b); return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  // Inline histogram (Lab.histogram passes its bin width on as the SVG width).
+  function histo(svg, data, start, w, xLabel) {
+    var b = Lab.bins(data, start, w), vals = b.map(function (x) { return x.n; });
+    var yt = Lab.niceTicks(0, Math.max.apply(null, vals.concat([1])) * 1.12, 5);
+    var ticks = b.map(function (x) { return x.lo; }).concat([b[b.length - 1].hi]);
+    if (ticks.length > 12) { var k = Math.ceil(ticks.length / 10); ticks = ticks.filter(function (_, i) { return i % k === 0; }); }
+    var F = Lab.frame(svg, { x: [b[0].lo, b[b.length - 1].hi], y: [0, yt[yt.length - 1]], xLabel: xLabel, yLabel: "Frequency", xTicks: ticks, yTicks: yt, fmtX: function (v) { return N(v, 1); }, fmtY: function (v) { return N(v, 0); } });
+    b.forEach(function (x, i) { if (vals[i]) Lab.el("rect", { x: F.sx(x.lo) + 0.5, y: F.sy(vals[i]), width: Math.max(0, F.sx(x.hi) - F.sx(x.lo) - 1), height: F.sy(0) - F.sy(vals[i]), fill: "var(--accent)", opacity: .85 }, F.g); });
+    return F;
+  }
+  function autoHist(svg, d, label) { var s = Lab.summary(d), w = Lab.niceStep(s.range || 1, 12); return histo(svg, d, Math.floor(s.min / w) * w, w, label); }
+
+  var SHAPES = {
+    sym: { name: "Symmetric, unimodal", ctx: "Heights of adult women", label: "Height (inches)", unit: "inches", out: 77, f: function (r, k) { return Math.round(r.normal(64.5, 2.6 * k) * 10) / 10; } },
+    right: { name: "Skewed right", ctx: "Minutes spent on a phone call", label: "Call length (minutes)", unit: "minutes", out: 95, f: function (r, k) { return Math.round((-Math.log(1 - r()) * 6 * k + 0.5) * 10) / 10; } },
+    left: { name: "Skewed left", ctx: "Scores on an easy quiz", label: "Score (out of 100)", unit: "points", out: 22, f: function (r, k) { return Math.max(0, Math.round(100 - (-Math.log(1 - r()) * 8 * k))); } },
+    uni: { name: "Uniform (roughly flat)", ctx: "Seconds shown on a stopwatch stopped at random", label: "Seconds", unit: "seconds", out: null, f: function (r, k) { return Math.round((30 + (r() - .5) * 60 * Math.min(k, 1)) * 10) / 10; } },
+    bi: { name: "Bimodal", ctx: "Wait times between geyser eruptions", label: "Wait time (minutes)", unit: "minutes", out: 140, f: function (r, k) { return Math.round(r() < .4 ? r.normal(54, 5 * k) : r.normal(80, 6 * k)); } }
+  };
+  var KEYS = ["sym", "right", "left", "uni", "bi"];
+  var S = { shape: "right", n: 80, sp: 1, seed: 1, out: false, view: "hist" };
+  KEYS.forEach(function (k) { var b = btn($("shapeSeg"), SHAPES[k].name, function () { S.shape = k; S.out = false; render(); }); b.setAttribute("data-v", k); });
+  [["hist", "Histogram"], ["dot", "Dotplot"]].forEach(function (v) { var b = btn($("viewSeg"), v[1], function () { S.view = v[0]; render(); }); b.setAttribute("data-v", v[0]); });
+  function sync(id, val) { Array.prototype.forEach.call($(id).children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === val)); }); }
+  function sample(shape, n, k, seed) { var r = Lab.rng(seed), a = []; for (var i = 0; i < n; i++) a.push(SHAPES[shape].f(r, k)); return a; }
+  function render() {
+    sync("shapeSeg", S.shape); sync("viewSeg", S.view);
+    var Sh = SHAPES[S.shape], d = sample(S.shape, S.n, S.sp, S.seed);
+    if (S.out && Sh.out != null) d.push(Sh.out);
+    $("outBtn").disabled = Sh.out == null; $("outBtn").setAttribute("aria-pressed", String(S.out && Sh.out != null));
+    $("outBtn").textContent = S.out && Sh.out != null ? "Remove the outlier" : "Add an outlier";
+    $("n-o").textContent = S.n; $("sp-o").textContent = "× " + N(S.sp, 1);
+    var s = Lab.summary(d), F;
+    $("g-title").textContent = Sh.ctx; $("g-sub").textContent = "n = " + s.n;
+    if (S.view === "hist") F = autoHist($("g"), d, Sh.label);
+    else { var pad = Math.max(s.range * .04, .5); F = Lab.dotplot($("g"), d, { lo: s.min - pad, hi: s.max + pad, xLabel: Sh.label, highlight: function (v) { return s.outliers.indexOf(v) >= 0 ? "var(--bad)" : null; } }); }
+    Lab.vline(F, s.mean, "var(--accent)", 2.5); Lab.vline(F, s.med, "var(--c1)", 2.5, "6 4");
+    $("r-mean").textContent = N(s.mean, 1); $("r-med").textContent = N(s.med, 1); $("r-iqr").textContent = N(s.iqr, 1); $("r-range").textContent = N(s.range, 1);
+    describe(Sh, s);
+  }
+  function describe(Sh, s) {
+    var u = Sh.unit, shapeTxt, center, spread, unusual;
+    var useMed = S.shape === "right" || S.shape === "left" || s.outliers.length > 0 || S.shape === "bi";
+    shapeTxt = { sym: "roughly symmetric and unimodal (single-peaked)", right: "skewed to the right, with a long tail toward the high values", left: "skewed to the left, with a long tail toward the low values", uni: "roughly uniform, with about the same number of values across the whole range", bi: "bimodal, with two clusters of values" }[S.shape];
+    center = useMed ? "The median is " + N(s.med, 1) + " " + u + (S.shape === "bi" ? " (though with two clusters, no single number describes a typical value well)" : "") + "." : "The mean is " + N(s.mean, 1) + " " + u + " (the median, " + N(s.med, 1) + ", is close).";
+    spread = useMed ? "The IQR is " + N(s.iqr, 1) + " " + u + ", and values range from " + N(s.min, 1) + " to " + N(s.max, 1) + "." : "The standard deviation is " + N(s.sd, 1) + " " + u + ", and values range from " + N(s.min, 1) + " to " + N(s.max, 1) + ".";
+    unusual = s.outliers.length ? "There " + (s.outliers.length > 1 ? "are " + s.outliers.length + " outliers: " : "is an outlier at ") + s.outliers.map(function (v) { return N(v, 1); }).join(", ") + " (beyond the fences " + N(s.fenceLo, 1) + " and " + N(s.fenceHi, 1) + ")." : "There are no outliers by the 1.5 × IQR rule.";
+    if (S.shape === "bi") unusual += " The two clusters are centered near 54 and 80 minutes.";
+    if ((S.shape === "right" || S.shape === "left") && s.outliers.length > 2) unusual += " In strongly skewed data, the 1.5 × IQR rule often flags several values in the long tail.";
+    var t = [];
+    t.push("<b>Shape:</b> The distribution of " + Sh.ctx.toLowerCase() + " is " + shapeTxt + ".");
+    t.push("<b>Center:</b> " + center);
+    t.push("<b>Variability:</b> " + spread);
+    t.push("<b>Unusual features:</b> " + unusual);
+    var gap = s.mean - s.med, why = Math.abs(gap) > .15 * s.sd ? "The mean (" + N(s.mean, 1) + ") is " + (gap > 0 ? "above" : "below") + " the median (" + N(s.med, 1) + "), pulled toward the " + (gap > 0 ? "high" : "low") + " tail." : "The mean and median are close (" + N(s.mean, 1) + " vs. " + N(s.med, 1) + ").";
+    $("story").innerHTML = "<p><b>Model description (" + s.n + " values):</b></p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul><p class='note'>" + why + (useMed ? " Because of the " + (S.shape === "bi" ? "two clusters" : (S.shape === "right" || S.shape === "left") ? (s.outliers.length ? "skew and outliers" : "skew") : (s.outliers.length > 1 ? "outliers" : "outlier")) + ", the median and IQR are reported." : " With a symmetric shape and no outliers, the mean and standard deviation are reported.") + " Small random samples can look lumpy: press New random sample a few times with n = 20, then with n = 300.</p>";
+  }
+  $("n").addEventListener("input", function (e) { S.n = +e.target.value; render(); });
+  $("sp").addEventListener("input", function (e) { S.sp = +e.target.value; render(); });
+  $("resample").addEventListener("click", function () { S.seed++; render(); });
+  $("outBtn").addEventListener("click", function () { S.out = !S.out; render(); });
+  render();
+
+  // ================= Game =================
+  var R = Lab.rng(), G = {}, gR = 0, gT = 0;
+  function nextGame() {
+    G.shape = R.pick(KEYS); G.answered = false;
+    var d = sample(G.shape, 300, 1, R.int(1, 99999));
+    autoHist($("gm"), d, "Value"); $("gm-sub").textContent = "n = 300";
+    var box = $("gameOpts"); box.innerHTML = "";
+    KEYS.forEach(function (k) {
+      btn(box, SHAPES[k].name, function () {
+        if (G.answered) return; G.answered = true; gT++;
+        var ok = k === G.shape; if (ok) gR++;
+        this.classList.add(ok ? "right" : "wrong");
+        box.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+        $("gameStory").innerHTML = (ok ? "<p><b style='color:var(--good)'>Correct.</b> " : "<p><b style='color:var(--bad)'>Not quite.</b> It came from a <b>" + SHAPES[G.shape].name.toLowerCase() + "</b> population. ") + {
+          sym: "The two sides mirror each other around one peak.", right: "Most values are low with a long tail stretching to the right (toward larger values).", left: "Most values are high with a long tail stretching to the left (toward smaller values).", uni: "The bars are all about the same height: no clear peak.", bi: "There are two separate peaks."
+        }[G.shape] + "</p>";
+        $("gameScore").textContent = gR + " / " + gT + " correct";
+      }, "chip");
+    });
+    $("gameStory").innerHTML = "<p class='note'>Tip: skew is named for the side with the long tail, not the side with the peak.</p>";
+    $("gameScore").textContent = gR + " / " + gT + " correct";
+  }
+  $("gameNext").addEventListener("click", nextGame);
+  nextGame();
+
+  var Q = [
+    { s: "A histogram of household incomes has a peak at the low end and a long tail extending toward high incomes. The distribution is:", o: ["Skewed left", "Skewed right", "Symmetric", "Uniform"], c: 1, w: "Skew is named for the direction of the long tail. A tail toward the high values is skewed right." },
+    { s: "For a distribution that is skewed left, the mean is most likely:", o: ["Greater than the median", "Less than the median", "Equal to the median", "Equal to the mode"], c: 1, w: "The long left tail pulls the mean toward the low values, so the mean is usually less than the median." },
+    { s: "Which of the following is a complete description of a quantitative distribution?", o: ["The data are skewed right.", "Shape, center, variability, and unusual features, in context", "The mean and the median", "The five-number summary"], c: 1, w: "A full description includes shape, center, variability, and any unusual features (outliers, gaps, clusters), all in the context of the data." },
+    { s: "A dotplot shows two separate groups of values with no data between 20 and 35. This is best described as:", o: ["An outlier", "A gap with two clusters", "Left skew", "A uniform distribution"], c: 1, w: "A region with no data separating two groups is a gap, and the groups are clusters. It may indicate two different kinds of individuals." },
+    { s: "Which measure of center is most appropriate for a strongly skewed distribution?", o: ["Mean", "Median", "Range", "Standard deviation"], c: 1, w: "The median is resistant to the long tail. Range and standard deviation measure spread, not center." },
+    { s: "A distribution of the last digit of 500 random phone numbers would most likely be:", o: ["Skewed right", "Bimodal", "Roughly uniform", "Skewed left"], c: 2, w: "Each digit 0 to 9 is about equally likely, so the bars would be about the same height: roughly uniform." },
+    { s: "A student writes: “The distribution is skewed right with a center of 42 and a spread of 18.” What is the biggest problem?", o: ["Right skew is impossible", "It lacks context, units, and which statistics are used", "Spread should never be reported", "The center must be a mean"], c: 1, w: "Name the variable and units, and say which statistics you used, such as “median of 42 minutes and IQR of 18 minutes.” Also mention unusual features." },
+    { s: "Wait times between eruptions of a geyser show two peaks, near 55 and 80 minutes. A good explanation is:", o: ["The data were recorded incorrectly", "There may be two types of eruptions or conditions", "The mean must be 67.5", "The distribution is skewed"], c: 1, w: "Bimodal data often signal two different groups mixed together. Here, short and long eruptions are followed by different waits." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.6");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.6", compact: true, storageKey: "topic-1.6" });</script>
+</body>
+</html>

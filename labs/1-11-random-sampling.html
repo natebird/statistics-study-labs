@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Random Sampling Study Lab</title>
+<meta name="description" content="Sample a simulated school with simple random, stratified, cluster, and systematic sampling, and see which method gives the most precise estimates.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); text-align: right; }
+.opt-row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.mt { min-width: 0; }
+.mt th, .mt td { padding: 6px 10px; font-size: .88rem; text-align: right; }
+.mt td { font-family: var(--mono); }
+.mt th:first-child, .mt td:first-child { text-align: left; font-family: var(--body); }
+.mt tr.cur td { background: var(--accent-soft); }
+.gkey { display: flex; gap: 14px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.gkey span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: currentColor; opacity: .55; }
+.gkey .g9 { color: var(--accent); } .gkey .g10 { color: var(--c1); } .gkey .g11 { color: var(--c2); } .gkey .g12 { color: var(--c3); }
+.gkey .sel { color: var(--ink); } .gkey .sel::before { opacity: 1; background: none; border: 2.5px solid currentColor; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.11</span>
+  <h1>Random Sampling Study Lab</h1>
+  <p class="lede">A random sample uses chance to choose who is in the sample, so the sample tends to represent the population. Here is a school of 100 students in 10 homerooms. Each student's grade is shown by color, and older students tend to sleep less. Estimate the school's mean hours of sleep with four sampling methods and compare how well each one works.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Sample the school</h2>
+    <p>Pick a method, take one sample to see who gets chosen, then take hundreds of samples to see how much the estimates vary.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:12px;">
+    <div class="opt-row"><span class="tag">Method</span><div class="seg" id="methSeg" role="group" aria-label="Sampling method"></div></div>
+    <div class="scenarios">
+      <button type="button" class="primary" id="one">Take one sample</button>
+      <button type="button" id="many">Take 200 samples</button>
+      <button type="button" id="clear">Clear results</button>
+    </div>
+    <p class="note" id="methNote"></p>
+  </div>
+
+  <div class="lab">
+    <div class="card graph-card">
+      <h3>The population <small>100 students, 10 homerooms</small></h3>
+      <svg class="chart" id="grid" role="img" aria-label="Grid of 100 students by homeroom, colored by grade, with sampled students outlined"></svg>
+      <div class="gkey"><span class="g9">9th</span><span class="g10">10th</span><span class="g11">11th</span><span class="g12">12th</span><span class="sel">In the sample</span></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Sample means, this method <small id="dist-sub"></small></h3>
+      <svg class="chart" id="dist" role="img" aria-label="Dotplot of sample means from repeated samples"></svg>
+      <div class="legend"><span class="l-c1">Population mean μ</span><span class="l-ad">Sample means x̄</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Population mean μ</div><div class="v" id="r-mu"></div></div>
+    <div class="stat"><div class="k">This sample's mean x̄</div><div class="v" id="r-xbar"></div></div>
+    <div class="stat"><div class="k">Error (x̄ − μ)</div><div class="v" id="r-err"></div></div>
+    <div class="stat"><div class="k">Sample by grade (9/10/11/12)</div><div class="v" id="r-mix"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>How this sample was chosen</h3>
+      <div class="calc" id="how"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Compare the methods</h3>
+      <div class="tbl-wrap"><table class="mt" id="mt"></table></div>
+      <p class="note">The SD of the sample means measures how much estimates vary from sample to sample. Smaller is more precise.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">SRS</span><h3>Simple random sample</h3><p>Every group of n individuals has the same chance to be the sample. Label every individual, then use a random number generator (or names from a hat) to pick n different labels.</p></div>
+    <div class="card"><span class="tag">Stratified</span><h3>Similar groups, sample from each</h3><p>Split the population into strata of <b>similar</b> individuals (like grade level), then take an SRS within each stratum. When the strata differ on the variable, this gives more precise estimates than an SRS of the same size.</p></div>
+    <div class="card"><span class="tag">Cluster</span><h3>Pick whole groups</h3><p>Split the population into clusters, usually by location (like homerooms), randomly choose some clusters, and include <b>everyone</b> in them. It is cheaper and easier. It works best when each cluster is a mini-version of the population.</p></div>
+    <div class="card"><span class="tag">Systematic</span><h3>Every kth individual</h3><p>From an ordered list, pick a random starting point from the first k, then take every kth individual after it. It is easy, but it can go wrong if the list has a repeating pattern.</p></div>
+    <div class="card"><span class="tag">Strata vs. clusters</span><h3>Opposite ideas</h3><p>Strata are alike <i>within</i> and different <i>between</i>; you sample some from <b>every</b> stratum. Clusters are mixed <i>within</i> and similar <i>between</i>; you sample <b>all</b> from <b>some</b> clusters.</p></div>
+    <div class="card"><span class="tag">Census</span><h3>Everyone</h3><p>A census measures every individual. It gives the parameter exactly but is often too slow, costly, or impossible for a large population.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Describing each method on the FRQ</h2>
+    <p>A full description names the labels, the random device, and how repeats are handled.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Method</th><th>Sample procedure for 20 of the 100 students</th><th>Best when</th></tr></thead>
+    <tbody>
+      <tr><td><b>SRS</b></td><td>Label students 1–100. Use a random number generator to pick integers from 1 to 100, ignoring repeats, until 20 different students are chosen.</td><td>You have a full list and no useful groups</td></tr>
+      <tr><td><b>Stratified</b></td><td>Separate students by grade (25 per grade). Within each grade, label 1–25 and randomly choose 5 different students. Combine for 20.</td><td>Groups differ on the variable (sleep differs by grade)</td></tr>
+      <tr><td><b>Cluster</b></td><td>Label homerooms 1–10. Randomly choose 2 different homerooms and survey every student in them.</td><td>Groups are mixed and easy to reach together</td></tr>
+      <tr><td><b>Systematic</b></td><td>List students 1–100. Randomly choose a start from 1 to 5, then take every 5th student after it.</td><td>The list has no pattern related to the variable</td></tr>
+      <tr><td><b>Census</b></td><td>Survey all 100 students.</td><td>The population is small and reachable</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Describe a method so someone else could carry it out: what you label, how many labels, the random device, and "ignore repeats."</li>
+        <li>For stratified sampling, name the strata and explain why they help: "Sleep is likely to differ by grade, so stratifying by grade gives a more precise estimate."</li>
+        <li>For cluster sampling, explain the practical benefit: "It is easier to survey two full homerooms than 20 students scattered across the school."</li>
+        <li>Use "random" only when a chance process actually chooses the individuals.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Mixing up strata and clusters. Stratified: some from <i>every</i> group. Cluster: <i>everyone</i> from <i>some</i> groups.</li>
+        <li>Saying a sample "is random" because the researcher chose "without a pattern." Haphazard is not random.</li>
+        <li>Forgetting to handle repeats when using a random number generator.</li>
+        <li>Thinking stratifying always helps. It helps only when the strata really differ on the variable being measured.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.11. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  // ---------- fixed population: 100 students, 10 homerooms of 10, 25 per grade, mixed across homerooms ----------
+  var pr = Lab.rng(2026);
+  var grades = pr.shuffle([].concat(Array(25).fill(9), Array(25).fill(10), Array(25).fill(11), Array(25).fill(12)));
+  var MEANS = { 9: 8.3, 10: 7.7, 11: 7.1, 12: 6.5 };
+  var POP = grades.map(function (g, i) { return { id: i + 1, hr: Math.floor(i / 10) + 1, g: g, y: Math.round(pr.normal(MEANS[g], 0.45) * 10) / 10 }; });
+  var MU = Lab.mean(POP.map(function (p) { return p.y; }));
+  var GCOL = { 9: "var(--accent)", 10: "var(--c1)", 11: "var(--c2)", 12: "var(--c3)" };
+
+  var METHODS = {
+    srs: { name: "Simple random sample", short: "SRS", note: "Choose 20 different students completely at random from all 100." },
+    strat: { name: "Stratified by grade", short: "Stratified", note: "Choose 5 students at random from each grade: 5 + 5 + 5 + 5 = 20." },
+    clust: { name: "Cluster by homeroom", short: "Cluster", note: "Choose 2 homerooms at random and include all 10 students in each: 20 students." },
+    sys: { name: "Systematic, every 5th", short: "Systematic", note: "Pick a random start from 1 to 5, then every 5th student on the list (ordered by homeroom and seat): 20 students." },
+    census: { name: "Census", short: "Census", note: "Measure all 100 students. There is no sampling variability: x̄ always equals μ." }
+  };
+  var ORDER = ["srs", "strat", "clust", "sys", "census"];
+  var S = { m: "srs", sample: null, info: "", res: { srs: [], strat: [], clust: [], sys: [], census: [] } };
+  var r = Lab.rng();
+
+  function draw(m) {
+    var ids, info;
+    if (m === "srs") { ids = r.sample(POP, 20).map(function (p) { return p.id; }); info = '<div class="row"><span>Label students 1–100. A random number generator picked 20 different labels:</span><span></span></div><div class="row"><span>' + ids.slice().sort(function (a, b) { return a - b; }).join(", ") + "</span><span></span></div>"; }
+    else if (m === "strat") {
+      ids = []; info = "";
+      [9, 10, 11, 12].forEach(function (g) { var pick = r.sample(POP.filter(function (p) { return p.g === g; }), 5).map(function (p) { return p.id; }); ids = ids.concat(pick); info += '<div class="row"><span>Grade ' + g + ": 5 chosen at random from 25</span><span>" + pick.sort(function (a, b) { return a - b; }).join(", ") + "</span></div>"; });
+    }
+    else if (m === "clust") { var hrs = r.sample([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 2).sort(function (a, b) { return a - b; }); ids = POP.filter(function (p) { return hrs.indexOf(p.hr) >= 0; }).map(function (p) { return p.id; }); info = '<div class="row"><span>Label homerooms 1–10. Randomly chosen homerooms</span><span>' + hrs.join(" and ") + '</span></div><div class="row"><span>Every student in those homerooms is in the sample</span><span>20 students</span></div>'; }
+    else if (m === "sys") { var st = r.int(1, 5); ids = []; for (var k = st; k <= 100; k += 5) ids.push(k); info = '<div class="row"><span>Random start from 1 to 5</span><span>' + st + '</span></div><div class="row"><span>Then every 5th student</span><span>' + ids.join(", ") + "</span></div>"; }
+    else { ids = POP.map(function (p) { return p.id; }); info = '<div class="row"><span>Every student is measured</span><span>100 students</span></div>'; }
+    var ys = ids.map(function (i) { return POP[i - 1].y; }), xb = Lab.mean(ys);
+    info += '<div class="row"><span>x̄ = ' + N(Lab.sum(ys), 1) + " ÷ " + ids.length + "</span><span>= " + N(xb, 3) + " hours</span></div>";
+    return { ids: ids, xbar: xb, info: info };
+  }
+
+  function seg() {
+    var s = $("methSeg"); s.innerHTML = "";
+    ORDER.forEach(function (k) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = METHODS[k].short;
+      b.setAttribute("aria-pressed", String(S.m === k));
+      b.addEventListener("click", function () { S.m = k; S.sample = null; seg(); render(); });
+      s.appendChild(b);
+    });
+    $("methNote").textContent = METHODS[S.m].name + ": " + METHODS[S.m].note;
+  }
+
+  function drawGrid() {
+    var svg = $("grid"), W = 440, H = 330; svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var x0 = 54, y0 = 10, cw = 37.5, ch = 30.5, sel = {};
+    (S.sample ? S.sample.ids : []).forEach(function (i) { sel[i] = true; });
+    var hrSel = {}; if (S.sample && S.m === "clust") S.sample.ids.forEach(function (i) { hrSel[POP[i - 1].hr] = true; });
+    for (var h = 1; h <= 10; h++) {
+      Lab.el("text", { x: x0 - 8, y: y0 + (h - 1) * ch + ch / 2 + 4, "text-anchor": "end", style: "font-size:10.5px;" + (hrSel[h] ? "fill:var(--ink);font-weight:700" : "") }, svg, "HR " + h);
+    }
+    POP.forEach(function (p) {
+      var c = (p.id - 1) % 10, row = p.hr - 1, x = x0 + c * cw, y = y0 + row * ch, on = sel[p.id];
+      var g = Lab.el("g", {}, svg);
+      Lab.el("rect", { x: x + 2, y: y + 2, width: cw - 4, height: ch - 4, rx: 5, fill: GCOL[p.g], opacity: on ? 0.95 : 0.28, stroke: on ? "var(--ink)" : "none", "stroke-width": on ? 2.5 : 0 }, g);
+      Lab.el("text", { x: x + cw / 2, y: y + ch / 2 + 4, "text-anchor": "middle", style: "font-size:10px;fill:" + (on ? "#fff" : "var(--ink)") + ";font-family:var(--mono)" }, g, on ? N(p.y, 1) : String(p.id));
+      Lab.el("title", {}, g, "Student " + p.id + ", homeroom " + p.hr + ", grade " + p.g + ", sleeps " + N(p.y, 1) + " hours");
+    });
+  }
+
+  function drawDist() {
+    var xs = S.res[S.m], lo = MU - 0.7, hi = MU + 0.7;
+    var F = xs.length ? Lab.dotplot($("dist"), xs, { lo: lo, hi: hi, binWidth: 0.02, xLabel: "Sample mean x̄ (hours)", height: 330, ticks: Lab.niceTicks(lo, hi, 6) })
+      : Lab.axisFrame($("dist"), lo, hi, { xLabel: "Sample mean x̄ (hours)", yMax: 1, height: 330 });
+    Lab.vline(F, MU, "var(--c1)", 2.5, "6 4");
+    Lab.tag(F, MU + 0.02, F.yr[1] * 0.93, "μ = " + N(MU, 2), "var(--c1)");
+    if (!xs.length) Lab.tag(F, (lo + hi) / 2, 0.5, "Take samples to fill this in", "var(--muted)", "middle");
+    $("dist-sub").textContent = xs.length + " sample" + (xs.length === 1 ? "" : "s");
+  }
+
+  function table() {
+    var h = "<thead><tr><th>Method</th><th>Samples</th><th>Mean of x̄</th><th>SD of x̄</th></tr></thead><tbody>";
+    ORDER.forEach(function (k) {
+      var xs = S.res[k];
+      h += '<tr class="' + (k === S.m ? "cur" : "") + '"><td>' + METHODS[k].short + "</td><td>" + xs.length + "</td><td>" + (xs.length ? N(Lab.mean(xs), 3) : "–") + "</td><td>" + (xs.length > 1 ? N(Lab.sd(xs), 3) : "–") + "</td></tr>";
+    });
+    $("mt").innerHTML = h + "</tbody>";
+  }
+
+  function story() {
+    var xs = S.res[S.m], li = [], head;
+    var sds = {}; ORDER.forEach(function (k) { if (S.res[k].length > 30) sds[k] = Lab.sd(S.res[k]); });
+    if (!S.sample) head = "<b>Choose a method and take a sample.</b> The outlined students are the ones selected.";
+    else head = "<b>This " + METHODS[S.m].short.toLowerCase() + " sample estimates μ with x̄ = " + N(S.sample.xbar, 2) + " hours</b>, off by " + N(Math.abs(S.sample.xbar - MU), 2) + " hours. A different random sample would give a different x̄: that is sampling variability.";
+    if (S.m === "strat") li.push("Every stratified sample has exactly 5 students from each grade, so no sample can be loaded with mostly well-rested 9th graders or mostly short-sleeping 12th graders. That is why its sample means cluster tightly around μ.");
+    if (S.m === "clust") li.push("Each homeroom mixes all four grades, so each cluster looks like a small copy of the school. That makes cluster sampling work reasonably well here, though two clusters is still only two random choices.");
+    if (S.m === "sys") li.push("The list has no repeating pattern by grade, so every 5th student behaves much like a random sample. If grades repeated in a cycle of 5, every sample would be one grade and badly biased. Notice there are only 5 possible systematic samples here (one per starting point), so its results bounce among just 5 values.");
+    if (S.m === "srs") li.push("An SRS can, just by chance, include more 12th graders than usual. Those samples land farther from μ.");
+    if (S.m === "census") li.push("A census measures everyone, so x̄ = μ exactly. With 100 students that is possible; with a whole country it usually is not.");
+    if (sds.srs && sds.strat) li.push("With 20 students each, the SD of x̄ is " + N(sds.strat, 3) + " for stratified vs. " + N(sds.srs, 3) + " for SRS. Stratifying on a variable related to sleep made the estimate more precise.");
+    else li.push("Take 200 samples with SRS and with Stratified, then compare their SDs in the table.");
+    if (xs.length > 30) li.push("The center of the dotplot (" + N(Lab.mean(xs), 2) + ") is close to μ = " + N(MU, 2) + ". Random sampling methods are unbiased: they do not systematically over- or underestimate.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + li.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+
+  function render() {
+    drawGrid(); drawDist(); table(); story();
+    $("r-mu").textContent = N(MU, 2) + " h";
+    if (S.sample) {
+      var mix = [9, 10, 11, 12].map(function (g) { return S.sample.ids.filter(function (i) { return POP[i - 1].g === g; }).length; });
+      $("r-xbar").textContent = N(S.sample.xbar, 2) + " h"; $("r-err").textContent = N(S.sample.xbar - MU, 2) + " h"; $("r-mix").textContent = mix.join(" / ");
+      $("how").innerHTML = S.sample.info;
+    } else {
+      $("r-xbar").textContent = "–"; $("r-err").textContent = "–"; $("r-mix").textContent = "–";
+      $("how").innerHTML = '<div class="row"><span>Press “Take one sample” to see the steps.</span><span></span></div>';
+    }
+  }
+
+  $("one").addEventListener("click", function () { S.sample = draw(S.m); S.res[S.m].push(S.sample.xbar); render(); });
+  $("many").addEventListener("click", function () { var last; for (var i = 0; i < 200; i++) { last = draw(S.m); S.res[S.m].push(last.xbar); } S.sample = last; render(); });
+  $("clear").addEventListener("click", function () { ORDER.forEach(function (k) { S.res[k] = []; }); S.sample = null; render(); });
+  seg(); render();
+
+  var Q = [
+    { s: "A school wants to survey 100 of its 2,000 students. It randomly selects 25 students from each of the four grades. This is:", o: ["A simple random sample", "A stratified random sample", "A cluster sample", "A systematic sample"], c: 1, w: "The population is split into strata (grades), and an SRS is taken from every stratum." },
+    { s: "A city randomly selects 8 of its 120 city blocks and surveys every household on those blocks. This is:", o: ["A cluster sample", "A stratified random sample", "A simple random sample", "A convenience sample"], c: 0, w: "Whole groups (blocks) are chosen at random and everyone in them is surveyed." },
+    { s: "Why is the sample in the previous question NOT a simple random sample of households?", o: ["Because it uses random selection", "Because not every group of households of that size could be chosen; households on the same block are always chosen together", "Because 8 is too few blocks", "Because blocks are not similar"], c: 1, w: "In an SRS every possible set of n individuals is equally likely. Here, sets with households from 30 different blocks can never be chosen." },
+    { s: "When does stratified random sampling give more precise estimates than an SRS of the same size?", o: ["When the strata are similar to each other", "When individuals within each stratum are similar and the strata differ from each other on the variable", "When the population is small", "Always, no matter how strata are formed"], c: 1, w: "Stratifying removes the variability between strata from the estimate. That helps only when the strata actually differ on the variable." },
+    { s: "A store manager surveys every 10th customer leaving the store, starting with a randomly chosen customer among the first 10. This is:", o: ["Systematic random sampling", "Cluster sampling", "Stratified sampling", "Voluntary response sampling"], c: 0, w: "A random start followed by every kth individual is systematic random sampling." },
+    { s: "To select an SRS of 5 students from a class of 30 using a random number generator, which is the best procedure?", o: ["Label students 1–30, generate random integers from 1 to 30, and take the first 5 different numbers", "Pick the first 5 students to arrive", "Label students 1–30 and choose numbers 1–5", "Generate random integers from 1 to 5"], c: 0, w: "Every student gets a label, random integers in the full range are generated, and repeats are ignored until 5 different students are chosen." },
+    { s: "Which statement about strata and clusters is correct?", o: ["Strata should be mixed; clusters should be similar inside.", "Strata should be similar inside; clusters should ideally each look like the population.", "Both should be as different from each other as possible.", "They are two names for the same thing."], c: 1, w: "Strata group similar individuals. Clusters are ideally mini-populations, so any one gives a fair picture." },
+    { s: "A researcher takes many SRSs of size 20 from a population and computes x̄ for each. The x̄ values differ from sample to sample. This is called:", o: ["Bias", "Sampling variability", "Confounding", "Nonresponse"], c: 1, w: "Different random samples give different statistics. That natural variation is sampling variability. Bias is a systematic tendency to miss in one direction." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.11");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.11", compact: true, storageKey: "topic-1.11" });</script>
+</body>
+</html>

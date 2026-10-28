@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrying Out a Test for a Difference in Means Study Lab</title>
+<meta name="description" content="Run a complete two-sample t-test: test statistic, df, a shaded p-value, the decision, and a four-step written answer that updates live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.calc .row.code span:first-child { font-family: var(--mono); font-size: .86rem; white-space: normal; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .92rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+.grp { font-size: .8rem; font-weight: 600; color: var(--accent); grid-column: 1 / -1; margin-top: 4px; }
+.grp.g2 { color: var(--c1); }
+.verdict { font-weight: 600; }
+.steps4 { display: grid; gap: 10px; }
+.steps4 > div { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; }
+.steps4 b.k { display: block; font-family: var(--mono); font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .grid3 { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 4 · Topic 4.10</span>
+  <h1>Carrying Out a Test for a Difference in Means Study Lab</h1>
+  <p class="lede">A two-sample t-test asks whether the difference between two sample means is too big to blame on chance alone. Enter the data and hypotheses to see the test statistic, the p-value as a shaded area, and the decision. A complete State, Plan, Do, Conclude answer is written out for you as you change things.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Run a two-sample t-test</h2>
+    <p>Enter the summary statistics, the hypothesized difference, the direction of the alternative, and α. The test statistic, p-value, and a complete four-step answer update as you type.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">t = ((x̄₁ − x̄₂) − 0) ÷ √( s₁²/n₁ + s₂²/n₂ )</span> <span class="formula">p-value = area beyond t in the direction of Hₐ</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>Sample data and hypotheses</h3>
+      <div class="grid3 controls" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+        <span class="grp" id="g1name">Group 1</span>
+        <div class="ctl"><label for="x1">x̄₁</label><input type="number" id="x1" step="0.1"></div>
+        <div class="ctl"><label for="s1">s₁</label><input type="number" id="s1" step="0.1" min="0"></div>
+        <div class="ctl"><label for="n1">n₁</label><input type="number" id="n1" step="1" min="2"></div>
+        <span class="grp g2" id="g2name">Group 2</span>
+        <div class="ctl"><label for="x2">x̄₂</label><input type="number" id="x2" step="0.1"></div>
+        <div class="ctl"><label for="s2">s₂</label><input type="number" id="s2" step="0.1" min="0"></div>
+        <div class="ctl"><label for="n2">n₂</label><input type="number" id="n2" step="1" min="2"></div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span style="font-family:var(--mono)">Hₐ: μ₁ − μ₂</span><div class="seg" id="haSeg" role="group" aria-label="Direction of the alternative hypothesis"></div><span style="font-family:var(--mono)" id="haD">0</span></div>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="d0">Hypothesized difference (H₀)</label><input type="number" id="d0" step="0.1"><span class="hint">Usually 0: "no difference."</span></div>
+        <div class="ctl"><span style="font-size:.86rem; font-weight:500;">Significance level α</span><div class="seg" id="aSeg" role="group" aria-label="Significance level"></div></div>
+      </div>
+      <p class="note" id="ctx"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>p-value as an area <small id="tsub"></small></h3>
+      <svg class="chart" id="tcurve" role="img" aria-label="t distribution with the p-value shaded beyond the test statistic"></svg>
+      <div class="legend"><span class="l-ad">t distribution if H₀ is true</span><span class="l-c1">Observed t</span></div>
+      <h3 style="margin-top:6px;">Matching confidence interval <small id="isub"></small></h3>
+      <svg class="chart" id="ivl" role="img" aria-label="Confidence interval for the difference with the hypothesized value marked"></svg>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Test statistic t</div><div class="v" id="r-t"></div></div>
+    <div class="stat"><div class="k">df (calculator)</div><div class="v" id="r-df"></div></div>
+    <div class="stat"><div class="k">p-value</div><div class="v" id="r-p"></div></div>
+    <div class="stat"><div class="k">Decision</div><div class="v" id="r-dec" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>The four steps</h3>
+      <div class="steps4" id="steps"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="calc" id="calcWork"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Test statistic</span><h3>How many standard errors away?</h3><p>t measures how far the observed difference x̄₁ − x̄₂ is from the hypothesized difference, in standard errors. Far from 0 (in the direction of Hₐ) means the data are surprising if H₀ is true.</p></div>
+    <div class="card"><span class="tag">p-value</span><h3>Assume H₀, then ask "how unusual?"</h3><p>The p-value is the probability, assuming H₀ is true, of getting a difference in sample means at least as extreme as the one observed, in the direction of Hₐ. Two-sided tests count both tails.</p></div>
+    <div class="card"><span class="tag">Decision</span><h3>Compare p with α</h3><p>If p ≤ α, reject H₀: there is convincing evidence for Hₐ. If p &gt; α, fail to reject H₀: there is not convincing evidence for Hₐ. Never "accept" H₀.</p></div>
+    <div class="card"><span class="tag">df</span><h3>Calculator vs. conservative</h3><p>Technology uses the Welch df. With a table, use the smaller of n₁ − 1 and n₂ − 1. The conservative df gives a slightly larger p-value, so it is less likely to reject.</p></div>
+    <div class="card"><span class="tag">Errors</span><h3>What could go wrong?</h3><p>Rejecting a true H₀ is a Type I error (probability α). Failing to reject a false H₀ is a Type II error. Larger samples raise power, the chance of correctly rejecting a false H₀.</p></div>
+    <div class="card"><span class="tag">Scope</span><h3>Cause or generalize?</h3><p>With random assignment, a significant difference can be attributed to the treatments. With random samples, the conclusion applies to the populations sampled. Without either, be cautious.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>How the alternative hypothesis decides the p-value, using t = 2.10 with df = 40 as an example.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table id="pTable"></table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>The four steps graders look for</h3>
+      <ul>
+        <li><b>State:</b> hypotheses with μ₁ and μ₂ defined in context, and α.</li>
+        <li><b>Plan:</b> name the two-sample t-test and check Random, 10%, and Normal/Large sample for each group.</li>
+        <li><b>Do:</b> the test statistic with values plugged in, df, and the p-value.</li>
+        <li><b>Conclude:</b> compare p with α, make a decision about H₀, and state the conclusion in context about Hₐ: "Because p = 0.012 &lt; 0.05, we reject H₀. There is convincing evidence that…"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Concluding "H₀ is true" or "there is no difference" after a large p-value.</li>
+        <li>Interpreting the p-value as the probability that H₀ is true.</li>
+        <li>Forgetting to double the one-tail area for a two-sided test.</li>
+        <li>Writing a conclusion about the sample means ("x̄₁ is larger") instead of the population means.</li>
+        <li>Claiming cause and effect from an observational study.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 4.10. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-4.html">Unit 4 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function welch(s1, n1, s2, n2) { var a = s1 * s1 / n1, b = s2 * s2 / n2; return (a + b) * (a + b) / (a * a / (n1 - 1) + b * b / (n2 - 1)); }
+  function pfmt(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function seg(el, items, cur, pick) {
+    el.innerHTML = "";
+    items.forEach(function (it) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = it[1];
+      b.setAttribute("aria-pressed", String(it[0] === cur));
+      b.addEventListener("click", function () { pick(it[0]); });
+      el.appendChild(b);
+    });
+  }
+  function presetButtons(el, list, load) {
+    list.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); el.appendChild(b); });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function story(el, head, items) { el.innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+
+
+  // two-sample summary-statistic inputs shared by this page
+  var KEYS = ["x1", "s1", "n1", "x2", "s2", "n2"];
+  function fillInputs() { KEYS.forEach(function (k) { $(k).value = S[k]; }); $("g1name").textContent = "Group 1: " + S.g1; $("g2name").textContent = "Group 2: " + S.g2; }
+  function bindInputs(after) { KEYS.forEach(function (k) { $(k).addEventListener("input", function (e) { var v = parseFloat(e.target.value); S[k] = isNaN(v) ? NaN : v; after(); }); }); }
+  function validStats() { return KEYS.every(function (k) { return !isNaN(S[k]); }) && S.s1 > 0 && S.s2 > 0 && S.n1 >= 2 && S.n2 >= 2 && S.n1 % 1 === 0 && S.n2 % 1 === 0; }
+  function twoSample() {
+    var est = S.x1 - S.x2, se = Math.sqrt(S.s1 * S.s1 / S.n1 + S.s2 * S.s2 / S.n2);
+    return { est: est, se: se, df: welch(S.s1, S.n1, S.s2, S.n2), dfc: Math.min(S.n1, S.n2) - 1 };
+  }
+  function interval(C, df, t) { var ts = Lab.invT((1 + C) / 2, df); return { ts: ts, me: ts * t.se, lo: t.est - ts * t.se, hi: t.est + ts * t.se }; }
+  // draws interval bars on a number line: list of {iv, y, color, label}; marks extra vertical lines [{x, color, label}]
+  function drawIntervals(svg, bars, marks, xlab) {
+    var lo = Infinity, hi = -Infinity;
+    bars.forEach(function (b) { lo = Math.min(lo, b.iv.lo); hi = Math.max(hi, b.iv.hi); });
+    marks.forEach(function (m) { lo = Math.min(lo, m.x); hi = Math.max(hi, m.x); });
+    var pad = (hi - lo) * 0.12 || 1, tk = Lab.niceTicks(lo - pad, hi + pad, 6);
+    var F = Lab.frame(svg, { x: [tk[0], tk[tk.length - 1]], y: [0.25, bars.length + 0.85], xLabel: xlab, yLabel: "", xTicks: tk, yTicks: [], fmtX: function (v) { return N(v, 2); }, height: 90 + 72 * bars.length });
+    marks.forEach(function (m) { Lab.vline(F, m.x, m.color, 2, "6 4"); Lab.tag(F, m.x + (tk[tk.length - 1] - tk[0]) * 0.008, bars.length + 0.7, m.label, m.color); });
+    bars.forEach(function (b) {
+      Lab.line(F, [[b.iv.lo, b.y], [b.iv.hi, b.y]], b.color, 5);
+      Lab.line(F, [[b.iv.lo, b.y - .18], [b.iv.lo, b.y + .18]], b.color, 2.5); Lab.line(F, [[b.iv.hi, b.y - .18], [b.iv.hi, b.y + .18]], b.color, 2.5);
+      if (b.mid != null) Lab.dot(F, b.mid, b.y, b.color, false);
+      Lab.tag(F, tk[0] + (tk[tk.length - 1] - tk[0]) * 0.01, b.y + 0.28, b.label, b.color);
+      Lab.tag(F, b.iv.lo, b.y - 0.4, N(b.iv.lo, 2), "var(--muted)", "middle");
+      Lab.tag(F, b.iv.hi, b.y - 0.4, N(b.iv.hi, 2), "var(--muted)", "middle");
+    });
+    return F;
+  }
+  // t density with shaded regions [[a, b], ...]
+  function drawT(svg, df, regions, marks, xr) {
+    var R = xr || 4;
+    var F = Lab.frame(svg, { x: [-R, R], y: [0, Lab.tPdf(0, df) * 1.18], xLabel: "t (df = " + N(df, 2) + ")", yLabel: "Density", xTicks: Lab.niceTicks(-R, R, 8).filter(function (v) { return v >= -R && v <= R; }), yTicks: [], fmtX: function (v) { return N(v, 1); } });
+    var f = function (x) { return Lab.tPdf(x, df); };
+    regions.forEach(function (r) { Lab.curve(F, f, "var(--accent)", r[0], r[1], r[2] || "var(--accent)"); });
+    if (!regions.length) Lab.curve(F, f, "var(--accent)");
+    (marks || []).forEach(function (m) { Lab.vline(F, m.x, m.color, 2, m.dash || null); var off = m.x < 0 ? -0.04 * R : 0.04 * R; Lab.tag(F, m.x + off, Lab.tPdf(0, df) * (m.h || 1.08), m.label, m.color, m.x < 0 ? "end" : "start"); });
+    return F;
+  }
+
+  var PRESETS = [
+    { name: "New fertilizer, taller plants?", g1: "the new fertilizer", g2: "the current fertilizer", resp: "plant height", unit: "cm", x1: 54.2, s1: 8.1, n1: 25, x2: 49.8, s2: 7.4, n2: 25, ha: ">", d0: 0, alpha: 0.05, design: "exp", ctx: "50 plants randomly assigned to two fertilizers. Dotplots of both groups show no strong skew or outliers." },
+    { name: "Music while studying, lower recall?", g1: "students who study with music", g2: "students who study in silence", resp: "recall score", unit: "words", x1: 18.1, s1: 4.2, n1: 30, x2: 20.3, s2: 3.9, n2: 32, ha: "<", d0: 0, alpha: 0.05, design: "exp", ctx: "62 volunteers randomly assigned to study a word list with music or in silence." },
+    { name: "Wait times at two coffee shops", g1: "shop A", g2: "shop B", resp: "wait time", unit: "minutes", x1: 4.6, s1: 1.8, n1: 40, x2: 4.9, s2: 2.0, n2: 45, ha: "≠", d0: 0, alpha: 0.05, design: "sample", ctx: "Random samples of customers at each shop. Is there any difference in mean wait time?" },
+    { name: "Small samples, borderline result", g1: "method A", g2: "method B", resp: "quiz score", unit: "points", x1: 12.4, s1: 3.1, n1: 9, x2: 9.8, s2: 2.7, n2: 8, ha: ">", d0: 0, alpha: 0.01, design: "exp", ctx: "17 students randomly assigned to two study methods. The small samples have no outliers. Try α = 0.05 too." },
+    { name: "Claim of more than 2 hours longer", g1: "brand A", g2: "brand B", resp: "battery life", unit: "hours", x1: 21.8, s1: 2.4, n1: 40, x2: 19.1, s2: 2.9, n2: 40, ha: ">", d0: 2, alpha: 0.05, design: "sample", ctx: "H₀ does not have to be 0. Here we test whether brand A's mean life is more than 2 hours longer." }
+  ];
+  var S = {};
+  function load(p) { S = JSON.parse(JSON.stringify(p)); $("ctx").textContent = p.ctx; fillInputs(); $("d0").value = S.d0; render(); }
+  function pval(t, df, ha) { return ha === ">" ? Lab.tCdf(t, Infinity, df) : ha === "<" ? Lab.tCdf(-Infinity, t, df) : 2 * Lab.tCdf(Math.abs(t), Infinity, df); }
+  var WORD = { ">": "greater than", "<": "less than", "≠": "different from" };
+
+  function render() {
+    seg($("haSeg"), [["<", "<"], ["≠", "≠"], [">", ">"]], S.ha, function (v) { S.ha = v; render(); });
+    seg($("aSeg"), [[0.01, "0.01"], [0.05, "0.05"], [0.1, "0.10"]], S.alpha, function (v) { S.alpha = v; render(); });
+    $("haD").textContent = isNaN(S.d0) ? "?" : N(S.d0, 2);
+    if (!validStats() || isNaN(S.d0)) { story($("story"), "<b>Check the inputs.</b> Each standard deviation must be positive, each n a whole number of at least 2.", []); return; }
+    var t2 = twoSample(), tt = (t2.est - S.d0) / t2.se, p = pval(tt, t2.df, S.ha), pc = pval(tt, t2.dfc, S.ha), rej = p <= S.alpha;
+
+    // t curve
+    var R = Math.max(4, Math.min(Math.abs(tt) + 1, 12)), regs = [];
+    if (S.ha === ">") regs.push([tt, Infinity, "var(--c1)"]);
+    else if (S.ha === "<") regs.push([-Infinity, tt, "var(--c1)"]);
+    else { regs.push([Math.abs(tt), Infinity, "var(--c1)"]); regs.push([-Infinity, -Math.abs(tt), "var(--c1)"]); }
+    var tm = Math.max(-R, Math.min(R, tt));
+    drawT($("tcurve"), t2.df, regs, [{ x: tm, color: "var(--c1)", label: "t = " + N(tt, 2) }].concat(S.ha === "≠" ? [{ x: -tm, color: "var(--c1)", label: "", dash: "4 4" }] : []), R);
+    $("tsub").textContent = "shaded area = " + pfmt(p);
+
+    // matching interval
+    var C = S.ha === "≠" ? 1 - S.alpha : 1 - 2 * S.alpha, iv = interval(C, t2.df, t2);
+    drawIntervals($("ivl"), [{ iv: iv, y: 1, color: "var(--accent)", label: Math.round(C * 100) + "% interval", mid: t2.est }], [{ x: S.d0, color: "var(--c1)", label: "H₀: " + N(S.d0, 2) }], "μ₁ − μ₂ (" + S.unit + ")");
+    $("isub").textContent = S.ha === "≠" ? "a two-sided test at α matches a " + Math.round(C * 100) + "% interval" : "a one-sided test at α matches a " + Math.round(C * 100) + "% interval";
+
+    $("r-t").textContent = N(tt, 3);
+    $("r-df").textContent = N(t2.df, 2);
+    $("r-p").textContent = pfmt(p);
+    $("r-dec").innerHTML = rej ? '<span style="color:var(--good)">Reject H₀</span>' : "Fail to reject H₀";
+
+    var big1 = S.n1 >= 30, big2 = S.n2 >= 30;
+    var claim = S.d0 === 0 ? "the true mean " + S.resp + " for " + S.g1 + " is " + WORD[S.ha] + " the true mean " + S.resp + " for " + S.g2
+      : "the true difference in mean " + S.resp + " (" + S.g1 + " minus " + S.g2 + ") is " + WORD[S.ha] + " " + N(S.d0, 2) + " " + S.unit;
+    $("steps").innerHTML =
+      "<div><b class='k'>State</b>H₀: μ₁ − μ₂ = " + N(S.d0, 2) + " &nbsp; Hₐ: μ₁ − μ₂ " + S.ha + " " + N(S.d0, 2) + ", where μ₁ = the true mean " + S.resp + " for " + S.g1 + " and μ₂ = the true mean " + S.resp + " for " + S.g2 + ". Use α = " + S.alpha + ".</div>" +
+      "<div><b class='k'>Plan</b>Two-sample t-test for μ₁ − μ₂. Random: " + (S.design === "exp" ? "treatments were randomly assigned." : "two independent random samples. 10%: each sample is less than 10% of its population.") +
+      " Normal/Large sample: " + (big1 && big2 ? "n₁ = " + S.n1 + " ≥ 30 and n₂ = " + S.n2 + " ≥ 30." : (big1 ? "n₁ = " + S.n1 + " ≥ 30; " : "n₁ = " + S.n1 + " < 30, so the sample 1 graph must show no strong skew or outliers; ") + (big2 ? "n₂ = " + S.n2 + " ≥ 30." : "n₂ = " + S.n2 + " < 30, so the sample 2 graph must show no strong skew or outliers.")) + "</div>" +
+      "<div><b class='k'>Do</b>t = ((" + N(S.x1) + " − " + N(S.x2) + ") − " + N(S.d0, 2) + ") ÷ √(" + N(S.s1) + "²/" + S.n1 + " + " + N(S.s2) + "²/" + S.n2 + ") = " + N(tt, 3) + ", df = " + N(t2.df, 2) + ", p-value = " + pfmt(p) + ".</div>" +
+      "<div><b class='k'>Conclude</b>Because the p-value of " + pfmt(p) + (rej ? " ≤ " : " > ") + "α = " + S.alpha + ", we " + (rej ? "reject" : "fail to reject") + " H₀. There is " + (rej ? "" : "not ") + "convincing evidence that " + claim + "." + (rej && S.design === "exp" ? " Because the treatments were randomly assigned, the difference can be attributed to the treatment." : "") + "</div>";
+
+    $("calcWork").innerHTML = rows([
+      ["Difference in sample means: " + N(S.x1) + " − " + N(S.x2), "= " + N(t2.est, 3)],
+      ["Standard error: √(" + N(S.s1 * S.s1 / S.n1, 4) + " + " + N(S.s2 * S.s2 / S.n2, 4) + ")", "= " + N(t2.se, 4)],
+      ["t = (" + N(t2.est, 3) + " − " + N(S.d0, 2) + ") ÷ " + N(t2.se, 4), "= " + N(tt, 3)],
+      ["p-value, calculator df = " + N(t2.df, 2), pfmt(p)],
+      ["p-value, conservative df = " + t2.dfc, pfmt(pc)],
+      ["Calculator: 2-SampTTest, Stats, x̄1=" + N(S.x1) + ", Sx1=" + N(S.s1) + ", n1=" + S.n1 + ", x̄2=" + N(S.x2) + ", Sx2=" + N(S.s2) + ", n2=" + S.n2 + ", μ1: " + S.ha + "μ2, Pooled: No" + (S.d0 !== 0 ? " (the calculator assumes a difference of 0, so compute t by hand for this H₀)" : ""), "", "code"]
+    ]);
+
+    var head = rej ? "<b>Reject H₀.</b> If there were truly no " + (S.d0 === 0 ? "difference" : "more than the hypothesized difference") + ", a result this extreme would happen only about " + Lab.pct(p, p < 0.01 ? 2 : 1) + " of the time. That is rare enough (p ≤ " + S.alpha + ") to count as convincing evidence."
+      : "<b>Fail to reject H₀.</b> If H₀ were true, a result at least this extreme would happen about " + Lab.pct(p, 1) + " of the time. That is not unusual enough (p > " + S.alpha + "), so we lack convincing evidence for Hₐ.";
+    var items = ["Assuming H₀ is true, there is a " + pfmt(p) + " probability of getting a difference in sample means of " + N(t2.est, 2) + " " + S.unit + " or something more extreme in the direction of Hₐ, just by chance."];
+    if ((p <= S.alpha) !== (pc <= S.alpha)) items.push("Careful: the conservative df gives p = " + pfmt(pc) + ", which leads to the opposite decision. Results this close to α deserve caution.");
+    if (rej) items.push("Possible error: if H₀ is actually true, this decision is a Type I error.");
+    else items.push("Possible error: if Hₐ is actually true, this decision is a Type II error. Larger samples would make the test more powerful.");
+    if ((S.ha === ">" && t2.est < S.d0) || (S.ha === "<" && t2.est > S.d0)) items.push("The sample difference points the opposite way from Hₐ, so the p-value is above 0.5. The data give no support at all for Hₐ.");
+    story($("story"), head, items);
+  }
+
+  (function () {
+    var h = "<thead><tr><th>Alternative</th><th>p-value is the area…</th><th>Calculator</th><th>p-value</th></tr></thead><tbody>";
+    [[">", "to the right of t", "tcdf(2.10, 1E99, 40)", Lab.tCdf(2.1, Infinity, 40)], ["<", "to the left of t", "tcdf(−1E99, 2.10, 40)", Lab.tCdf(-Infinity, 2.1, 40)], ["≠", "beyond |t| in both tails (double one tail)", "2 × tcdf(2.10, 1E99, 40)", 2 * Lab.tCdf(2.1, Infinity, 40)]].forEach(function (r) {
+      h += "<tr><td><b>Hₐ: μ₁ − μ₂ " + r[0] + " 0</b></td><td>" + r[1] + "</td><td style='font-family:var(--mono)'>" + r[2] + "</td><td>" + N(r[3], 4) + "</td></tr>";
+    });
+    $("pTable").innerHTML = h + "</tbody>";
+  })();
+
+  bindInputs(render);
+  $("d0").addEventListener("input", function (e) { S.d0 = parseFloat(e.target.value); render(); });
+  presetButtons($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+   {
+    "s": "In a two-sample t-test, x̄₁ − x̄₂ = 3.2 and the standard error is 1.4. The null hypothesis is μ₁ − μ₂ = 0. What is the test statistic?",
+    "o": [
+     "0.44",
+     "2.29",
+     "4.48",
+     "1.8"
+    ],
+    "c": 1,
+    "w": "t = (3.2 − 0) ÷ 1.4 ≈ 2.29. Choice C multiplied instead of dividing; choice D subtracted."
+   },
+   {
+    "s": "A two-sample t-test gives p = 0.03. Which is the correct interpretation of the p-value?",
+    "o": [
+     "There is a 3% chance that H₀ is true.",
+     "Assuming the population means are equal, there is a 3% chance of getting a difference in sample means at least as extreme as the one observed.",
+     "There is a 3% chance the result is due to a mistake.",
+     "3% of the data support H₀."
+    ],
+    "c": 1,
+    "w": "A p-value is computed assuming H₀ is true. It is not the probability that H₀ is true (A)."
+   },
+   {
+    "s": "A test of H₀: μ₁ − μ₂ = 0 vs. Hₐ: μ₁ − μ₂ > 0 gives p = 0.031. At α = 0.05, what is the correct conclusion?",
+    "o": [
+     "Reject H₀. There is convincing evidence that μ₁ > μ₂.",
+     "Fail to reject H₀. There is not convincing evidence that μ₁ > μ₂.",
+     "Accept H₀. The means are equal.",
+     "Reject Hₐ."
+    ],
+    "c": 0,
+    "w": "Since 0.031 ≤ 0.05, reject H₀ and state the evidence for Hₐ in context."
+   },
+   {
+    "s": "A test gives p = 0.18 at α = 0.05. Which statement is correct?",
+    "o": [
+     "The two population means are equal.",
+     "We accept H₀.",
+     "We fail to reject H₀; there is not convincing evidence of a difference in population means.",
+     "We reject H₀ because p is greater than α."
+    ],
+    "c": 2,
+    "w": "A large p-value means the data are consistent with H₀, not that H₀ is proven. Never \"accept\" H₀."
+   },
+   {
+    "s": "For a two-sided test, t = 1.85 with df = 30. The area to the right of 1.85 is 0.037. What is the p-value?",
+    "o": [
+     "0.037",
+     "0.074",
+     "0.963",
+     "0.0185"
+    ],
+    "c": 1,
+    "w": "A two-sided test counts both tails: 2 × 0.037 = 0.074."
+   },
+   {
+    "s": "A study tests whether a new teaching method raises mean scores. In context, what is a Type I error?",
+    "o": [
+     "Concluding the new method raises the mean score when it really does not",
+     "Concluding the new method does not raise the mean score when it really does",
+     "Getting a sample mean that is too low",
+     "Using the wrong test"
+    ],
+    "c": 0,
+    "w": "A Type I error rejects a true H₀: we conclude there is an improvement when there isn't one."
+   },
+   {
+    "s": "Compared with the calculator (Welch) df, using the conservative df = min(n₁, n₂) − 1 gives:",
+    "o": [
+     "A smaller p-value",
+     "A larger p-value",
+     "The same p-value",
+     "A larger test statistic"
+    ],
+    "c": 1,
+    "w": "The test statistic is the same. A smaller df gives the t distribution heavier tails, so the same t has a larger tail area: a larger p-value."
+   },
+   {
+    "s": "In a randomized experiment, volunteers using a new app had a significantly higher mean score than those using the old app (p = 0.004). Which conclusion is best?",
+    "o": [
+     "The new app causes higher scores for these volunteers' kind of subjects, but the result cannot be generalized to all students because volunteers were not randomly sampled.",
+     "The new app causes higher scores for all students.",
+     "There is an association, but not cause and effect.",
+     "Nothing can be concluded because the sample was not random."
+    ],
+    "c": 0,
+    "w": "Random assignment supports cause and effect. Generalizing to a larger population requires random sampling, which volunteers are not."
+   }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("4.10");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [4], topic: "4.10", compact: true, storageKey: "topic-4.10" });</script>
+</body>
+</html>

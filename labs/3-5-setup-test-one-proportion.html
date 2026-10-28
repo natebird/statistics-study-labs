@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting Up a Test for a Proportion Study Lab</title>
+<meta name="description" content="Practice writing null and alternative hypotheses, defining the parameter, and checking conditions for a one-proportion z-test.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.k-acc { color: var(--accent); } .k-c1 { color: var(--c1); } .k-c2 { color: var(--c2); } .k-bad { color: var(--bad); } .k-ghost { color: var(--ghost); }
+.steps { display: grid; gap: 10px; }
+.steps .card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.05rem; }
+.steps .card h4 .tag { margin-right: 8px; }
+.steps .card p { font-size: .95rem; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.optlist { display: grid; gap: 6px; }
+.optlist button { text-align: left; border-radius: 8px; padding: 8px 12px; }
+.optlist button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.claimbox { font-size: 1.02rem; background: var(--paper); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+.ctl input[type="number"] { max-width: 160px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.5</span>
+  <h1>Setting Up a Test for a Proportion Study Lab</h1>
+  <p class="lede">A significance test starts with two competing claims about a population proportion: the <b>null hypothesis</b> (no change, the claimed value) and the <b>alternative</b> (what the researcher suspects). Build the setup for real situations and get instant feedback.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Hypothesis builder</h2>
+    <p>Read the situation, then build the test: define the parameter, write the null and alternative hypotheses, pick α, and check the conditions. Press <b>Check my setup</b> for feedback.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">H₀: p = p₀</span> <span class="formula">Hₐ: p &lt; p₀, p &gt; p₀, or p ≠ p₀</span> <span class="formula">np₀ ≥ 10 and n(1 − p₀) ≥ 10</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Choose a situation</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="card"><p class="claimbox" id="claim"></p></div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>Step 1: The parameter p is…</h3>
+      <div class="optlist" id="param" role="group" aria-label="Choose the parameter definition"></div>
+      <h3>Step 2: Hypotheses</h3>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="p0">Null value p₀</label><input type="number" id="p0" min="0" max="1" step="0.01"></div>
+        <div class="ctl"><span style="font-size:.86rem;font-weight:500">Alternative Hₐ</span><div class="seg" id="alt" role="group" aria-label="Direction of the alternative hypothesis"></div></div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Significance level <span style="text-transform:none">α</span></span><div class="seg" id="al" role="group" aria-label="Significance level"></div></div>
+      <div><button type="button" class="primary" id="check">Check my setup</button> <button type="button" id="reveal">Show the answer</button></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Null model for p̂ <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Normal model for the sample proportion if the null hypothesis is true, with the alternative direction shaded"></svg>
+      <div class="marker-key"><span class="k-acc">Values of p̂ that would support Hₐ</span><span class="k-c1">p₀</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Your H₀</div><div class="v" id="r-h0"></div></div>
+    <div class="stat"><div class="k">Your Hₐ</div><div class="v" id="r-ha"></div></div>
+    <div class="stat"><div class="k">σ<sub>p̂</sub> if H₀ is true</div><div class="v" id="r-sd"></div></div>
+    <div class="stat"><div class="k">α</div><div class="v" id="r-al"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card"><h3>Step 3: Conditions (use p₀, not p̂)</h3><div class="calc" id="cond"></div></div>
+    <div class="card calc-card"><h3>Your write-up</h3><div class="calc" id="write"></div></div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Null hypothesis</span><h3>H₀: p = p₀</h3><p>The null is the claim of no change or no difference. We assume it is true and ask whether the data are surprising under it.</p></div>
+    <div class="card"><span class="tag">Alternative</span><h3>Hₐ: <, >, or ≠</h3><p>The alternative is what the researcher suspects. One-sided (< or >) for a directional suspicion; two-sided (≠) for "different" or "changed."</p></div>
+    <div class="card"><span class="tag">Parameter</span><h3>Always about the population</h3><p>Define p in context: "the true proportion of all … who …". Never write hypotheses with p̂.</p></div>
+    <div class="card"><span class="tag">Significance level</span><h3>α, chosen in advance</h3><p>α is the cutoff for how unlikely the data must be under H₀ before we reject it. Common choices: 0.05, 0.01, 0.10.</p></div>
+    <div class="card"><span class="tag">Conditions</span><h3>Random, 10%, Large counts</h3><p>Random sample or random assignment; n ≤ 10% of the population; np₀ ≥ 10 and n(1 − p₀) ≥ 10, using the null value.</p></div>
+    <div class="card"><span class="tag">Null model</span><h3>N(p₀, √(p₀(1 − p₀)/n))</h3><p>If H₀ is true and conditions hold, p̂ has an approximately normal distribution centered at p₀. That's the yardstick for the test.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Turning words into hypotheses.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Wording in the problem</th><th>Alternative</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>more than, higher, increased, exceeds</td><td><b>Hₐ: p &gt; p₀</b></td><td>"Is the defect rate higher than 3%?" → Hₐ: p &gt; 0.03</td></tr>
+      <tr><td>less than, lower, decreased, fewer</td><td><b>Hₐ: p &lt; p₀</b></td><td>"Has texting decreased from 22%?" → Hₐ: p &lt; 0.22</td></tr>
+      <tr><td>different, changed, not equal, fair?</td><td><b>Hₐ: p ≠ p₀</b></td><td>"Is the coin unfair?" → Hₐ: p ≠ 0.5</td></tr>
+      <tr><td>The claimed or historical value</td><td><b>H₀: p = p₀</b></td><td>"The company claims 95%." → H₀: p = 0.95</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Write both hypotheses in symbols and define p in words with context.</li>
+        <li>Name the procedure: "one-sample z-test for a population proportion."</li>
+        <li>Check conditions with numbers using p₀: "150(0.10) = 15 ≥ 10 and 150(0.90) = 135 ≥ 10."</li>
+        <li>State α before doing calculations. If none is given, use α = 0.05 and say so.</li>
+        <li>Explain why the alternative is one- or two-sided using the wording of the question.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Writing hypotheses about p̂ or using the sample value in H₀.</li>
+        <li>Putting the researcher's suspicion in the null and the status quo in the alternative.</li>
+        <li>Checking Large Counts with p̂ instead of p₀ (for a test, use the null value).</li>
+        <li>Choosing a one-sided alternative because the sample happened to go that direction.</li>
+        <li>Defining the parameter as "the proportion of students" without saying all students or what characteristic.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.5. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  // ---------- helpers shared by the Unit 3 labs (inline on purpose) ----------
+  function buttons(id, list) {
+    var box = $(id); box.innerHTML = "";
+    list.forEach(function (x) { var b = document.createElement("button"); b.type = "button"; b.textContent = x[0]; b.addEventListener("click", x[1]); box.appendChild(b); });
+  }
+  function seg(id, opts, cur, onPick) {
+    var box = $(id); box.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { onPick(o[0]); seg(id, opts, o[0], onPick); });
+      box.appendChild(b);
+    });
+  }
+  function fmtP(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function zStar(C) { return Lab.invNorm(1 - (1 - C) / 2); }
+  function sym(alt) { return alt === "lt" ? "<" : alt === "gt" ? ">" : "≠"; }
+  /* hist(svg, vals, o): density-scaled histogram on a fixed axis so a curve can be laid on top.
+     o = { lo, hi, w, xLabel, ticks, yMax, curve: f(x), colorOf(lo, hi) -> color, lines: [{ x, color, label, dash }] } */
+  function hist(svg, vals, o) {
+    var nb = Math.round((o.hi - o.lo) / o.w), cnt = new Array(nb).fill(0);
+    vals.forEach(function (v) { var i = Math.floor((v - o.lo) / o.w + 1e-9); if (i >= 0 && i < nb) cnt[i]++; else if (i === nb && Math.abs(v - o.hi) < 1e-9) cnt[nb - 1]++; });
+    var dens = cnt.map(function (c) { return vals.length ? c / vals.length / o.w : 0; });
+    var top = o.yMax || Math.max.apply(null, dens.concat([o.curve ? o.curve(o.peak != null ? o.peak : (o.lo + o.hi) / 2) : 0, 1e-9])) * 1.15;
+    var F = Lab.frame(svg, { x: [o.lo, o.hi], y: [0, top], xLabel: o.xLabel || "", yLabel: o.yLabel || "", xTicks: (o.ticks || Lab.niceTicks(o.lo, o.hi, 6)).filter(function (t) { return t >= o.lo - 1e-9 && t <= o.hi + 1e-9; }), yTicks: [], fmtX: o.fmt || function (v) { return N(v, 2); } });
+    dens.forEach(function (dv, i) {
+      if (!dv) return; var a = o.lo + i * o.w, b = a + o.w;
+      Lab.el("rect", { x: F.sx(a) + .3, y: F.sy(dv), width: Math.max(0, F.sx(b) - F.sx(a) - .6), height: F.sy(0) - F.sy(dv), fill: (o.colorOf && o.colorOf(a, b)) || "var(--accent)", opacity: .55 }, F.g);
+    });
+    if (o.curve) Lab.fn(F, o.curve, o.curveColor || "var(--ink)", 2, null, 160);
+    (o.lines || []).forEach(function (l, k) {
+      Lab.vline(F, l.x, l.color, 2.5, l.dash || null);
+      if (l.label) Lab.tag(F, l.x + (o.hi - o.lo) * 0.01 * (l.left ? -1 : 1), top * (0.93 - 0.1 * k), l.label, l.color, l.left ? "end" : "start");
+    });
+    return F;
+  }
+  function binom(r, n, p) { var k = 0; for (var i = 0; i < n; i++) if (r() < p) k++; return k; }
+  function story(id, head, items) { $(id).innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+  function rows(id, list) { $(id).innerHTML = list.map(function (r) { return '<div class="row' + (r[2] ? " h" : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function slider(id, outId, fmt, onChange) { var s = $(id); function u() { $(outId).textContent = fmt(+s.value); } s.addEventListener("input", function () { u(); onChange(+s.value); }); u(); return { set: function (v) { s.value = v; u(); } }; }
+
+  var SC = [
+    { name: "Left-handed students", text: "About 10% of people are left-handed. A teacher suspects that a higher proportion of students at her large school (2,400 students) are left-handed. She surveys a random sample of 150 students.",
+      params: ["The true proportion of all students at the school who are left-handed", "The proportion of the 150 sampled students who are left-handed", "The true proportion of all people who are left-handed"], ans: 0, p0: 0.10, alt: "gt", n: 150, N: 2400, rand: true },
+    { name: "Late deliveries", text: "A delivery company claims that only 5% of its packages arrive late. A consumer group thinks the true rate is higher. It tracks a random sample of 400 of the company's 1,000,000 packages from last month.",
+      params: ["The number of late packages in the sample", "The true proportion of all the company's packages from last month that arrive late", "The proportion of the 400 packages that arrive late"], ans: 1, p0: 0.05, alt: "gt", n: 400, N: 1000000, rand: true },
+    { name: "Coin bias", text: "A student wonders whether a coin is fair. She will flip it 80 times and record the proportion of heads.",
+      params: ["The proportion of heads in the 80 flips", "The true long-run proportion of flips of this coin that land heads", "0.5"], ans: 1, p0: 0.5, alt: "ne", n: 80, N: Infinity, rand: true },
+    { name: "Fewer texting drivers", text: "Last year, 22% of drivers at an intersection were seen texting. After a safety campaign, police record a random sample of 300 drivers at the intersection to see whether the proportion has decreased.",
+      params: ["The true proportion of all drivers at the intersection (after the campaign) who text while driving", "The proportion of the 300 drivers who were texting", "The true proportion of drivers who were texting last year"], ans: 0, p0: 0.22, alt: "lt", n: 300, N: Infinity, rand: true },
+    { name: "Small club", text: "A club of 120 members has traditionally had 40% vote in elections. The president wants to know whether turnout has changed, and asks the first 30 members who arrive at a meeting.",
+      params: ["The true proportion of all 120 club members who vote", "The proportion of the 30 members asked who vote", "40%"], ans: 0, p0: 0.40, alt: "ne", n: 30, N: 120, rand: false }
+  ];
+  var ALTS = [["lt", "p < p₀"], ["gt", "p > p₀"], ["ne", "p ≠ p₀"]], ALS = [0.01, 0.05, 0.1];
+  var S = {};
+  function load(sc) {
+    S = { sc: sc, par: -1, p0: null, alt: null, al: 0.05 };
+    $("claim").textContent = sc.text; $("p0").value = "";
+    var box = $("param"); box.innerHTML = "";
+    sc.params.forEach(function (t, i) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = t; b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { S.par = i; Array.prototype.forEach.call(box.children, function (x, j) { x.setAttribute("aria-pressed", String(i === j)); }); render(false); });
+      box.appendChild(b);
+    });
+    seg("alt", ALTS, null, function (v) { S.alt = v; render(false); });
+    seg("al", ALS.map(function (a) { return [a, String(a)]; }), S.al, function (v) { S.al = v; render(false); });
+    render(false);
+  }
+  $("p0").addEventListener("input", function (e) { var v = parseFloat(e.target.value); S.p0 = isNaN(v) ? null : v; render(false); });
+  $("check").addEventListener("click", function () { render(true); });
+  $("reveal").addEventListener("click", function () {
+    var sc = S.sc; S.par = sc.ans; S.p0 = sc.p0; S.alt = sc.alt; $("p0").value = sc.p0;
+    Array.prototype.forEach.call($("param").children, function (x, j) { x.setAttribute("aria-pressed", String(j === sc.ans)); });
+    seg("alt", ALTS, sc.alt, function (v) { S.alt = v; render(false); });
+    render(true);
+  });
+
+  function render(grade) {
+    var sc = S.sc, p0 = S.p0 != null && S.p0 > 0 && S.p0 < 1 ? S.p0 : null;
+    $("r-h0").textContent = p0 != null ? "p = " + N(p0, 3) : "–";
+    $("r-ha").textContent = p0 != null && S.alt ? "p " + sym(S.alt) + " " + N(p0, 3) : "–";
+    $("r-al").textContent = S.al;
+    var sd = p0 != null ? Math.sqrt(p0 * (1 - p0) / sc.n) : NaN;
+    $("r-sd").textContent = p0 != null ? N(sd, 4) : "–";
+    $("g-sub").textContent = p0 != null ? "N(" + N(p0, 3) + ", " + N(sd, 4) + "), n = " + sc.n : "enter p₀";
+    if (p0 != null) {
+      var a = Math.max(0, p0 - 4 * sd), b = Math.min(1, p0 + 4 * sd);
+      var F = Lab.frame($("g"), { x: [a, b], y: [0, Lab.normPdf(p0, p0, sd) * 1.15], xLabel: "Sample proportion p̂ (if H₀ is true)", yLabel: "", xTicks: Lab.niceTicks(a, b, 5).filter(function (t) { return t >= a && t <= b; }), yTicks: [], fmtX: function (v) { return N(v, 3); } });
+      var f = function (x) { return Lab.normPdf(x, p0, sd); }, d = 2 * sd;
+      if (S.alt === "gt") Lab.curve(F, f, "var(--ink)", p0 + d, b, "var(--accent)");
+      else if (S.alt === "lt") Lab.curve(F, f, "var(--ink)", a, p0 - d, "var(--accent)");
+      else if (S.alt === "ne") { Lab.curve(F, f, "var(--ink)", a, p0 - d, "var(--accent)"); Lab.curve(F, f, "var(--ink)", p0 + d, b, "var(--accent)"); }
+      else Lab.curve(F, f, "var(--ink)");
+      Lab.vline(F, p0, "var(--c1)", 2.5, "6 4");
+      Lab.tag(F, p0, Lab.normPdf(p0, p0, sd) * 1.07, "p₀ = " + N(p0, 3), "var(--c1)", "middle");
+      if (S.alt) Lab.tag(F, S.alt === "lt" ? a + (b - a) * 0.12 : b - (b - a) * 0.12, Lab.normPdf(p0, p0, sd) * 0.35, S.alt === "ne" ? "either tail" : "this tail", "var(--accent)", "middle");
+    } else { Lab.frame($("g"), { x: [0, 1], y: [0, 1], xLabel: "Sample proportion p̂ (if H₀ is true)", xTicks: [0, 0.5, 1], yTicks: [], fmtX: String }); }
+
+    // conditions with p0
+    var np0 = p0 != null ? sc.n * p0 : NaN, nq0 = p0 != null ? sc.n * (1 - p0) : NaN, ten = sc.N === Infinity || sc.n <= 0.1 * sc.N;
+    rows("cond", [
+      ["Random: " + (sc.rand ? "random sample / random process" : "not random (first 30 to arrive)"), sc.rand ? '<span class="ok">✓</span>' : '<span class="no">✗</span>'],
+      ["10%: " + (sc.N === Infinity ? "population is very large (or a process)" : sc.n + " ≤ 0.1(" + sc.N.toLocaleString("en-US") + ") = " + N(0.1 * sc.N, 0) + "?"), ten ? '<span class="ok">✓</span>' : '<span class="no">✗</span>'],
+      ["Large counts: np₀ = " + (p0 != null ? N(np0, 1) : "?") + ", n(1 − p₀) = " + (p0 != null ? N(nq0, 1) : "?"), p0 == null ? "" : np0 >= 10 && nq0 >= 10 ? '<span class="ok">both ≥ 10 ✓</span>' : '<span class="no">✗</span>']
+    ]);
+    var par = S.par >= 0 ? sc.params[S.par] : "(choose a definition)";
+    rows("write", [
+      ["H₀: p = " + (p0 != null ? N(p0, 3) : "?"), ""],
+      ["Hₐ: p " + (S.alt ? sym(S.alt) : "?") + " " + (p0 != null ? N(p0, 3) : "?"), ""],
+      ["where p = " + par.charAt(0).toLowerCase() + par.slice(1), ""],
+      ["Use α = " + S.al + "; procedure: one-sample z-test for p", ""]
+    ]);
+
+    var head, t = [];
+    if (!grade) { head = "<b>Build your setup, then press Check my setup.</b>"; t.push("Hypotheses are always about the <b>population parameter</b> p, never about p̂."); t.push("The alternative comes from the researcher's suspicion (higher, lower, or different), decided <b>before</b> seeing the data."); }
+    else {
+      var okPar = S.par === sc.ans, okP0 = p0 != null && Math.abs(p0 - sc.p0) < 1e-9, okAlt = S.alt === sc.alt, n = (okPar ? 1 : 0) + (okP0 ? 1 : 0) + (okAlt ? 1 : 0);
+      head = n === 3 ? "<b>All three parts are correct.</b>" : "<b>" + n + " of 3 parts correct.</b>";
+      t.push((okPar ? "✓ " : "✗ ") + "Parameter: " + (okPar ? "a population proportion, described in context." : S.par < 0 ? "choose a definition." : "the parameter must describe the whole population (all students, all packages, every flip), not the sample, and not a number."));
+      t.push((okP0 ? "✓ " : "✗ ") + "Null value: " + (okP0 ? "p₀ = " + sc.p0 + ", the \"no change / claim is true\" value." : "the null is the status-quo value stated in the problem. Here p₀ = " + sc.p0 + "."));
+      t.push((okAlt ? "✓ " : "✗ ") + "Alternative: " + (okAlt ? "matches what the researcher suspects." : "look for the key word: " + (sc.alt === "gt" ? "\"higher\" means >." : sc.alt === "lt" ? "\"decreased\" means <." : "\"fair?\" or \"changed\" with no direction means ≠.")));
+      var lc = sc.n * sc.p0 >= 10 && sc.n * (1 - sc.p0) >= 10;
+      if (!sc.rand || !ten || !lc) t.push("<b>Conditions problem:</b> " + [!sc.rand ? "the sample isn't random, so results can't be generalized" : "", !ten ? "the sample is more than 10% of the population" : "", !lc ? "the expected counts np₀ or n(1 − p₀) are under 10" : ""].filter(Boolean).join("; ") + ". You should say the test may not be valid.");
+      else t.push("Conditions are met, so the null model N(p₀, σ<sub>p̂</sub>) shown on the graph is appropriate.");
+    }
+    story("story", head, t);
+  }
+  buttons("scen", SC.map(function (sc) { return [sc.name, function () { load(sc); }]; }));
+  load(SC[0]);
+
+  var Q = [
+ {
+  "s": "A school claims that 70% of its graduates attend college. A counselor believes the rate is lower and surveys a random sample of 200 recent graduates. Which hypotheses are appropriate?",
+  "o": [
+   "H₀: p̂ = 0.70, Hₐ: p̂ < 0.70",
+   "H₀: p = 0.70, Hₐ: p < 0.70",
+   "H₀: p < 0.70, Hₐ: p = 0.70",
+   "H₀: p = 0.70, Hₐ: p ≠ 0.70"
+  ],
+  "c": 1,
+  "w": "Hypotheses are about the parameter p, the null has the equals sign with the claimed value, and \"lower\" means a one-sided < alternative."
+ },
+ {
+  "s": "When checking the Large Counts condition for a significance test about p, you should use:",
+  "o": [
+   "The sample proportion p̂",
+   "The null value p₀",
+   "The number of successes only",
+   "n ≥ 30"
+  ],
+  "c": 1,
+  "w": "We carry out the test assuming H₀ is true, so the null model uses p₀: np₀ ≥ 10 and n(1 − p₀) ≥ 10."
+ },
+ {
+  "s": "A researcher wonders whether the proportion of customers who prefer a new logo is different from 50%. Which alternative is appropriate?",
+  "o": [
+   "Hₐ: p > 0.5",
+   "Hₐ: p < 0.5",
+   "Hₐ: p ≠ 0.5",
+   "Hₐ: p̂ ≠ 0.5"
+  ],
+  "c": 2,
+  "w": "\"Different from\" has no direction, so the alternative is two-sided. Hypotheses never use p̂."
+ },
+ {
+  "s": "Which is the best definition of the parameter for a test about whether more than 30% of a city's residents own a bike?",
+  "o": [
+   "p = the proportion of residents in the sample who own a bike",
+   "p = 0.30",
+   "p = the true proportion of all residents of the city who own a bike",
+   "p = the number of bike owners in the city"
+  ],
+  "c": 2,
+  "w": "The parameter is a population proportion described in context, not a sample statistic, a number, or a count."
+ },
+ {
+  "s": "Why should the alternative hypothesis be chosen before collecting data?",
+  "o": [
+   "Because the data are needed to compute p₀",
+   "So the test is not influenced by the observed results",
+   "Because the alternative must always be two-sided",
+   "So the sample size can be determined"
+  ],
+  "c": 1,
+  "w": "Choosing the direction after seeing which way p̂ went would make it easier to find significance, inflating the Type I error rate."
+ },
+ {
+  "s": "A test uses p₀ = 0.04 and n = 150. Is the Large Counts condition met?",
+  "o": [
+   "Yes, because n = 150 > 30",
+   "Yes, because np₀ = 6 > 5",
+   "No, because np₀ = 6 < 10",
+   "No, because n(1 − p₀) = 144 > 10"
+  ],
+  "c": 2,
+  "w": "150(0.04) = 6 is under 10, so the normal null model may not be accurate."
+ },
+ {
+  "s": "Which statement about the null hypothesis is correct?",
+  "o": [
+   "It is the claim the researcher hopes to prove.",
+   "It is a statement of no effect or no change, which we assume true while doing the test.",
+   "It is always a statement about the sample.",
+   "It is rejected when the p-value is large."
+  ],
+  "c": 1,
+  "w": "The null is the status quo, assumed true to build the null model. The alternative is what we seek evidence for."
+ },
+ {
+  "s": "A 10% condition is checked for a test of a proportion. What does it justify?",
+  "o": [
+   "Normality of the sampling distribution",
+   "That the sample is random",
+   "That observations are approximately independent so the standard deviation formula is accurate",
+   "That the alternative is one-sided"
+  ],
+  "c": 2,
+  "w": "When sampling without replacement, n ≤ 0.1N keeps the dependence small, so σ = √(p₀(1 − p₀)/n) is about right."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.5");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.5", compact: true, storageKey: "topic-3.5" });</script>
+</body>
+</html>

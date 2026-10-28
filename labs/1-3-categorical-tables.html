@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frequency Tables Study Lab</title>
+<meta name="description" content="Build frequency and relative frequency tables for a categorical variable and work backward from percents to counts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.ft { min-width: 0; }
+.ft th, .ft td { padding: 6px 8px; font-size: .88rem; vertical-align: middle; }
+.ft td.num { font-family: var(--mono); text-align: right; }
+.ft input { font: inherit; font-size: .88rem; width: 100%; min-width: 60px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.ft input[type=number] { font-family: var(--mono); max-width: 90px; }
+.ft tfoot td { background: var(--paper); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.3</span>
+  <h1>Frequency Tables Study Lab</h1>
+  <p class="lede">A categorical variable is summarized by how many individuals fall in each category (the frequency) and what fraction of the total that is (the relative frequency). Edit the table, watch every proportion update, and practice the backward problems AP likes to ask.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Build a frequency table</h2>
+    <p>A frequency table lists each category with its count. Divide each count by the total to get the relative frequency.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">relative frequency = count ÷ total</span> <span class="formula">percent = relative frequency × 100</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset data sets</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>Edit the categories and counts</h3>
+      <div class="tbl-wrap"><table class="ft" id="ft"></table></div>
+      <div class="scenarios"><button type="button" id="addRow">Add a category</button><button type="button" id="delRow">Remove last</button></div>
+      <p class="note">Type in the count column. Everything else updates.</p>
+    </div>
+    <div class="card graph-card">
+      <h3>Relative frequencies <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Segmented bar showing each category's share of the total"></svg>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Total n</div><div class="v" id="r-n"></div></div>
+    <div class="stat"><div class="k">Mode (most common)</div><div class="v" id="r-mode" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">Proportion in the mode</div><div class="v" id="r-pm"></div></div>
+    <div class="stat"><div class="k">Sum of relative frequencies</div><div class="v" id="r-sum"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="card calc-card">
+    <h3>Show your work</h3>
+    <div class="calc" id="calc"></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Practice: work backward from a table</h3>
+    <p>AP questions often give percents and ask for counts, or leave one cell blank. Solve, then check.</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <div id="pz"></div>
+      <div class="ctl"><label for="pz-a">Your answer</label><input type="number" id="pz-a" step="any" style="font:inherit;font-family:var(--mono);padding:6px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--ink);"></div>
+      <div class="scenarios"><button type="button" class="primary" id="pz-check">Check</button><button type="button" id="pz-show">Show solution</button><button type="button" id="pz-new">New problem</button></div>
+    </div>
+    <div class="card"><div class="story" id="pz-story" aria-live="polite" style="border:0;padding:0"></div></div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Counts</span><h3>Frequency table</h3><p>Lists each category and how many individuals are in it. The counts add to the total number of individuals, n.</p></div>
+    <div class="card"><span class="tag">Proportions</span><h3>Relative frequency</h3><p>Count ÷ total. It can be written as a decimal (0.36) or percent (36%). The relative frequencies of all the categories add to 1, apart from rounding.</p></div>
+    <div class="card"><span class="tag">Compare</span><h3>Why proportions?</h3><p>Proportions put groups of different sizes on the same scale. 60 out of 100 and 60 out of 400 are very different results.</p></div>
+    <div class="card"><span class="tag">Center</span><h3>Mode</h3><p>The category with the highest frequency. It is the only measure of center that makes sense for categorical data.</p></div>
+    <div class="card"><span class="tag">Backward</span><h3>From percent to count</h3><p>Count = proportion × total, and total = count ÷ proportion. Many AP questions give you two of the three.</p></div>
+    <div class="card"><span class="tag">Context</span><h3>Report in words</h3><p>“36% of the 250 surveyed students chose fall” is a complete summary: statistic, group, and size.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Worked examples</h2>
+    <p>Write the formula, plug in, then answer in context.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Question</th><th>Formula</th><th>Work</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>48 of 120 students ride the bus. Relative frequency?</td><td>count ÷ total</td><td>48 ÷ 120</td><td><b>0.40</b> (40% of the students)</td></tr>
+      <tr><td>35% of 600 shoppers paid with cash. How many?</td><td>proportion × total</td><td>0.35 × 600</td><td><b>210 shoppers</b></td></tr>
+      <tr><td>72 people, which is 18% of the sample, chose Rock. Sample size?</td><td>count ÷ proportion</td><td>72 ÷ 0.18</td><td><b>400 people</b></td></tr>
+      <tr><td>Relative frequencies 0.5, 0.2, 0.2, and ? </td><td>1 − sum of the others</td><td>1 − 0.9</td><td><b>0.1</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Show the division: “48/120 = 0.40.” A bare number can lose the communication point.</li>
+        <li>Interpret in context with the denominator: “40% of the 120 students surveyed ride the bus.”</li>
+        <li>When comparing groups of different sizes, compare proportions, not counts, and say so.</li>
+        <li>Name the mode as a category (“Bus”), not as a number.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Dividing the total by the count instead of the count by the total.</li>
+        <li>Comparing raw counts between groups of different sizes.</li>
+        <li>Reporting a mean or median for a categorical variable.</li>
+        <li>Forgetting that relative frequencies must add to 1, which is a quick way to find a missing value.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.3. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function btn(parent, text, onclick, cls) { var b = document.createElement("button"); b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.addEventListener("click", onclick); parent.appendChild(b); return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  var PRESETS = [
+    { name: "How students get to school", title: "Way to get to school", rows: [["Bus", 48], ["Car (driven by someone)", 36], ["Drive themselves", 22], ["Walk or bike", 14]] },
+    { name: "Candy colors in a bag", title: "Candy color", rows: [["Blue", 12], ["Orange", 10], ["Green", 8], ["Yellow", 7], ["Red", 6], ["Brown", 5]] },
+    { name: "Survey answers (yes/no/unsure)", title: "Support a later start time?", rows: [["Yes", 312], ["No", 141], ["Unsure", 47]] },
+    { name: "Blood types of donors", title: "Blood type", rows: [["O", 45], ["A", 40], ["B", 11], ["AB", 4]] }
+  ];
+  var S;
+  function load(p) { S = { title: p.title, rows: p.rows.map(function (r) { return r.slice(); }) }; buildTable(); compute(); }
+  function buildTable() {
+    var h = '<thead><tr><th>Category</th><th style="text-align:right">Count</th><th style="text-align:right">Relative freq.</th><th style="text-align:right">Percent</th></tr></thead><tbody>';
+    S.rows.forEach(function (r, i) {
+      h += '<tr><td><label class="sr" for="c' + i + '">Category ' + (i + 1) + ' name</label><input id="c' + i + '" value="' + esc(r[0]) + '"></td>' +
+        '<td class="num"><label class="sr" for="n' + i + '">Count for ' + esc(r[0]) + '</label><input type="number" min="0" step="1" id="n' + i + '" value="' + r[1] + '"></td><td class="num" id="rf' + i + '"></td><td class="num" id="pc' + i + '"></td></tr>';
+    });
+    h += '</tbody><tfoot><tr><td>Total</td><td class="num" id="tn"></td><td class="num" id="trf"></td><td class="num" id="tpc"></td></tr></tfoot>';
+    $("ft").innerHTML = h;
+    S.rows.forEach(function (r, i) {
+      $("c" + i).addEventListener("input", function (e) { r[0] = e.target.value || "?"; compute(); });
+      $("n" + i).addEventListener("input", function (e) { r[1] = Math.max(0, Math.round(parseFloat(e.target.value) || 0)); compute(); });
+    });
+  }
+  function compute() {
+    var tot = S.rows.reduce(function (a, r) { return a + r[1]; }, 0);
+    var rf = S.rows.map(function (r) { return tot ? r[1] / tot : 0; });
+    S.rows.forEach(function (r, i) { $("rf" + i).textContent = tot ? N(rf[i], 3) : "—"; $("pc" + i).textContent = tot ? N(rf[i] * 100, 1) + "%" : "—"; });
+    $("tn").textContent = tot; $("trf").textContent = tot ? N(Lab.sum(rf), 3) : "—"; $("tpc").textContent = tot ? "100%" : "—";
+    $("r-n").textContent = tot;
+    var mx = Math.max.apply(null, S.rows.map(function (r) { return r[1]; }));
+    var modes = S.rows.filter(function (r) { return r[1] === mx; }).map(function (r) { return r[0]; });
+    $("r-mode").textContent = tot ? modes.join(", ") : "—";
+    $("r-pm").textContent = tot ? N(mx / tot, 3) : "—";
+    $("r-sum").textContent = tot ? N(Lab.sum(rf), 3) : "—";
+    $("g-sub").textContent = S.title;
+    drawSeg(rf, tot);
+    var c = "";
+    S.rows.forEach(function (r, i) { c += '<div class="row"><span>' + esc(r[0]) + ": " + r[1] + " ÷ " + tot + "</span><span>= " + (tot ? N(rf[i], 3) + " (" + N(rf[i] * 100, 1) + "%)" : "—") + "</span></div>"; });
+    c += '<div class="row"><span>Check: the relative frequencies add to 1 (up to rounding)</span><span>' + (tot ? N(Lab.sum(rf), 3) : "—") + "</span></div>";
+    $("calc").innerHTML = c;
+    var el = $("story");
+    if (!tot) { el.innerHTML = "<p><b>No data yet.</b> Enter some counts.</p>"; return; }
+    var order = S.rows.map(function (r, i) { return [r[0], r[1], rf[i]]; }).sort(function (a, b) { return b[1] - a[1]; });
+    var t = [];
+    t.push("<b>" + esc(order[0][0]) + "</b> is the most common category (" + order[0][1] + " of " + tot + ", or " + N(order[0][2] * 100, 1) + "%). " + (order.length > 1 ? "The least common is <b>" + esc(order[order.length - 1][0]) + "</b> (" + N(order[order.length - 1][2] * 100, 1) + "%)." : ""));
+    if (order.length > 1 && order[0][2] > 0.5) t.push("More than half of the " + tot + " responses fall in one category.");
+    t.push("Relative frequencies let you compare groups of different sizes. A count of " + order[0][1] + " means little until you know it is out of " + tot + ".");
+    el.innerHTML = "<p><b>Summary in context:</b> " + esc(S.title) + " for " + tot + " individuals.</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  function drawSeg(rf, tot) {
+    var svg = $("g"), W = 440, H = 150 + S.rows.length * 26; svg.setAttribute("viewBox", "0 0 " + W + " " + H); while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var x0 = 30, w = 380, y = 40, h = 60, x = x0;
+    Lab.el("text", { x: x0, y: 28, style: "fill:var(--ink);font-weight:600;font-size:12px" }, svg, "Each category's share of " + tot);
+    S.rows.forEach(function (r, i) {
+      var ww = rf[i] * w, col = Lab.PALETTE[i % Lab.PALETTE.length];
+      if (ww > 0) Lab.el("rect", { x: x, y: y, width: ww, height: h, fill: col, stroke: "var(--surface)", "stroke-width": 1.5 }, svg);
+      if (ww > 34) Lab.el("text", { x: x + ww / 2, y: y + h / 2 + 4, "text-anchor": "middle", style: "fill:#fff;font-weight:600;font-size:11px" }, svg, Math.round(rf[i] * 100) + "%");
+      x += ww;
+      Lab.el("rect", { x: x0, y: 130 + i * 26, width: 14, height: 14, rx: 3, fill: col }, svg);
+      Lab.el("text", { x: x0 + 22, y: 142 + i * 26, style: "fill:var(--ink);font-size:12px" }, svg, r[0] + ": " + r[1] + " (" + (tot ? N(rf[i], 3) : "—") + ")");
+    });
+    Lab.el("text", { x: x0, y: y + h + 16, style: "font-size:10px" }, svg, "0");
+    Lab.el("text", { x: x0 + w, y: y + h + 16, "text-anchor": "end", style: "font-size:10px" }, svg, "1");
+  }
+  PRESETS.forEach(function (p) { btn($("scen"), p.name, function () { load(p); }); });
+  $("addRow").addEventListener("click", function () { if (S.rows.length < 7) { S.rows.push(["New category", 5]); buildTable(); compute(); } });
+  $("delRow").addEventListener("click", function () { if (S.rows.length > 2) { S.rows.pop(); buildTable(); compute(); } });
+  load(PRESETS[0]);
+
+  // ================= Puzzles =================
+  var R = Lab.rng(), PZ;
+  function newPz() {
+    var kind = R.int(0, 2), tot = R.pick([80, 120, 200, 240, 400, 500]);
+    var cats = R.pick([["Dogs", "Cats", "Fish", "None"], ["Pop", "Rap", "Country", "Rock"], ["Bus", "Car", "Walk", "Bike"]]);
+    var pcts = R.pick([[40, 30, 20, 10], [35, 25, 25, 15], [50, 20, 20, 10], [45, 30, 15, 10]]);
+    var counts = pcts.map(function (p) { return p * tot / 100; });
+    var j = R.int(0, 3);
+    if (kind === 0) PZ = { q: "A survey of <b>" + tot + "</b> people found these percents: " + cats.map(function (c, i) { return c + " " + pcts[i] + "%"; }).join(", ") + ". How many people chose <b>" + cats[j] + "</b>?", a: counts[j], sol: pcts[j] + "% of " + tot + " = " + (pcts[j] / 100) + " × " + tot + " = " + counts[j] + " people." };
+    else if (kind === 1) PZ = { q: "Counts: " + cats.map(function (c, i) { return c + " " + (i === j ? "?" : counts[i]); }).join(", ") + ". The total is <b>" + tot + "</b>. What is the relative frequency of <b>" + cats[j] + "</b>? (decimal)", a: pcts[j] / 100, sol: "Missing count = " + tot + " − (" + counts.filter(function (_, i) { return i !== j; }).join(" + ") + ") = " + counts[j] + ". Relative frequency = " + counts[j] + " ÷ " + tot + " = " + (pcts[j] / 100) + "." };
+    else PZ = { q: "In a sample, <b>" + counts[j] + "</b> people chose " + cats[j] + ", which was " + pcts[j] + "% of the sample. How many people were in the sample?", a: tot, sol: "Total = count ÷ proportion = " + counts[j] + " ÷ " + (pcts[j] / 100) + " = " + tot + "." };
+    $("pz").innerHTML = "<p>" + PZ.q + "</p>"; $("pz-a").value = ""; $("pz-story").innerHTML = "<p class='note'>Enter your answer and press Check.</p>";
+  }
+  $("pz-check").addEventListener("click", function () {
+    var v = parseFloat($("pz-a").value);
+    if (isNaN(v)) { $("pz-story").innerHTML = "<p>Type a number first.</p>"; return; }
+    var ok = Math.abs(v - PZ.a) <= Math.max(0.005, Math.abs(PZ.a) * 0.005);
+    $("pz-story").innerHTML = ok ? "<p><b style='color:var(--good)'>Correct.</b> " + PZ.sol + "</p>" : "<p><b style='color:var(--bad)'>Not yet.</b> Try again, or press Show solution.</p>";
+  });
+  $("pz-show").addEventListener("click", function () { $("pz-story").innerHTML = "<p><b>Solution:</b> " + PZ.sol + "</p>"; });
+  $("pz-new").addEventListener("click", newPz);
+  newPz();
+
+  var Q = [
+    { s: "In a survey of 250 students, 90 said their favorite season is fall. What is the relative frequency of fall?", o: ["0.90", "0.36", "0.25", "2.78"], c: 1, w: "Relative frequency = count ÷ total = 90 ÷ 250 = 0.36. Choice D divides in the wrong order." },
+    { s: "A frequency table shows counts of 12, 18, 25, and 5. What percent of the observations are in the category with count 25?", o: ["25%", "41.7%", "60%", "20%"], c: 1, w: "The total is 12 + 18 + 25 + 5 = 60. Then 25 ÷ 60 ≈ 0.417, or about 41.7%." },
+    { s: "The relative frequencies of four categories are 0.30, 0.25, 0.15, and x. What is x?", o: ["0.20", "0.25", "0.30", "It cannot be determined"], c: 2, w: "Relative frequencies for all categories add to 1. So x = 1 − (0.30 + 0.25 + 0.15) = 0.30." },
+    { s: "Why are relative frequencies more useful than counts for comparing two schools' survey results?", o: ["They are always larger numbers.", "They account for different total sample sizes.", "They remove sampling variability.", "They turn categorical data into quantitative data."], c: 1, w: "Counts depend on how many people were surveyed. Dividing by each total puts both schools on the same scale." },
+    { s: "In a sample of 400 voters, 22% support Candidate A. How many voters in the sample support Candidate A?", o: ["22", "88", "182", "312"], c: 1, w: "0.22 × 400 = 88 voters." },
+    { s: "Which is the best summary statistic for the variable “favorite pizza topping”?", o: ["The mean topping", "The proportion of people who chose each topping", "The standard deviation of the toppings", "The median topping"], c: 1, w: "Favorite topping is categorical. Proportions (or counts) in each category are the right summary." },
+    { s: "A table shows 45 Yes, 30 No, and 25 Unsure. The mode is:", o: ["45", "Yes", "100", "Unsure"], c: 1, w: "The mode of a categorical variable is the category with the highest count: Yes. The number 45 is its frequency, not the mode." },
+    { s: "A relative frequency table lists 0.42, 0.33, and 0.24 for three categories. What best explains why they add to 0.99?", o: ["One observation was lost.", "The values were rounded.", "The table must be wrong.", "Relative frequencies do not need to add to 1."], c: 1, w: "Rounding each relative frequency can make the total slightly off from 1. The exact proportions still add to 1." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.3");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.3", compact: true, storageKey: "topic-1.3" });</script>
+</body>
+</html>

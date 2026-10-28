@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting Up a Test for a Difference in Means Study Lab</title>
+<meta name="description" content="Tell paired data from two independent samples, write hypotheses about μ₁ − μ₂, and check the Random, 10%, and Normal/Large conditions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.calc .row.code span:first-child { font-family: var(--mono); font-size: .86rem; white-space: normal; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .92rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+.grp { font-size: .8rem; font-weight: 600; color: var(--accent); grid-column: 1 / -1; margin-top: 4px; }
+.grp.g2 { color: var(--c1); }
+.verdict { font-weight: 600; }
+.steps4 { display: grid; gap: 10px; }
+.steps4 > div { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; }
+.steps4 b.k { display: block; font-family: var(--mono); font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .grid3 { grid-template-columns: 1fr 1fr; } }
+.scn { display: grid; gap: 8px; }
+.scn p.txt { font-weight: 500; }
+.scn .fb { font-size: .9rem; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 6px; }
+.scn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+@media (max-width: 860px) { .scn-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 4 · Topic 4.9</span>
+  <h1>Setting Up a Test for a Difference in Means Study Lab</h1>
+  <p class="lede">Before you run a two-sample t-test, you have to set it up correctly: decide whether the data are paired or come from two independent groups, write hypotheses about population means, and check the conditions. Each step below gives instant feedback.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Set up a two-sample t-test</h2>
+    <p>Before any calculation, a test needs three things: the right procedure, hypotheses about population means, and conditions that make the procedure trustworthy. Practice each one here.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">H₀: μ₁ − μ₂ = 0</span> <span class="formula">Hₐ: μ₁ − μ₂ &lt; 0, &gt; 0, or ≠ 0</span></div>
+  </div>
+
+  <div class="sec-head"><h3 style="font-size:1.2rem;">Step A. Paired data or two independent samples?</h3><p>Paired data come from one group measured twice, or from matched pairs. Two independent samples come from two separate groups with no link between individuals.</p></div>
+  <div class="lab-bar"><span class="score" id="pScore"></span><button type="button" id="pReset">Start over</button></div>
+  <div class="scn-grid" id="pairGame"></div>
+
+  <div class="sec-head" style="margin-top:8px;"><h3 style="font-size:1.2rem;">Step B. Write the hypotheses</h3><p>Pick a research question, then choose the alternative hypothesis that matches its wording.</p></div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <div class="ctl"><label for="hq">Research question</label><select id="hq"></select></div>
+      <p id="hqText" style="font-weight:500;"></p>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span style="font-family:var(--mono)">Hₐ: μ₁ − μ₂</span><div class="seg" id="haSeg" role="group" aria-label="Direction of the alternative hypothesis"></div><span style="font-family:var(--mono)">0</span></div>
+      <p class="note">Group 1 and group 2 are defined in the hypotheses on the right. The order of subtraction sets the direction.</p>
+    </div>
+    <div class="card calc-card">
+      <h3>Your hypotheses</h3>
+      <div class="calc" id="hyp"></div>
+      <div class="story" id="hypFb" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;"><h3 style="font-size:1.2rem;">Step C. Check the conditions</h3><p>Describe how the data were collected and what each sample looks like. Example dotplots show what each shape means.</p></div>
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <div class="ctl"><label for="how">How were the groups formed?</label>
+        <select id="how"><option value="sample">Two independent random samples</option><option value="exp">Random assignment to two treatments</option><option value="conv">Volunteers or a convenience sample</option></select></div>
+      <div class="grid3 controls" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+        <span class="grp">Group 1</span>
+        <div class="ctl"><label for="cn1">n₁</label><input type="number" id="cn1" min="2" step="1"></div>
+        <div class="ctl"><label for="cN1">Population size</label><input type="number" id="cN1" min="2" step="1"></div>
+        <div class="ctl"><label for="sh1">Sample shape</label><select id="sh1"></select></div>
+        <span class="grp g2">Group 2</span>
+        <div class="ctl"><label for="cn2">n₂</label><input type="number" id="cn2" min="2" step="1"></div>
+        <div class="ctl"><label for="cN2">Population size</label><input type="number" id="cN2" min="2" step="1"></div>
+        <div class="ctl"><label for="sh2">Sample shape</label><select id="sh2"></select></div>
+      </div>
+      <p class="note" id="ctx"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>Sample 1 <small id="d1sub"></small></h3>
+      <svg class="chart" id="dp1" role="img" aria-label="Example dotplot for sample 1"></svg>
+      <h3>Sample 2 <small id="d2sub"></small></h3>
+      <svg class="chart" id="dp2" role="img" aria-label="Example dotplot for sample 2"></svg>
+    </div>
+  </div>
+  <div class="readout">
+    <div class="stat"><div class="k">Random</div><div class="v" id="r-rand" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">10% condition</div><div class="v" id="r-ten" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">Normal/Large: sample 1</div><div class="v" id="r-nl1" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">Normal/Large: sample 2</div><div class="v" id="r-nl2" style="font-size:1rem"></div></div>
+  </div>
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Design</span><h3>Paired vs. two-sample</h3><p>If each value in one group is naturally linked to one value in the other (same person, twins, the same car), the data are paired: analyze the differences with a one-sample t procedure. Otherwise use a two-sample t procedure.</p></div>
+    <div class="card"><span class="tag">Parameters</span><h3>Hypotheses are about populations</h3><p>Write hypotheses with μ₁ and μ₂, never x̄₁ and x̄₂. Define each one in context: "μ₁ = the true mean height of plants given the new fertilizer."</p></div>
+    <div class="card"><span class="tag">Null</span><h3>H₀ says "no difference"</h3><p>The null hypothesis is almost always H₀: μ₁ − μ₂ = 0 (equivalently μ₁ = μ₂). It is the claim we look for evidence against.</p></div>
+    <div class="card"><span class="tag">Alternative</span><h3>Read the question's wording</h3><p>"Greater," "taller," "more" → &gt;. "Less," "lower," "reduce" → &lt;. "Different," "changed," "any difference" → ≠. Decide this before looking at the data.</p></div>
+    <div class="card"><span class="tag">Conditions</span><h3>Random, 10%, Normal/Large</h3><p>Random samples or random assignment; each sample at most 10% of its population when sampling; each n ≥ 30, or that sample's data show no strong skew or outliers.</p></div>
+    <div class="card"><span class="tag">Scope</span><h3>What can we conclude?</h3><p>Random <b>sampling</b> lets you generalize to the populations. Random <b>assignment</b> lets you conclude cause and effect. A convenience sample allows neither.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>The conditions for a two-sample t-test, and how to show each one.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Condition</th><th>Why it matters</th><th>How to check it</th><th>Example wording</th></tr></thead>
+    <tbody>
+      <tr><td><b>Random</b></td><td>Avoids bias; makes the sampling distribution model correct</td><td>Two independent random samples, or a randomized experiment</td><td>"The 50 plants were randomly assigned to the two fertilizers."</td></tr>
+      <tr><td><b>10%</b></td><td>Keeps observations within each sample close to independent</td><td>n₁ ≤ 0.10 N₁ and n₂ ≤ 0.10 N₂; not needed for random assignment</td><td>"30 is less than 10% of all juniors at the school."</td></tr>
+      <tr><td><b>Normal/Large sample</b></td><td>Makes the sampling distribution of x̄₁ − x̄₂ approximately normal, so t is valid</td><td>n₁ ≥ 30 and n₂ ≥ 30, or each small sample's graph shows no strong skew or outliers</td><td>"n₂ = 18 &lt; 30, but the dotplot of sample 2 shows no strong skew or outliers."</td></tr>
+      <tr><td><b>Independent groups</b></td><td>Two-sample procedures assume no pairing</td><td>The groups are separate, with no matching between individuals</td><td>"Different students were in each group."</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Name the test: "two-sample t-test for a difference in population means."</li>
+        <li>State both hypotheses with symbols and define the parameters in context, including which group is 1 and which is 2.</li>
+        <li>State the significance level: "α = 0.05."</li>
+        <li>Check each condition with evidence from the problem, not just its name. For small samples, refer to the graph of each sample.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Writing hypotheses with sample statistics: "H₀: x̄₁ = x̄₂."</li>
+        <li>Choosing the direction of Hₐ after seeing which sample mean is bigger.</li>
+        <li>Using a two-sample test for paired data, or a paired test for independent groups.</li>
+        <li>Checking "n₁ + n₂ ≥ 30." Each sample must be checked on its own.</li>
+        <li>Saying "the population is normal" when you only looked at a sample graph. Say the sample shows no strong skew or outliers.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 4.9. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-4.html">Unit 4 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function welch(s1, n1, s2, n2) { var a = s1 * s1 / n1, b = s2 * s2 / n2; return (a + b) * (a + b) / (a * a / (n1 - 1) + b * b / (n2 - 1)); }
+  function pfmt(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function seg(el, items, cur, pick) {
+    el.innerHTML = "";
+    items.forEach(function (it) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = it[1];
+      b.setAttribute("aria-pressed", String(it[0] === cur));
+      b.addEventListener("click", function () { pick(it[0]); });
+      el.appendChild(b);
+    });
+  }
+  function presetButtons(el, list, load) {
+    list.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); el.appendChild(b); });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function story(el, head, items) { el.innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+
+
+  // ---------- Step A: paired or two-sample ----------
+  var PAIRS = [
+    ["Each of 20 students takes a reading test before and after a summer program.", "p", "Each student is measured twice, so each before score is linked to one after score."],
+    ["Random samples of 30 sophomores and 30 seniors report how many hours they slept last night.", "t", "Sophomores and seniors are separate groups with no link between individuals."],
+    ["Twelve runners each run 400 m once in old shoes and once in new shoes, in random order.", "p", "Each runner tries both shoes, so the two times for a runner form a pair."],
+    ["40 volunteers are randomly assigned to take a new allergy drug or a placebo, 20 in each group.", "t", "Each volunteer gets only one treatment. The groups are independent."],
+    ["Researchers measure 25 pairs of identical twins; in each pair, one twin was raised in a city and one in the country.", "p", "Twins are matched pairs: each city twin is linked to exactly one country twin."],
+    ["A store records the amount spent by 50 random weekday shoppers and 50 random weekend shoppers.", "t", "Different shoppers in each group, with no matching."],
+    ["On each of 10 cars, a brand A tire goes on one front wheel and a brand B tire on the other. Tread wear is measured.", "p", "Both brands are tested on the same car, so the two wear values for a car are paired."],
+    ["Random samples of 35 apartments in each of two cities give monthly rent.", "t", "Two separate random samples, one from each city."]
+  ];
+  var PA = {};
+  function buildPairs() {
+    PA = { right: 0, done: 0 }; $("pairGame").innerHTML = ""; updP();
+    PAIRS.forEach(function (sc, i) {
+      var c = document.createElement("div"); c.className = "card scn";
+      c.innerHTML = '<span class="tag">Study ' + (i + 1) + '</span><p class="txt"></p><div class="scenarios"></div><p class="fb" hidden></p>';
+      c.querySelector(".txt").textContent = sc[0];
+      var box = c.querySelector(".scenarios"), fb = c.querySelector(".fb");
+      [["p", "Paired data"], ["t", "Two independent samples"]].forEach(function (o) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = o[1];
+        b.addEventListener("click", function () {
+          box.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+          var ok = o[0] === sc[1]; b.classList.add(ok ? "right" : "wrong");
+          if (!ok) box.querySelectorAll("button")[sc[1] === "p" ? 0 : 1].classList.add("right");
+          PA.done++; if (ok) PA.right++; updP();
+          fb.hidden = false; fb.innerHTML = (ok ? '<span class="ok">Correct.</span> ' : '<span class="no">Not quite.</span> ') + sc[2] + (sc[1] === "p" ? " Use a one-sample t procedure on the differences." : " Use a two-sample t procedure.");
+        });
+        box.appendChild(b);
+      });
+      $("pairGame").appendChild(c);
+    });
+  }
+  function updP() { $("pScore").textContent = PA.right + " / " + PA.done + " correct"; }
+  $("pReset").addEventListener("click", buildPairs);
+  buildPairs();
+
+  // ---------- Step B: hypotheses ----------
+  var HQ = [
+    { q: "Does a new fertilizer make tomato plants grow taller, on average, than the current fertilizer?", m1: "the true mean height of plants given the new fertilizer", m2: "the true mean height of plants given the current fertilizer", ha: ">", why: "\"Taller with the new fertilizer\" means μ₁ > μ₂, so μ₁ − μ₂ > 0." },
+    { q: "Do students who use their phones in bed sleep less, on average, than students who do not?", m1: "the true mean nightly sleep for students who use phones in bed", m2: "the true mean nightly sleep for students who do not", ha: "<", why: "\"Sleep less\" for group 1 means μ₁ < μ₂, so μ₁ − μ₂ < 0." },
+    { q: "Is there a difference in mean commute time between bus riders and car drivers in a city?", m1: "the true mean commute time for bus riders", m2: "the true mean commute time for car drivers", ha: "≠", why: "\"Is there a difference\" does not say which is larger, so the alternative is two-sided." },
+    { q: "Is the mean price of a used textbook lower at Store A than at Store B?", m1: "the true mean used-textbook price at Store A", m2: "the true mean used-textbook price at Store B", ha: "<", why: "\"Lower at Store A\" means μ₁ < μ₂." },
+    { q: "Has a new training program changed the mean time employees need to finish a task, compared with the old program?", m1: "the true mean task time with the new program", m2: "the true mean task time with the old program", ha: "≠", why: "\"Changed\" can mean faster or slower, so use ≠." }
+  ];
+  var HB = { i: 0, pick: null };
+  HQ.forEach(function (h, i) { var o = document.createElement("option"); o.value = i; o.textContent = "Question " + (i + 1); $("hq").appendChild(o); });
+  function renderH() {
+    var h = HQ[HB.i]; $("hq").value = HB.i; $("hqText").textContent = h.q;
+    seg($("haSeg"), [["<", "<"], ["≠", "≠"], [">", ">"]], HB.pick, function (v) { HB.pick = v; renderH(); });
+    $("hyp").innerHTML = rows([
+      ["H₀: μ₁ − μ₂ = 0", ""],
+      ["Hₐ: μ₁ − μ₂ " + (HB.pick || "?") + " 0", ""],
+      ["where μ₁ = " + h.m1 + ",", ""],
+      ["and μ₂ = " + h.m2 + ".", ""]
+    ]);
+    if (!HB.pick) story($("hypFb"), "Choose &lt;, ≠, or &gt; for the alternative.", []);
+    else if (HB.pick === h.ha) story($("hypFb"), '<span class="ok">Correct.</span> ' + h.why, ["Equivalent form: Hₐ: μ₁ " + h.ha + " μ₂."]);
+    else story($("hypFb"), '<span class="no">Not quite.</span> ' + h.why, ["The direction comes from the question's wording, not from the data."]);
+  }
+  $("hq").addEventListener("change", function (e) { HB.i = +e.target.value; HB.pick = null; renderH(); });
+  renderH();
+
+  // ---------- Step C: conditions ----------
+  var SHAPES = [["sym", "Roughly symmetric, no outliers"], ["mod", "Moderately skewed, no outliers"], ["strong", "Strongly skewed or has outliers"]];
+  ["sh1", "sh2"].forEach(function (id) { SHAPES.forEach(function (s) { var o = document.createElement("option"); o.value = s[0]; o.textContent = s[1]; $(id).appendChild(o); }); });
+  var PRESETS = [
+    { name: "Fertilizer experiment, small groups", how: "exp", n1: 15, N1: 0, sh1: "sym", n2: 15, N2: 0, sh2: "mod", ctx: "30 plants randomly assigned to two fertilizers. Small samples, but no strong skew." },
+    { name: "Sleep survey, large samples", how: "sample", n1: 45, N1: 600, sh1: "mod", n2: 40, N2: 550, sh2: "strong", ctx: "Random samples of sophomores and seniors. Sample 2 is skewed, but n ≥ 30." },
+    { name: "Small sample with an outlier", how: "sample", n1: 12, N1: 900, sh1: "strong", n2: 14, N2: 900, sh2: "sym", ctx: "Sample 1 is small and has an outlier, so the Normal/Large sample condition fails." },
+    { name: "Online poll volunteers", how: "conv", n1: 60, N1: 100000, sh1: "sym", n2: 55, N2: 100000, sh2: "sym", ctx: "People chose to answer an online poll. Large samples cannot fix a non-random design." },
+    { name: "Samples too large for the population", how: "sample", n1: 40, N1: 250, sh1: "sym", n2: 35, N2: 300, sh2: "sym", ctx: "40 out of 250 is 16% of the population, which breaks the 10% condition." }
+  ];
+  var C = {};
+  function sampleData(shape, n, seed) {
+    var r = Lab.rng(seed), out = [];
+    for (var i = 0; i < n; i++) {
+      if (shape === "sym") out.push(50 + 8 * r.normal());
+      else if (shape === "mod") out.push(38 + 9 * Math.exp(0.45 * r.normal()));
+      else out.push(30 + 6 * Math.exp(0.9 * r.normal()));
+    }
+    if (shape === "strong" && n >= 3) out[0] = Lab.summary(out).max + 25;
+    return out.map(function (v) { return Math.round(v); });
+  }
+  function load(p) { C = JSON.parse(JSON.stringify(p)); $("ctx").textContent = p.ctx; fillC(); renderC(); }
+  function fillC() { $("how").value = C.how; ["n1", "N1", "n2", "N2"].forEach(function (k) { $("c" + k).value = C[k] || ""; }); $("sh1").value = C.sh1; $("sh2").value = C.sh2;
+    $("cN1").disabled = $("cN2").disabled = C.how === "exp"; }
+  function mark(ok, txt) { return '<span class="' + (ok ? "ok" : "no") + '">' + (ok ? "✓ " : "✗ ") + txt + "</span>"; }
+  function renderC() {
+    var n1 = C.n1, n2 = C.n2;
+    if (!(n1 >= 2 && n2 >= 2) || n1 > 200 || n2 > 200) { story($("story"), "<b>Enter sample sizes from 2 to 200.</b>", []); return; }
+    var d1 = sampleData(C.sh1, n1, 11 + n1), d2 = sampleData(C.sh2, n2, 23 + n2), all = d1.concat(d2), s = Lab.summary(all), pad = (s.max - s.min) * 0.05 + 1;
+    Lab.dotplot($("dp1"), d1, { lo: s.min - pad, hi: s.max + pad, xLabel: "Value", height: 170, binWidth: 2 });
+    Lab.dotplot($("dp2"), d2, { lo: s.min - pad, hi: s.max + pad, xLabel: "Value", height: 170, binWidth: 2, color: "var(--c1)" });
+    $("d1sub").textContent = "n₁ = " + n1 + " · " + SHAPES.filter(function (x) { return x[0] === C.sh1; })[0][1].toLowerCase();
+    $("d2sub").textContent = "n₂ = " + n2 + " · " + SHAPES.filter(function (x) { return x[0] === C.sh2; })[0][1].toLowerCase();
+    var rand = C.how !== "conv";
+    var tenNA = C.how === "exp", ten1 = C.N1 > 0 && n1 <= 0.1 * C.N1, ten2 = C.N2 > 0 && n2 <= 0.1 * C.N2, ten = tenNA || (ten1 && ten2);
+    var nl1 = n1 >= 30 || C.sh1 !== "strong", nl2 = n2 >= 30 || C.sh2 !== "strong";
+    $("r-rand").innerHTML = mark(rand, rand ? (C.how === "exp" ? "random assignment" : "random samples") : "not random");
+    $("r-ten").innerHTML = tenNA ? '<span class="ok">✓ not needed</span>' : mark(ten, ten ? "both under 10%" : "fails");
+    $("r-nl1").innerHTML = mark(nl1, n1 >= 30 ? "n₁ ≥ 30" : (nl1 ? "no strong skew" : "small and skewed"));
+    $("r-nl2").innerHTML = mark(nl2, n2 >= 30 ? "n₂ ≥ 30" : (nl2 ? "no strong skew" : "small and skewed"));
+    var items = [];
+    items.push("<b>Random:</b> " + (C.how === "exp" ? "the treatments were randomly assigned, so a significant result supports cause and effect." : C.how === "sample" ? "two independent random samples, so results generalize to the two populations." : "volunteers or a convenience sample are not random. No sample size can fix this bias."));
+    if (!tenNA) items.push("<b>10%:</b> " + (C.N1 > 0 && C.N2 > 0 ? n1 + " is " + Lab.pct(n1 / C.N1, 1) + " of population 1 and " + n2 + " is " + Lab.pct(n2 / C.N2, 1) + " of population 2." : "enter both population sizes.") + (ten ? "" : " At least one sample is too large a share of its population."));
+    else items.push("<b>10%:</b> not needed when individuals are randomly assigned to treatments rather than sampled.");
+    [[1, n1, C.sh1, nl1], [2, n2, C.sh2, nl2]].forEach(function (g) {
+      items.push("<b>Normal/Large, sample " + g[0] + ":</b> " + (g[1] >= 30 ? "n = " + g[1] + " ≥ 30, so the central limit theorem applies even if the data are skewed." : g[3] ? "n = " + g[1] + " < 30, but the sample shows no strong skew or outliers, so it is reasonable." : "n = " + g[1] + " < 30 and the sample shows strong skew or an outlier. The t procedure may not be reliable."));
+    });
+    var all3 = rand && ten && nl1 && nl2;
+    story($("story"), all3 ? "<b>All conditions are met.</b> A two-sample t-test is appropriate." : "<b>At least one condition fails.</b> Say so in your answer and be cautious about any conclusion.", items);
+  }
+  $("how").addEventListener("change", function (e) { C.how = e.target.value; fillC(); renderC(); });
+  ["n1", "N1", "n2", "N2"].forEach(function (k) { $("c" + k).addEventListener("input", function (e) { C[k] = parseInt(e.target.value, 10); renderC(); }); });
+  ["sh1", "sh2"].forEach(function (k) { $(k).addEventListener("change", function (e) { C[k] = e.target.value; renderC(); }); });
+  presetButtons($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+   {
+    "s": "A nutritionist records the cholesterol of 15 adults before and after six weeks on a new diet. Which procedure is appropriate?",
+    "o": [
+     "Two-sample t-test for μ₁ − μ₂",
+     "Paired t-test on the 15 differences (after − before)",
+     "Two-sample z-test for proportions",
+     "Chi-square test"
+    ],
+    "c": 1,
+    "w": "Each adult is measured twice, so the before and after values are paired. Analyze the differences with a one-sample t procedure."
+   },
+   {
+    "s": "Which pair of hypotheses is written correctly for comparing two population means?",
+    "o": [
+     "H₀: x̄₁ = x̄₂, Hₐ: x̄₁ > x̄₂",
+     "H₀: μ₁ − μ₂ = 0, Hₐ: μ₁ − μ₂ > 0",
+     "H₀: μ₁ − μ₂ > 0, Hₐ: μ₁ − μ₂ = 0",
+     "H₀: μ₁ − μ₂ ≠ 0, Hₐ: μ₁ − μ₂ = 0"
+    ],
+    "c": 1,
+    "w": "Hypotheses use parameters (μ), not statistics (x̄). The null contains the equals sign; the alternative states what we want evidence for."
+   },
+   {
+    "s": "Researchers ask, \"Do students who eat breakfast have a lower mean number of tardies than students who skip breakfast?\" Let μ₁ = breakfast eaters and μ₂ = skippers. What is Hₐ?",
+    "o": [
+     "μ₁ − μ₂ > 0",
+     "μ₁ − μ₂ < 0",
+     "μ₁ − μ₂ ≠ 0",
+     "μ₁ − μ₂ = 0"
+    ],
+    "c": 1,
+    "w": "\"Lower for breakfast eaters\" means μ₁ < μ₂, which is μ₁ − μ₂ < 0."
+   },
+   {
+    "s": "Independent random samples of sizes 18 and 22 are taken. Dotplots of both samples are roughly symmetric with no outliers. Is the Normal/Large sample condition met?",
+    "o": [
+     "No, because both samples are under 30",
+     "No, because the sample sizes are different",
+     "Yes, because neither small sample shows strong skew or outliers",
+     "Yes, because n₁ + n₂ = 40 ≥ 30"
+    ],
+    "c": 2,
+    "w": "When a sample is under 30, check that sample's graph. No strong skew or outliers makes the condition reasonable. Adding the sample sizes (D) is not a valid check."
+   },
+   {
+    "s": "Why do we check the 10% condition when sampling without replacement?",
+    "o": [
+     "To make the sampling distribution normal",
+     "So that observations within each sample can be treated as independent",
+     "To make sure the samples are random",
+     "So the two sample sizes are similar"
+    ],
+    "c": 1,
+    "w": "Sampling without replacement from a small population makes observations dependent. If n is at most 10% of the population, the dependence is small enough to ignore."
+   },
+   {
+    "s": "Sixty volunteers are randomly assigned to two exercise programs. Which statement about the 10% condition is correct?",
+    "o": [
+     "It must be checked against the number of volunteers.",
+     "It is not needed, because subjects were randomly assigned, not sampled from a population.",
+     "It fails, because 30 is more than 10% of 60.",
+     "It is the same as the Random condition."
+    ],
+    "c": 1,
+    "w": "The 10% condition is for random sampling without replacement. In a randomized experiment, check random assignment instead."
+   },
+   {
+    "s": "Which is a correct definition of a parameter for a two-sample test about commute times?",
+    "o": [
+     "μ₁ = the mean commute time of the 40 bus riders in the sample",
+     "μ₁ = the true mean commute time of all bus riders in the city",
+     "x̄₁ = the true mean commute time of all bus riders",
+     "μ₁ = the commute time of a typical bus rider"
+    ],
+    "c": 1,
+    "w": "A parameter describes the whole population. The mean of the 40 sampled riders is a statistic, x̄₁."
+   },
+   {
+    "s": "Which of these could NOT be a null hypothesis for a two-sample t-test?",
+    "o": [
+     "H₀: μ₁ − μ₂ = 0",
+     "H₀: μ₁ = μ₂",
+     "H₀: x̄₁ − x̄₂ = 0",
+     "H₀: μ₁ − μ₂ = 5"
+    ],
+    "c": 2,
+    "w": "Hypotheses are always about parameters. The sample means are known exactly, so there is nothing to test about them."
+   }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("4.9");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [4], topic: "4.9", compact: true, storageKey: "topic-4.9" });</script>
+</body>
+</html>

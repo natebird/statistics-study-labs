@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Correlation Study Lab</title>
+<meta name="description" content="Guess the correlation from a scatterplot, compute r step by step from z-scores, and practice telling correlation from causation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.dev { min-width: 0; }
+.dev th, .dev td { padding: 5px 10px; font-family: var(--mono); font-size: .84rem; text-align: right; }
+.dev th { font-family: var(--body); text-transform: none; letter-spacing: 0; }
+.dev tfoot td { background: var(--paper); font-weight: 600; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toolbar button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chk { display: grid; gap: 12px; align-content: start; }
+.chk-group { display: grid; gap: 6px; }
+.chk-group .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.marker-key .k-acc { color: var(--accent); } .marker-key .k-c1 { color: var(--c1); } .marker-key .k-c2 { color: var(--c2); }
+.marker-key .k-good { color: var(--good); } .marker-key .k-bad { color: var(--bad); } .marker-key .k-c3 { color: var(--c3); }
+.marker-key .k-dash::before { background: none; border-top: 2px dashed currentColor; height: 0; }
+svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none; }
+.out { min-width: 0; }
+.out th, .out td { font-family: var(--mono); font-size: .86rem; padding: 6px 12px; text-align: right; }
+.out th { text-transform: none; letter-spacing: 0; }
+.out th:first-child, .out td:first-child { text-align: left; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+.scen-c { display: grid; gap: 10px; }
+.scen-c .card { display: grid; gap: 8px; }
+.scen-c .why { margin: 0; }
+.qlbl { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 5 · Topic 5.2</span>
+  <h1>Correlation Study Lab</h1>
+  <p class="lede">The correlation r is a single number that measures the direction and strength of a linear association. Train your eye with the guessing game, compute r from z-scores with every step shown, see which changes leave r alone, and practice deciding when a correlation can support cause and effect.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Guess, compute, and question r</h2>
+    <p>The correlation r measures the direction and strength of a <b>linear</b> association between two quantitative variables. It is always between −1 and 1.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">z = (value − mean) ÷ standard deviation</span> <span class="formula">r = Σ(zₓ · z<sub>y</sub>) ÷ (n − 1)</span></div>
+  </div>
+
+  <div class="sec-head"><h3 style="font-size:1.2rem;">Guess the correlation</h3><p>Study the scatterplot, set your guess, and check it. Play several rounds to train your eye.</p></div>
+  <div class="lab">
+    <div class="card graph-card">
+      <h3>Mystery scatterplot <small id="g-sub"></small></h3>
+      <svg class="chart" id="gs" role="img" aria-label="A random scatterplot for the guessing game"></svg>
+    </div>
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl">
+          <label for="guess">My guess for r <output id="guess-o"></output></label>
+          <input type="range" id="guess" min="-1" max="1" step="0.05" value="0">
+          <span class="hint">−1 = perfect negative line · 0 = no linear association · 1 = perfect positive line</span>
+        </div>
+      </div>
+      <div class="toolbar"><button type="button" class="primary" id="gcheck">Check my guess</button><button type="button" id="gnew">New scatterplot</button></div>
+      <div class="story" id="gstory" aria-live="polite"><p>Make a guess, then check it.</p></div>
+    </div>
+  </div>
+  <div class="readout">
+    <div class="stat"><div class="k">Your guess</div><div class="v" id="r-guess">—</div></div>
+    <div class="stat"><div class="k">Actual r</div><div class="v" id="r-actual">?</div></div>
+    <div class="stat"><div class="k">Off by</div><div class="v" id="r-off">—</div></div>
+    <div class="stat"><div class="k">Average miss (rounds)</div><div class="v" id="r-avg">—</div></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;"><h3 style="font-size:1.2rem;">Calculate r from z-scores</h3><p>Each point's z-score product is positive in the upper-right and lower-left quadrants (around the point of means) and negative in the other two. r adds up those products and divides by n − 1.</p></div>
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Data sets</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>Data (one x, y pair per line)</h3>
+      <label for="pairs" class="note">Between 3 and 25 pairs</label>
+      <textarea id="pairs" class="data" spellcheck="false" style="min-height:150px"></textarea>
+      <p class="note" id="parse-msg" aria-live="polite"></p>
+      <div class="tag">Change the data and watch r</div>
+      <div class="scenarios" id="xform"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Quadrants around (x̄, ȳ) <small id="qc-sub"></small></h3>
+      <svg class="chart" id="qc" role="img" aria-label="Scatterplot divided into quadrants at the mean of x and the mean of y"></svg>
+      <div class="marker-key"><span class="k-good">Product zₓ·z<sub>y</sub> &gt; 0</span><span class="k-bad">Product &lt; 0</span><span class="k-acc k-dash">Means x̄ and ȳ</span></div>
+    </div>
+  </div>
+  <div class="readout">
+    <div class="stat"><div class="k">n</div><div class="v" id="r-n"></div></div>
+    <div class="stat"><div class="k">Σ zₓ·z<sub>y</sub></div><div class="v" id="r-sum"></div></div>
+    <div class="stat"><div class="k">Correlation r</div><div class="v" id="r-r"></div></div>
+    <div class="stat"><div class="k">r²</div><div class="v" id="r-r2"></div></div>
+  </div>
+  <div class="story" id="story" aria-live="polite"></div>
+  <div class="card calc-card">
+    <h3>Show your work</h3>
+    <div class="calc" id="calcMeans"></div>
+    <div class="tbl-wrap" id="zWrap"></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;"><h3 style="font-size:1.2rem;">Correlation or causation?</h3><p>For each study, decide what the evidence supports.</p></div>
+  <div class="scen-c" id="cause"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Definition</span><h3>What r measures</h3><p>The correlation r measures the <b>direction and strength of the linear</b> association between two quantitative variables. The sign gives the direction; the size gives the strength.</p></div>
+    <div class="card"><span class="tag">Range</span><h3>Always from −1 to 1</h3><p>r = 1 or r = −1 only when every point lies exactly on a line. r near 0 means a weak <i>linear</i> association. Values near ±1 mean the points hug a line closely.</p></div>
+    <div class="card"><span class="tag">No units</span><h3>Unit changes do not affect r</h3><p>r is computed from z-scores, so it has no units. Converting inches to centimeters, or adding a constant to every value, leaves r unchanged. Swapping x and y also leaves r unchanged.</p></div>
+    <div class="card"><span class="tag">Linear only</span><h3>Plot first</h3><p>r only describes linear relationships. A strong curved pattern can have r near 0, and a curve can also have r near 1. Always look at the scatterplot before interpreting r.</p></div>
+    <div class="card"><span class="tag">Not resistant</span><h3>Outliers can change r a lot</h3><p>Because r uses means and standard deviations, a single unusual point can make r much stronger or much weaker than the pattern of the rest of the data.</p></div>
+    <div class="card"><span class="tag">Causation</span><h3>Correlation is not causation</h3><p>A high r does not mean x causes y. A <b>lurking variable</b> may drive both. Only a well-designed randomized experiment supports a cause-and-effect conclusion.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. What changes r?</h2>
+    <p>How common changes to the data affect the correlation.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Change</th><th>Effect on r</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Convert units (multiply x or y by a positive number)</td><td><b>No change</b></td><td>z-scores are unchanged</td></tr>
+      <tr><td>Add a constant to every x or y</td><td><b>No change</b></td><td>Every point shifts the same amount</td></tr>
+      <tr><td>Swap the explanatory and response variables</td><td><b>No change</b></td><td>The formula is symmetric in x and y</td></tr>
+      <tr><td>Multiply x (or y) by a negative number</td><td><b>Sign flips</b>, same size</td><td>The direction reverses</td></tr>
+      <tr><td>Add an outlier that fits the line but is far away</td><td><span class="shift">|r| usually increases</span></td><td>It strengthens the linear pattern</td></tr>
+      <tr><td>Add an outlier far from the pattern</td><td><span class="shift">|r| usually decreases</span></td><td>It weakens the linear pattern</td></tr>
+      <tr><td>Data follow a strong curve</td><td>r may be near 0 (or misleading)</td><td>r only measures linear association</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Interpret r with all three pieces: direction, strength, and <i>linear</i>, plus context. "r = −0.86 indicates a strong, negative, linear association between car age and price."</li>
+        <li>Before using r, state that the scatterplot shows a roughly linear pattern. r is not meaningful for curved data.</li>
+        <li>When asked how an outlier affects r, say whether it makes the linear pattern stronger or weaker, and explain why.</li>
+        <li>If a question asks whether x causes y, check how the data were collected. Observational data support only association; random assignment supports causation.</li>
+        <li>Name a plausible lurking variable and explain how it could affect both variables.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Saying r = 0 means "no relationship." It means no <i>linear</i> relationship; a curve may still be strong.</li>
+        <li>Interpreting r as a percent, such as "r = 0.8 means 80% of points are on the line."</li>
+        <li>Saying a correlation of −0.9 is weaker than 0.5. The sign is direction; the size is strength.</li>
+        <li>Concluding causation from a strong correlation in observational data.</li>
+        <li>Thinking r changes when units change, or when the variables are swapped.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 5.2. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-5.html">Unit 5 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  // ================= Regression helpers (inline for this lab) =================
+  function fit(P) {
+    var n = P.length, xs = P.map(function (p) { return p[0]; }), ys = P.map(function (p) { return p[1]; });
+    var mx = Lab.mean(xs), my = Lab.mean(ys), sx = n > 1 ? Lab.sd(xs) : NaN, sy = n > 1 ? Lab.sd(ys) : NaN, sxy = 0;
+    P.forEach(function (p) { sxy += (p[0] - mx) * (p[1] - my); });
+    var r = n > 1 && sx > 1e-12 && sy > 1e-12 ? sxy / ((n - 1) * sx * sy) : NaN;
+    if (!isNaN(r)) r = Math.max(-1, Math.min(1, r));
+    var b1 = n > 1 && sx > 1e-12 ? sxy / ((n - 1) * sx * sx) : NaN, b0 = my - b1 * mx;
+    var res = P.map(function (p) { return p[1] - (b0 + b1 * p[0]); });
+    var sse = res.reduce(function (a, e) { return a + e * e; }, 0);
+    var sst = ys.reduce(function (a, y) { return a + (y - my) * (y - my); }, 0);
+    return { n: n, xs: xs, ys: ys, mx: mx, my: my, sx: sx, sy: sy, r: r, r2: sst > 1e-12 ? 1 - sse / sst : NaN, b1: b1, b0: b0, res: res, sse: sse, sst: sst, s: n > 2 ? Math.sqrt(sse / (n - 2)) : NaN };
+  }
+  function quad(P) {
+    if (P.length < 4) return null;
+    var mx = Lab.mean(P.map(function (p) { return p[0]; })), S = [0, 0, 0, 0, 0], T = [0, 0, 0];
+    P.forEach(function (p) { var u = p[0] - mx, k = 1; for (var i = 0; i < 5; i++) { S[i] += k; if (i < 3) T[i] += k * p[1]; k *= u; } });
+    var A = [[S[0], S[1], S[2], T[0]], [S[1], S[2], S[3], T[1]], [S[2], S[3], S[4], T[2]]];
+    for (var c = 0; c < 3; c++) {
+      var piv = c; for (var r = c + 1; r < 3; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
+      var t = A[c]; A[c] = A[piv]; A[piv] = t;
+      if (Math.abs(A[c][c]) < 1e-12) return null;
+      for (r = 0; r < 3; r++) { if (r === c) continue; var f = A[r][c] / A[c][c]; for (var k2 = c; k2 < 4; k2++) A[r][k2] -= f * A[c][k2]; }
+    }
+    var a = A[0][3] / A[0][0], b = A[1][3] / A[1][1], cc = A[2][3] / A[2][2];
+    var fq = function (x) { var u = x - mx; return a + b * u + cc * u * u; };
+    var my = Lab.mean(P.map(function (p) { return p[1]; })), sse = 0, sst = 0;
+    P.forEach(function (p) { var e = p[1] - fq(p[0]); sse += e * e; sst += (p[1] - my) * (p[1] - my); });
+    return { f: fq, sse: sse, r2: sst > 1e-12 ? 1 - sse / sst : NaN, c: cc };
+  }
+  function robustZ(v) {
+    var m = Lab.median(v), mad = Lab.median(v.map(function (x) { return Math.abs(x - m); })) * 1.4826;
+    return v.map(function (x) { return mad > 1e-9 ? (x - m) / mad : 0; });
+  }
+  // signed number with a true minus sign and an explicit plus
+  function sgn(v, d) { var s = N(v, d); return v > 0 && s !== "0" ? "+" + s : s; }
+  // "ŷ = 55.2 + 4.1x" with a true minus sign
+  function eqStr(b0, b1, d, yv, xv) {
+    d = d == null ? 3 : d; yv = yv || "ŷ"; xv = xv || "x";
+    return yv + " = " + N(b0, d) + (b1 < 0 ? " − " : " + ") + N(Math.abs(b1), d) + xv;
+  }
+  // scatter(svg, P, o): o { xr, yr, xLabel, yLabel, color(i) -> css, r, under(F), over(F) } -> F
+  function scatter(svg, P, o) {
+    var xt = o.xTicks || Lab.niceTicks(o.xr[0], o.xr[1], 6), yt = o.yTicks || Lab.niceTicks(o.yr[0], o.yr[1], 5);
+    var F = Lab.frame(svg, { x: [xt[0], xt[xt.length - 1]], y: [yt[0], yt[yt.length - 1]], xLabel: o.xLabel, yLabel: o.yLabel, xTicks: xt, yTicks: yt,
+      fmtX: function (v) { return N(v, 2); }, fmtY: function (v) { return N(v, 2); }, width: o.width, height: o.height });
+    if (o.under) o.under(F);
+    P.forEach(function (p, i) {
+      var c = (o.color && o.color(i)) || "var(--accent)";
+      Lab.el("circle", { cx: F.sx(p[0]), cy: F.sy(p[1]), r: (o.big && o.big(i)) ? 8 : (o.r || 6), fill: c, stroke: "var(--surface)", "stroke-width": 1.5 }, F.g);
+    });
+    if (o.over) o.over(F);
+    return F;
+  }
+  function toData(svg, F, e) {
+    var rc = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+    var px = (e.clientX - rc.left) / rc.width * vb.width, py = (e.clientY - rc.top) / rc.height * vb.height;
+    return { px: px, py: py,
+      x: F.xr[0] + (px - F.M.l) / (F.W - F.M.l - F.M.r) * (F.xr[1] - F.xr[0]),
+      y: F.yr[0] + (F.H - F.M.b - py) / (F.H - F.M.t - F.M.b) * (F.yr[1] - F.yr[0]) };
+  }
+  // drag(svg, getF, getP, onChange(kind, i), o { add() -> bool, select(i), snap: [dx, dy] })
+  function drag(svg, getF, getP, onChange, o) {
+    o = o || {}; var idx = -1;
+    svg.classList.add("drag");
+    function snap(v, st) { return st ? Math.round(v / st) * st : v; }
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    svg.addEventListener("pointerdown", function (e) {
+      var F = getF(), P = getP(); if (!F) return;
+      var d = toData(svg, F, e), best = -1, bd = 16;
+      P.forEach(function (p, i) { var dd = Math.hypot(F.sx(p[0]) - d.px, F.sy(p[1]) - d.py); if (dd < bd) { bd = dd; best = i; } });
+      if (best < 0 && o.add && o.add() && d.x >= F.xr[0] && d.x <= F.xr[1] && d.y >= F.yr[0] && d.y <= F.yr[1]) {
+        P.push([snap(d.x, o.snap && o.snap[0]), snap(d.y, o.snap && o.snap[1])]); best = P.length - 1; onChange("add", best);
+      }
+      if (best >= 0) { idx = best; try { svg.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault(); if (o.select) o.select(best); }
+    });
+    svg.addEventListener("pointermove", function (e) {
+      if (idx < 0) return; var F = getF(), P = getP(), d = toData(svg, F, e);
+      P[idx] = [clamp(snap(d.x, o.snap && o.snap[0]), F.xr[0], F.xr[1]), clamp(snap(d.y, o.snap && o.snap[1]), F.yr[0], F.yr[1])];
+      onChange("move", idx);
+    });
+    function up() { if (idx >= 0) { idx = -1; onChange("end", -1); } }
+    svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
+  }
+  // reproducible preset data: gen(seed, n, xFn(i, R), yFn(x, R), dx, dy)
+  function gen(seed, n, xf, yf, dx, dy) {
+    var R = Lab.rng(seed), P = [];
+    for (var i = 0; i < n; i++) { var x = xf(i, R); P.push([+x.toFixed(dx == null ? 1 : dx), +yf(x, R).toFixed(dy == null ? 1 : dy)]); }
+    return P;
+  }
+  function strengthWord(a) { return a >= 0.8 ? "strong" : a >= 0.5 ? "moderate" : "weak"; }
+  function scenButtons(id, list, onPick) {
+    list.forEach(function (p, i) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = p.name;
+      b.addEventListener("click", function () { onPick(p, i); });
+      $(id).appendChild(b);
+    });
+  }
+
+
+  // ================= Guessing game =================
+  var G = { P: [], r: NaN, curved: false, done: false, misses: [] }, R0 = Lab.rng(), Fg = null;
+  function newPlot() {
+    var n = 18 + R0.int(0, 14), P = [];
+    G.curved = R0() < 0.17;
+    var rho = (R0() * 2 - 1) * 0.97;
+    for (var i = 0; i < n; i++) {
+      var x = R0.normal(0, 1), y;
+      if (G.curved) { x = R0() * 4 - 2; y = x * x + R0.normal(0, 0.35); }
+      else y = rho * x + Math.sqrt(1 - rho * rho) * R0.normal(0, 1);
+      P.push([+(50 + 10 * x).toFixed(1), +(50 + 10 * y).toFixed(1)]);
+    }
+    G.P = P; G.r = fit(P).r; G.done = false;
+    var xs = P.map(function (p) { return p[0]; }), ys = P.map(function (p) { return p[1]; });
+    G.xr = [Math.min.apply(null, xs) - 3, Math.max.apply(null, xs) + 3]; G.yr = [Math.min.apply(null, ys) - 3, Math.max.apply(null, ys) + 3];
+    $("r-actual").textContent = "?"; $("r-off").textContent = "—";
+    $("gstory").innerHTML = "<p>Make a guess, then check it.</p>";
+    drawG();
+  }
+  function drawG() {
+    Fg = scatter($("gs"), G.P, { xr: G.xr, yr: G.yr, xLabel: "x", yLabel: "y", r: 5 });
+    $("g-sub").textContent = "n = " + G.P.length;
+  }
+  function showGuess() { var g = +$("guess").value; $("guess-o").textContent = N(g, 2); $("r-guess").textContent = N(g, 2); }
+  $("guess").addEventListener("input", showGuess);
+  $("gnew").addEventListener("click", newPlot);
+  $("gcheck").addEventListener("click", function () {
+    var g = +$("guess").value, off = Math.abs(g - G.r);
+    if (!G.done) { G.misses.push(off); G.done = true; }
+    $("r-actual").textContent = N(G.r, 2); $("r-off").textContent = N(off, 2);
+    $("r-avg").textContent = N(Lab.mean(G.misses), 2) + " (" + G.misses.length + ")";
+    var verdict = off <= 0.1 ? "<b>Excellent.</b> Within 0.1." : off <= 0.2 ? "<b>Close.</b> Within 0.2." : "<b>Keep practicing.</b> You were off by " + N(off, 2) + ".";
+    var t = [];
+    if (Math.sign(g) === -Math.sign(G.r) && Math.abs(G.r) > 0.15) t.push("Check the direction first: points rising left to right mean r &gt; 0, falling mean r &lt; 0.");
+    if (G.curved) t.push("<b>Trick plot.</b> The points follow a clear curve, yet r = " + N(G.r, 2) + ". Correlation only measures <i>linear</i> association, so a strong curved pattern can have r near 0. Always look at the graph before you trust r.");
+    else if (Math.abs(G.r) > 0.9) t.push("The points hug a line closely, so |r| is near 1.");
+    else if (Math.abs(G.r) < 0.3) t.push("The points form a loose cloud with little linear trend, so r is near 0.");
+    $("gstory").innerHTML = "<p>" + verdict + " The actual correlation is r = " + N(G.r, 2) + ".</p>" + (t.length ? "<ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : "");
+  });
+
+  // ================= Compute r =================
+  var PRESETS = [
+    { name: "Hours of sleep vs. test score", x: "hours of sleep", y: "test score", xl: "Hours of sleep", yl: "Test score", P: [[5, 68], [6, 74], [7, 79], [7.5, 85], [8, 83], [9, 90]] },
+    { name: "Price vs. cups of lemonade sold", x: "price", y: "cups sold", xl: "Price ($)", yl: "Cups sold", P: [[1, 52], [1.5, 47], [2, 40], [2.5, 38], [3, 30], [3.5, 24], [4, 22]] },
+    { name: "Birth day of month vs. height", x: "day of the month born", y: "height", xl: "Day of month born", yl: "Height (cm)", P: [[3, 170], [8, 158], [12, 181], [17, 165], [21, 174], [26, 160], [30, 169]] },
+    { name: "Strong pattern plus one outlier", x: "x", y: "y", xl: "x", yl: "y", P: [[1, 2], [2, 3], [3, 3.5], [4, 5], [5, 5.5], [6, 7], [15, 1]] }
+  ];
+  var C = { p: PRESETS[0], P: PRESETS[0].P.slice(), x: "", y: "", xl: "", yl: "", note: "", prevR: NaN };
+  function loadC(p) { C.p = p; C.P = p.P.map(function (q) { return q.slice(); }); C.x = p.x; C.y = p.y; C.xl = p.xl; C.yl = p.yl; C.note = ""; C.prevR = NaN; writePairs(); renderC(); }
+  function writePairs() { $("pairs").value = C.P.map(function (q) { return N(q[0], 3).replace(/,/g, "") + ", " + N(q[1], 3).replace(/,/g, ""); }).join("\n").replace(/−/g, "-"); }
+  function parsePairs(t) {
+    var out = [], bad = false;
+    t.split(/\n+/).forEach(function (line) { line = line.trim(); if (!line) return; var a = line.split(/[\s,;]+/).map(Number); if (a.length !== 2 || a.some(isNaN)) bad = true; else out.push(a); });
+    return bad ? null : out;
+  }
+  function renderC() {
+    var P = C.P, f = fit(P), msg = $("parse-msg");
+    if (P.length < 3 || P.length > 25) { msg.textContent = "Enter between 3 and 25 pairs."; return; }
+    if (isNaN(f.r)) { msg.textContent = "r is undefined when all the x-values (or all the y-values) are the same."; return; }
+    msg.textContent = "";
+    var zx = P.map(function (p) { return (p[0] - f.mx) / f.sx; }), zy = P.map(function (p) { return (p[1] - f.my) / f.sy; });
+    var prod = zx.map(function (z, i) { return z * zy[i]; }), sum = Lab.sum(prod);
+    var xs = f.xs, ys = f.ys, px = (Math.max.apply(null, xs) - Math.min.apply(null, xs)) * 0.12 || 1, py = (Math.max.apply(null, ys) - Math.min.apply(null, ys)) * 0.12 || 1;
+    scatter($("qc"), P, { xr: [Math.min.apply(null, xs) - px, Math.max.apply(null, xs) + px], yr: [Math.min.apply(null, ys) - py, Math.max.apply(null, ys) + py], xLabel: C.xl, yLabel: C.yl,
+      color: function (i) { return prod[i] > 1e-12 ? "var(--good)" : prod[i] < -1e-12 ? "var(--bad)" : "var(--ghost)"; },
+      under: function (F) {
+        Lab.rect(F, f.mx, f.my, F.xr[1], F.yr[1], "var(--good)", .07); Lab.rect(F, F.xr[0], F.yr[0], f.mx, f.my, "var(--good)", .07);
+        Lab.rect(F, F.xr[0], f.my, f.mx, F.yr[1], "var(--bad)", .07); Lab.rect(F, f.mx, F.yr[0], F.xr[1], f.my, "var(--bad)", .07);
+        Lab.vline(F, f.mx, "var(--accent)", 1.5, "6 4"); Lab.hline(F, f.my, "var(--accent)", 1.5, "6 4");
+        [[1, 1, "+"], [-1, -1, "+"], [-1, 1, "−"], [1, -1, "−"]].forEach(function (q) {
+          var x = q[0] > 0 ? F.xr[1] - (F.xr[1] - F.xr[0]) * .05 : F.xr[0] + (F.xr[1] - F.xr[0]) * .05, y = q[1] > 0 ? F.yr[1] - (F.yr[1] - F.yr[0]) * .08 : F.yr[0] + (F.yr[1] - F.yr[0]) * .04;
+          Lab.el("text", { x: F.sx(x), y: F.sy(y), "text-anchor": "middle", "class": "qlbl", style: "fill:" + (q[2] === "+" ? "var(--good)" : "var(--bad)") }, F.svg, q[2]);
+        });
+      } });
+    $("qc-sub").textContent = "n = " + P.length;
+    $("r-n").textContent = P.length; $("r-sum").textContent = N(sum, 3); $("r-r").textContent = N(f.r, 3); $("r-r2").textContent = N(f.r2, 3);
+    var r = "";
+    r += '<div class="row"><span>x̄ = ' + N(f.mx, 3) + ", sₓ = " + N(f.sx, 3) + "</span><span>ȳ = " + N(f.my, 3) + ", s<sub>y</sub> = " + N(f.sy, 3) + "</span></div>";
+    $("calcMeans").innerHTML = r;
+    var t = '<table class="dev"><thead><tr><th>x</th><th>y</th><th>zₓ = (x − x̄) ÷ sₓ</th><th>z<sub>y</sub> = (y − ȳ) ÷ s<sub>y</sub></th><th>zₓ · z<sub>y</sub></th></tr></thead><tbody>';
+    P.forEach(function (p, i) { t += "<tr><td>" + N(p[0], 3) + "</td><td>" + N(p[1], 3) + "</td><td>" + N(zx[i], 3) + "</td><td>" + N(zy[i], 3) + '</td><td style="color:' + (prod[i] >= 0 ? "var(--good)" : "var(--bad)") + '">' + N(prod[i], 3) + "</td></tr>"; });
+    t += '</tbody><tfoot><tr><td colspan="4">Σ zₓ·z<sub>y</sub></td><td>' + N(sum, 3) + '</td></tr><tr><td colspan="5">r = ' + N(sum, 3) + " ÷ (" + P.length + " − 1) = " + N(f.r, 3) + "</td></tr></tfoot></table>";
+    $("zWrap").innerHTML = t;
+    storyC(f, prod);
+  }
+  function storyC(f, prod) {
+    var ar = Math.abs(f.r), dir = f.r > 0 ? "positive" : "negative", head, t = [];
+    head = ar < 0.15 ? "<b>r = " + N(f.r, 2) + ": essentially no linear association</b> between " + C.x + " and " + C.y + "." :
+      "<b>r = " + N(f.r, 2) + ": a " + strengthWord(ar) + ", " + dir + " linear association</b> between " + C.x + " and " + C.y + ".";
+    var pos = prod.filter(function (v) { return v > 0; }).length;
+    var sp = Lab.sum(prod.filter(function (v) { return v > 0; })), sn = Lab.sum(prod.filter(function (v) { return v < 0; }));
+    t.push(pos + " of " + prod.length + " points fall in the + quadrants. The positive products add to " + N(sp, 2) + " and the negative products add to " + N(sn, 2) + ", so the sum is " + N(sp + sn, 2) + (sp + sn > 0 ? ", which makes r positive." : sp + sn < 0 ? ", which makes r negative." : ".") );
+    var big = 0; prod.forEach(function (v, i) { if (Math.abs(v) > Math.abs(prod[big])) big = i; });
+    if (Math.abs(prod[big]) > 0.45 * Lab.sum(prod.map(Math.abs))) t.push("One point, (" + N(C.P[big][0]) + ", " + N(C.P[big][1]) + "), contributes " + Lab.pct(Math.abs(prod[big]) / Lab.sum(prod.map(Math.abs)), 0) + " of the total. r is <b>not resistant</b>: try deleting that line from the data and watch r change.");
+    t.push("r² = " + N(f.r2, 3) + ": about " + Lab.pct(f.r2, 0) + " of the variation in " + C.y + " is accounted for by the linear relationship with " + C.x + " (more on r² in topic 5.5).");
+    if (C.note) t.unshift(C.note);
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  $("pairs").addEventListener("input", function (e) { var P = parsePairs(e.target.value); if (!P) { $("parse-msg").textContent = "Each line needs exactly two numbers, like 4, 7."; return; } C.P = P; C.note = ""; renderC(); });
+  var XF = [
+    ["Convert x to new units (× 2.54)", function (P) { return P.map(function (p) { return [+(p[0] * 2.54).toFixed(3), p[1]]; }); }, "Multiplying x by a positive number (changing units) did not change r. Correlation has no units."],
+    ["Add 10 to every y", function (P) { return P.map(function (p) { return [p[0], +(p[1] + 10).toFixed(3)]; }); }, "Adding a constant shifts every point up the same amount. r did not change."],
+    ["Swap x and y", function (P) { return P.map(function (p) { return [p[1], p[0]]; }); }, "Swapping the variables did not change r. Correlation does not care which variable is explanatory."],
+    ["Multiply x by −1", function (P) { return P.map(function (p) { return [-p[0], p[1]]; }); }, "Multiplying x by a negative number flips the direction, so r changed sign but kept the same size."]
+  ];
+  XF.forEach(function (x, k) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = x[0];
+    b.addEventListener("click", function () {
+      var before = fit(C.P).r; C.P = x[1](C.P);
+      if (k === 2) { var t = C.x; C.x = C.y; C.y = t; t = C.xl; C.xl = C.yl; C.yl = t; }
+      if (k === 0) C.xl = C.xl + " × 2.54";
+      if (k === 3) C.xl = "−(" + C.xl + ")";
+      C.note = "<b>" + x[0] + ":</b> r went from " + N(before, 3) + " to " + N(fit(C.P).r, 3) + ". " + x[2];
+      writePairs(); renderC();
+    });
+    $("xform").appendChild(b);
+  });
+  scenButtons("scen", PRESETS, function (p) { loadC(p); });
+
+  // ================= Causation =================
+  var CAUSE = [
+    { s: "Across U.S. cities, monthly ice cream sales and the number of drownings have r = 0.84.", a: 1, w: "This is observational data. Hot weather is a lurking variable: it increases both ice cream sales and swimming. A strong r does not show that ice cream causes drowning." },
+    { s: "Researchers randomly assign 40 plots of land to receive 0, 1, 2, or 3 cups of fertilizer and find r = 0.91 between fertilizer amount and crop yield.", a: 0, w: "The amounts were randomly assigned, so this is an experiment. Random assignment balances other variables across groups, so a cause-and-effect conclusion is reasonable." },
+    { s: "Among countries, the number of televisions per person and life expectancy have r = 0.79.", a: 1, w: "Wealth is a likely lurking variable. Richer countries can afford more TVs and better health care. Shipping TVs to a country would not lengthen lives." },
+    { s: "Among elementary school students, shoe size and reading score have r = 0.70.", a: 1, w: "Age is the lurking variable. Older children have bigger feet and read better. Bigger shoes do not cause better reading." }
+  ];
+  CAUSE.forEach(function (c, i) {
+    var card = document.createElement("div"); card.className = "card";
+    card.innerHTML = '<span class="tag">Study ' + (i + 1) + '</span><p></p><div class="toolbar"></div><p class="why" hidden></p>';
+    card.querySelector("p").textContent = c.s;
+    ["Supports cause and effect", "Only shows association"].forEach(function (lbl, j) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = lbl;
+      b.addEventListener("click", function () {
+        card.querySelectorAll(".chip").forEach(function (x) { x.classList.remove("right", "wrong"); });
+        b.classList.add(j === c.a ? "right" : "wrong");
+        var w = card.querySelector(".why"); w.hidden = false;
+        w.innerHTML = (j === c.a ? "<b style='color:var(--good)'>Correct.</b> " : "<b style='color:var(--bad)'>Not quite.</b> ") + c.w;
+      });
+      card.querySelector(".toolbar").appendChild(b);
+    });
+    $("cause").appendChild(card);
+  });
+
+  showGuess(); newPlot(); loadC(PRESETS[0]);
+
+
+  // ================= Quiz =================
+  var Q = [
+  {
+    "s": "Which of the following could be the correlation between two variables whose scatterplot shows a moderate negative linear association?",
+    "o": [
+      "−1.4",
+      "−0.6",
+      "0.6",
+      "−0.05"
+    ],
+    "c": 1,
+    "w": "r must be between −1 and 1, so A is impossible. Negative and moderate points to about −0.6. Choice D is essentially no linear association."
+  },
+  {
+    "s": "A researcher measures heights in inches and arm spans in inches and finds r = 0.92. If both are converted to centimeters, the new correlation is:",
+    "o": [
+      "0.92 × 2.54",
+      "0.92",
+      "0.92 ÷ 2.54",
+      "It cannot be determined"
+    ],
+    "c": 1,
+    "w": "Correlation has no units and is based on z-scores. Converting units does not change it."
+  },
+  {
+    "s": "A scatterplot shows a clear U-shaped pattern, and the correlation is r = 0.02. What is the best conclusion?",
+    "o": [
+      "There is no relationship between the variables.",
+      "There is a strong linear relationship.",
+      "There is a strong relationship, but it is not linear, so r does not describe it well.",
+      "The calculation must be wrong."
+    ],
+    "c": 2,
+    "w": "r measures only linear association. A strong curved pattern can produce r near 0."
+  },
+  {
+    "s": "Which statement about correlation is true?",
+    "o": [
+      "r changes when the explanatory and response variables are swapped.",
+      "A correlation of −0.85 shows a stronger linear association than 0.70.",
+      "r = 0.50 means half the points lie on the line.",
+      "r has the same units as y."
+    ],
+    "c": 1,
+    "w": "Strength depends on |r|, and |−0.85| > 0.70. r is unchanged by swapping variables, has no units, and is not a percent of points."
+  },
+  {
+    "s": "Data on 30 cities show r = 0.88 between the number of churches and the number of crimes. What is the most reasonable explanation?",
+    "o": [
+      "Churches cause crime.",
+      "Crime causes people to build churches.",
+      "City population is a lurking variable that increases both.",
+      "The correlation must be a mistake."
+    ],
+    "c": 2,
+    "w": "Larger cities have more of both. This is observational data, so it shows association only, and population is a likely lurking variable."
+  },
+  {
+    "s": "Five points lie close to a line with r = 0.95. A sixth point is added far below the line on the right side of the graph. The correlation will most likely:",
+    "o": [
+      "Increase toward 1",
+      "Stay at 0.95",
+      "Decrease",
+      "Become exactly 0"
+    ],
+    "c": 2,
+    "w": "A point far from the linear pattern weakens the linear association, so r drops. r is not resistant."
+  },
+  {
+    "s": "For a data set, the products of each point's two z-scores add up to 7.2, and n = 9. What is r?",
+    "o": [
+      "0.8",
+      "0.9",
+      "7.2",
+      "0.72"
+    ],
+    "c": 1,
+    "w": "r = (sum of the z-score products) ÷ (n − 1) = 7.2 ÷ 8 = 0.9."
+  },
+  {
+    "s": "In a randomized experiment, the amount of a vitamin given to rats and their weight gain have r = 0.75. Which conclusion is justified?",
+    "o": [
+      "Only an association can be concluded because r < 1.",
+      "The vitamin causes weight gain in all rats.",
+      "Because amounts were randomly assigned, there is evidence that more vitamin causes more weight gain in rats like these.",
+      "There is no association because r is not close to 1."
+    ],
+    "c": 2,
+    "w": "Random assignment allows a cause-and-effect conclusion for the kinds of subjects studied. It does not guarantee the effect for every individual."
+  }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("5.2");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [5], topic: "5.2", compact: true, storageKey: "topic-5.2" });</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bar Charts and Pie Charts Study Lab</title>
+<meta name="description" content="Display a categorical variable with bar charts and pie charts, and catch a misleading graph with a truncated axis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 5px 10px; font-size: .86rem; }
+.mini td.num { font-family: var(--mono); text-align: right; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.4</span>
+  <h1>Bar Charts and Pie Charts Study Lab</h1>
+  <p class="lede">Bar charts and pie charts turn a frequency table into a picture. Bar charts make comparisons between categories easy; pie charts show how one whole is divided. Switch between them, then see how a truncated axis can mislead.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Graph it three ways</h2>
+    <p>Bar charts and pie charts both show how a categorical variable's individuals are split among categories. Switch views and see what each one makes easy to read.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset data sets</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Graph</span><div class="seg" id="viewSeg" role="group" aria-label="Choose the graph type"></div></div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Bar order</span><div class="seg" id="ordSeg" role="group" aria-label="Choose the bar order"></div></div>
+      <div class="tbl-wrap"><table class="mini" id="tbl"></table></div>
+      <p class="note" id="viewNote"></p>
+    </div>
+    <div class="card graph-card">
+      <h3><span id="g-title"></span> <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Graph of the categorical data"></svg>
+    </div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Spot the misleading graph</h3>
+    <p>A bar chart's vertical axis should start at 0, because readers compare bar <i>heights</i>. Raise the starting value and watch a small difference look huge.</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl">
+          <label for="base">Vertical axis starts at <output id="base-o"></output></label>
+          <input type="range" id="base" min="0" max="80" step="1" value="0">
+          <span class="hint">Brand A: 92% satisfied. Brand B: 86% satisfied.</span>
+        </div>
+      </div>
+      <div class="readout" style="grid-template-columns:1fr 1fr;">
+        <div class="stat"><div class="k">Actual ratio A ÷ B</div><div class="v" id="r-true"></div></div>
+        <div class="stat"><div class="k">Ratio of bar heights</div><div class="v" id="r-vis"></div></div>
+      </div>
+      <div class="story" id="mstory" aria-live="polite"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Customer satisfaction <small id="m-sub"></small></h3>
+      <svg class="chart" id="mg" role="img" aria-label="Bar chart of satisfaction for two brands with an adjustable axis"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Bars</span><h3>Bar chart</h3><p>One bar per category, height equal to its count or proportion. Bars are separated by gaps, and the vertical axis starts at 0.</p></div>
+    <div class="card"><span class="tag">Slices</span><h3>Pie chart</h3><p>Each slice's angle is its share of the whole. Use it only when the categories are parts of one whole that adds to 100%.</p></div>
+    <div class="card"><span class="tag">Scale</span><h3>Counts vs. proportions</h3><p>A bar chart can show frequencies or relative frequencies. The shapes are identical; only the axis labels change.</p></div>
+    <div class="card"><span class="tag">Describe</span><h3>Compare frequencies</h3><p>Describe categorical graphs by naming the most and least common categories and how much they differ. Don't use shape words like skewed.</p></div>
+    <div class="card"><span class="tag">Watch out</span><h3>Misleading graphs</h3><p>Truncated axes, pictographs with growing areas, and 3-D effects distort comparisons. Readers compare areas and heights, so those must be proportional to the data.</p></div>
+    <div class="card"><span class="tag">Order</span><h3>Ordinal categories</h3><p>Some categorical variables have a natural order (sizes, letter grades, agree to disagree). Keep that order on the graph.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Choosing a display</h2>
+    <p>Which graph fits, and what it is best at.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Display</th><th>Best for</th><th>Rules</th><th>Avoid when</th></tr></thead>
+    <tbody>
+      <tr><td><b>Bar chart (counts)</b></td><td>Comparing categories within one group</td><td>Axis from 0, gaps between bars, labeled axes</td><td>Comparing groups of different sizes</td></tr>
+      <tr><td><b>Bar chart (relative frequency)</b></td><td>Comparing groups of different sizes</td><td>Proportions add to 1 within each group</td><td>You need the actual counts</td></tr>
+      <tr><td><b>Pie chart</b></td><td>Showing parts of one whole</td><td>Slices must add to 100%</td><td>Categories overlap, many tiny slices, or close percents</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Label both axes, including what is being counted (“Number of students”), and title the graph.</li>
+        <li>Start the vertical axis of a bar chart at 0 and use equal widths for all bars.</li>
+        <li>When describing the graph, compare categories with numbers from the graph: “Netflix (37%) was chosen about twice as often as Disney+ (15%).”</li>
+        <li>If a question asks why a graph is misleading, name the feature (truncated axis, unequal areas) and explain the distortion.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Making the bars touch, which makes the graph look like a histogram.</li>
+        <li>Describing a bar chart's shape as skewed or symmetric.</li>
+        <li>Using a pie chart when respondents could choose more than one answer.</li>
+        <li>Judging a difference from bar heights without checking where the axis starts.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.4. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function btn(parent, text, onclick, cls) { var b = document.createElement("button"); b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.addEventListener("click", onclick); parent.appendChild(b); return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  var PRESETS = [
+    { name: "Favorite streaming service", title: "Favorite streaming service", n: 200, rows: [["Netflix", 74], ["YouTube", 58], ["Disney+", 30], ["Hulu", 22], ["Other", 16]] },
+    { name: "Phone brand of students", title: "Phone brand", n: 150, rows: [["Apple", 96], ["Samsung", 38], ["Google", 10], ["Other", 6]] },
+    { name: "Lunch choice", title: "Lunch choice", n: 80, rows: [["Pizza", 22], ["Salad bar", 18], ["Sandwich", 20], ["Packed lunch", 20]] },
+    { name: "Shirt sizes sold (ordered categories)", title: "Shirt size", n: 120, ordered: true, rows: [["S", 18], ["M", 42], ["L", 38], ["XL", 22]] }
+  ];
+  var S = { p: PRESETS[0], view: "freq", order: "orig" };
+  var VIEWS = [["freq", "Bar (counts)"], ["rel", "Bar (proportions)"], ["pie", "Pie chart"]];
+  VIEWS.forEach(function (v) { var b = btn($("viewSeg"), v[1], function () { S.view = v[0]; render(); }); b.setAttribute("data-v", v[0]); });
+  [["orig", "As listed"], ["desc", "Tallest first"]].forEach(function (v) { var b = btn($("ordSeg"), v[1], function () { S.order = v[0]; render(); }); b.setAttribute("data-v", v[0]); });
+  PRESETS.forEach(function (p) { btn($("scen"), p.name, function () { S.p = p; S.order = "orig"; render(); }); });
+  function sync(id, val) { Array.prototype.forEach.call($(id).children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === val)); }); }
+  function render() {
+    sync("viewSeg", S.view); sync("ordSeg", S.order);
+    var rows = S.p.rows.slice(), tot = Lab.sum(rows.map(function (r) { return r[1]; }));
+    if (S.order === "desc") rows.sort(function (a, b) { return b[1] - a[1]; });
+    var h = "<thead><tr><th>Category</th><th style='text-align:right'>Count</th><th style='text-align:right'>Proportion</th></tr></thead><tbody>";
+    rows.forEach(function (r) { h += "<tr><td>" + esc(r[0]) + "</td><td class='num'>" + r[1] + "</td><td class='num'>" + N(r[1] / tot, 3) + "</td></tr>"; });
+    $("tbl").innerHTML = h + "<tr><td><b>Total</b></td><td class='num'><b>" + tot + "</b></td><td class='num'><b>1</b></td></tr></tbody>";
+    $("g-title").textContent = S.p.title; $("g-sub").textContent = "n = " + tot;
+    if (S.view === "pie") Lab.pie($("g"), rows);
+    else Lab.bars($("g"), rows, { relative: S.view === "rel", xLabel: S.p.title, yLabel: S.view === "rel" ? "Proportion of students" : "Number of students" });
+    $("viewNote").textContent = S.view === "pie" ? "A pie chart shows parts of one whole. It works only when the categories don't overlap and together include everyone." :
+      S.view === "rel" ? "Same bars, new scale. Relative frequency bars let you compare groups with different totals." : "Bar heights are counts. Leave gaps between bars because the categories are separate.";
+    var sorted = rows.slice().sort(function (a, b) { return b[1] - a[1]; }), t = [];
+    var close = sorted.length > 1 && (sorted[0][1] - sorted[1][1]) / tot < 0.04;
+    t.push("Most common: <b>" + esc(sorted[0][0]) + "</b> (" + Lab.pct(sorted[0][1] / tot) + "). Least common: <b>" + esc(sorted[sorted.length - 1][0]) + "</b> (" + Lab.pct(sorted[sorted.length - 1][1] / tot) + ").");
+    if (S.view === "pie" && close) t.push("The top categories are within a few percent of each other. That is hard to see on a pie chart and easy to see on a bar chart.");
+    if (S.p.ordered) t.push("These categories have a natural order (S, M, L, XL), so keep them in that order instead of sorting by height.");
+    else if (S.view !== "pie") t.push("These categories have no natural order. Sorting the bars tallest first (a Pareto-style chart) makes the ranking easy to read.");
+    t.push("Describe a categorical distribution by comparing the frequencies: which categories are most and least common, and by how much. Words like “skewed” or “symmetric” don't apply to categorical data.");
+    $("story").innerHTML = "<p><b>Reading the " + (S.view === "pie" ? "pie chart" : "bar chart") + ".</b></p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  render();
+
+  // ================= Misleading axis =================
+  var A = 92, B = 86, base = 0;
+  function renderM() {
+    $("base-o").textContent = base + "%";
+    var F = Lab.frame($("mg"), { x: [0, 2], y: [base, 100], xLabel: "Brand", yLabel: "Percent satisfied", xTicks: [], yTicks: Lab.niceTicks(base, 100, 5).filter(function (v) { return v >= base && v <= 100; }), fmtY: function (v) { return v + "%"; } });
+    [["Brand A", A, "var(--accent)"], ["Brand B", B, "var(--c1)"]].forEach(function (r, i) {
+      Lab.el("rect", { x: F.sx(i + .2), y: F.sy(r[1]), width: F.sx(i + .8) - F.sx(i + .2), height: F.sy(base) - F.sy(r[1]), fill: r[2] }, F.g);
+      Lab.el("text", { x: F.sx(i + .5), y: F.H - F.M.b + 16, "text-anchor": "middle" }, F.svg, r[0]);
+      Lab.el("text", { x: F.sx(i + .5), y: F.sy(r[1]) - 6, "text-anchor": "middle", style: "fill:var(--ink);font-weight:600" }, F.svg, r[1] + "%");
+    });
+    var vis = (A - base) / (B - base);
+    $("r-true").textContent = N(A / B, 2) + " ×"; $("r-vis").textContent = N(vis, 2) + " ×";
+    $("m-sub").textContent = base ? "axis starts at " + base + "% (misleading)" : "axis starts at 0";
+    $("mstory").innerHTML = base === 0 ? "<p><b>Honest scale.</b> Brand A's bar is only " + N(A / B, 2) + " times as tall as Brand B's, which matches the data: the two brands are close.</p>"
+      : "<p><b>The graph exaggerates.</b> Brand A's bar now looks " + N(vis, 2) + " times as tall as Brand B's, but A's rate is only " + N(A / B, 2) + " times B's. Cutting off the bottom of the bars hides the shared part and magnifies the 6-point gap.</p>";
+  }
+  $("base").addEventListener("input", function (e) { base = +e.target.value; renderM(); });
+  renderM();
+
+  var Q = [
+    { s: "Which graph is appropriate for displaying the distribution of a categorical variable?", o: ["Histogram", "Bar chart", "Dotplot", "Stemplot"], c: 1, w: "Bar charts (and pie charts) display categorical data. Histograms, dotplots, and stemplots need numerical values on an axis." },
+    { s: "Why do the bars in a bar chart usually have gaps between them?", o: ["To save ink", "Because the categories are separate groups, not intervals of a number line", "Because the data are skewed", "Because the counts are small"], c: 1, w: "Touching bars suggest adjacent numerical intervals, as in a histogram. Categories are separate, so bar charts use gaps." },
+    { s: "A pie chart is NOT appropriate when:", o: ["There are three categories", "Respondents could choose more than one category", "The categories are ordered", "The percents are close together"], c: 1, w: "A pie chart shows parts of a single whole. If people could pick several answers, the parts add to more than 100% and a pie chart is wrong. (Close percents are hard to read on a pie chart, but it is not invalid.)" },
+    { s: "A bar chart's vertical axis starts at 80% to compare 85% and 95%. The graph will most likely:", o: ["Make the difference look smaller than it is", "Make the difference look larger than it is", "Show the difference accurately", "Show the wrong order of categories"], c: 1, w: "With the axis starting at 80%, the bars' heights are 5 and 15 units, so one bar looks 3 times as tall even though 95 ÷ 85 ≈ 1.12." },
+    { s: "A bar chart shows relative frequencies of 0.35, 0.25, 0.30, and 0.10 for four phone brands among 300 students. How many students chose the brand with 0.25?", o: ["25", "75", "90", "105"], c: 1, w: "0.25 × 300 = 75 students." },
+    { s: "Which description of a bar chart of favorite sport is appropriate?", o: ["The distribution is skewed right.", "Basketball is the most common choice, chosen by about twice as many students as tennis.", "The mean sport is soccer.", "The distribution has an outlier at golf."], c: 1, w: "Categorical distributions are described by comparing frequencies. Shape words like skewed and terms like mean or outlier apply to quantitative data." },
+    { s: "Two bar charts compare favorite colors at two schools of very different sizes. To compare them fairly, the bars should show:", o: ["Counts", "Relative frequencies", "Cumulative counts", "Means"], c: 1, w: "Relative frequencies (proportions) adjust for the different number of students at each school." },
+    { s: "For an ordinal variable such as T-shirt size (S, M, L, XL), the bars in a bar chart should be ordered:", o: ["Alphabetically", "From tallest to shortest", "In the natural order of the categories", "Randomly"], c: 2, w: "When categories have a natural order, keep it. Sorting by height would scramble the sizes and hide the pattern." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.4");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.4", compact: true, storageKey: "topic-1.4" });</script>
+</body>
+</html>

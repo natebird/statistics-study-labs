@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Random Variables and Probability Distributions Study Lab</title>
+<meta name="description" content="Build a discrete probability distribution, check that it is valid, and find probabilities like P(X ≤ 2) from the table and graph.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 5px 10px; font-family: var(--mono); font-size: .84rem; text-align: right; }
+.mini th { font-family: var(--body); text-transform: none; letter-spacing: 0; font-size: .82rem; }
+.mini td:first-child, .mini th:first-child { text-align: left; }
+.mini tfoot td { background: var(--paper); font-weight: 600; }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 60px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+.ev { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ev input[type="number"] { font: inherit; font-family: var(--mono); font-size: .92rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 90px; }
+.bad-msg { color: var(--bad); font-weight: 600; }
+.good-msg { color: var(--good); font-weight: 600; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.8</span>
+  <h1>Random Variables and Probability Distributions Study Lab</h1>
+  <p class="lede">A random variable assigns a number to each outcome of a chance process. Its probability distribution lists every possible value and its probability. Edit a distribution, check whether it is valid, and shade the values that make up an event like "at most 2" or "more than 3."</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+
+  <div class="sec-head">
+    <h2 id="lab-h">1. Build a distribution, then find probabilities</h2>
+    <p>A valid discrete distribution has every probability between 0 and 1, and the probabilities add to exactly 1.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">0 ≤ P(X = x) ≤ 1</span> <span class="formula">Σ P(X = x) = 1</span> <span class="formula">P(X ≥ k) = 1 − P(X ≤ k − 1)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset distributions</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="dist-title">Distribution</h3>
+      <p class="note" id="ctx"></p>
+      <div class="tbl-wrap"><table class="mini" id="tbl"></table></div>
+      <div class="scenarios"><button type="button" id="addRow">Add a value</button><button type="button" id="delRow">Remove last value</button><button type="button" id="fix">Fill the last probability so the total is 1</button></div>
+      <p class="note" id="valid" aria-live="polite"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>Probability histogram <small>shaded bars are in the event</small></h3>
+      <svg class="chart" id="hist" role="img" aria-label="Probability histogram of the distribution with the event shaded"></svg>
+    </div>
+  </div>
+
+  <div class="card" style="display:grid; gap:10px;">
+    <div class="tag">Event</div>
+    <div class="ev">
+      <label for="evType" class="note">X is</label>
+      <select id="evType">
+        <option value="eq">equal to</option>
+        <option value="le">at most (≤)</option>
+        <option value="lt">less than (&lt;)</option>
+        <option value="ge">at least (≥)</option>
+        <option value="gt">more than (&gt;)</option>
+        <option value="bt">between (inclusive)</option>
+      </select>
+      <label for="evK" class="sr">Value</label><input type="number" id="evK" step="1">
+      <span id="evAnd" class="note">and</span><label for="evK2" class="sr">Upper value</label><input type="number" id="evK2" step="1">
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Total probability</div><div class="v" id="r-tot"></div></div>
+    <div class="stat"><div class="k">Probability of the event</div><div class="v" id="r-ev"></div></div>
+    <div class="stat"><div class="k">Complement</div><div class="v" id="r-comp"></div></div>
+    <div class="stat"><div class="k">Most likely value</div><div class="v" id="r-mode"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="calc" id="calcEv"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Cumulative distribution P(X ≤ x)</h3>
+      <div class="tbl-wrap"><table class="mini" id="cum"></table></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Continuous random variables: probability is area</h3>
+    <p>A continuous random variable can take any value in an interval. Its probabilities are areas under a density curve whose total area is 1, so P(X = exactly one value) = 0 and ≤ means the same as &lt;.</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <p class="note">A bus arrives at a random time in a 20-minute window, so the wait X is uniform from 0 to 20 minutes. The density is a flat line at height 1/20 = 0.05.</p>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="ua">From a <output id="ua-o"></output></label><input type="range" id="ua" min="0" max="20" step="0.5" value="5"></div>
+        <div class="ctl"><label for="ub">To b <output id="ub-o"></output></label><input type="range" id="ub" min="0" max="20" step="0.5" value="12"></div>
+      </div>
+      <div class="calc" id="calcU"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Uniform density <small>shaded area = probability</small></h3>
+      <svg class="chart" id="unif" role="img" aria-label="Uniform density curve with a shaded rectangle"></svg>
+    </div>
+  </div>
+
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+
+    <div class="card"><span class="tag">Random variable</span><h3>A number from chance</h3><p>A random variable, like X = number of heads in 3 flips, takes numerical values that depend on the outcome of a chance process. Use capital letters for the variable and lowercase for a specific value.</p></div>
+    <div class="card"><span class="tag">Discrete</span><h3>Countable values</h3><p>A discrete random variable takes a fixed set of separate values, often counts like 0, 1, 2, 3. Its distribution is a table or a probability histogram, and you find probabilities by adding bars.</p></div>
+    <div class="card"><span class="tag">Continuous</span><h3>Any value in an interval</h3><p>A continuous random variable, like a waiting time, can take any value in a range. Probabilities are areas under a density curve, and any single exact value has probability 0.</p></div>
+    <div class="card"><span class="tag">Valid?</span><h3>Two rules</h3><p>Every probability must be between 0 and 1, and all the probabilities must add to 1. A missing probability is often found by subtracting the others from 1.</p></div>
+    <div class="card"><span class="tag">Wording</span><h3>"At least" vs. "more than"</h3><p>For a discrete variable, "at least 3" includes 3, but "more than 3" does not. Translate the words into ≤, &lt;, ≥, or &gt; before adding probabilities.</p></div>
+    <div class="card"><span class="tag">Cumulative</span><h3>Running totals</h3><p>The cumulative probability P(X ≤ x) adds every probability up to and including x. It rises from the first value to 1 at the largest value.</p></div>
+
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Translate the words</h2>
+    <p>For a discrete random variable with values 0, 1, 2, …, these phrases mean different sets of values.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+
+    <thead><tr><th>Phrase</th><th>Symbol</th><th>Values included (k = 3)</th><th>Shortcut</th></tr></thead>
+    <tbody>
+      <tr><td>Exactly 3</td><td>P(X = 3)</td><td>3</td><td>Read the table</td></tr>
+      <tr><td>At most 3, no more than 3</td><td>P(X ≤ 3)</td><td>0, 1, 2, 3</td><td>Cumulative probability at 3</td></tr>
+      <tr><td>Fewer than 3, less than 3</td><td>P(X &lt; 3)</td><td>0, 1, 2</td><td>Same as P(X ≤ 2)</td></tr>
+      <tr><td>At least 3, 3 or more</td><td>P(X ≥ 3)</td><td>3, 4, 5, …</td><td>1 − P(X ≤ 2)</td></tr>
+      <tr><td>More than 3, greater than 3</td><td>P(X &gt; 3)</td><td>4, 5, …</td><td>1 − P(X ≤ 3)</td></tr>
+      <tr><td>Between 2 and 4 (inclusive)</td><td>P(2 ≤ X ≤ 4)</td><td>2, 3, 4</td><td>P(X ≤ 4) − P(X ≤ 1)</td></tr>
+      <tr><td>For a <b>continuous</b> X</td><td>P(X &lt; 3) = P(X ≤ 3)</td><td>An interval, not a list</td><td>Area under the density curve</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+
+        <li>Define the random variable in context: "Let X = the number of customers who buy coffee in a group of 4."</li>
+        <li>Write the probability statement before the answer: "P(X ≥ 2) = P(X = 2) + P(X = 3) + P(X = 4) = 0.30 + 0.15 + 0.05 = 0.50."</li>
+        <li>For a missing probability, show the subtraction: "P(X = 4) = 1 − (0.10 + 0.25 + 0.40 + 0.15) = 0.10."</li>
+        <li>To justify that a table is a valid distribution, state both rules: each probability is between 0 and 1, and they sum to 1.</li>
+        <li>Interpret in context: "There is about a 50% chance that at least 2 of the 4 customers buy coffee."</li>
+
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+
+        <li>Including the endpoint for "more than" or "fewer than." Those are strict inequalities.</li>
+        <li>Using the complement with the wrong cutoff: P(X ≥ 3) is 1 − P(X ≤ 2), not 1 − P(X ≤ 3).</li>
+        <li>Treating the values of X as probabilities. The x row is outcomes; the P(x) row is probabilities.</li>
+        <li>Giving a continuous variable a positive probability for one exact value.</li>
+        <li>Accepting a "distribution" whose probabilities add to 0.95 or 1.10. It is not valid.</li>
+
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.8. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  var PRESETS = [
+    { name: "Heads in 3 coin flips", ctx: "X = number of heads when a fair coin is flipped 3 times.", xs: [0, 1, 2, 3], ps: [0.125, 0.375, 0.375, 0.125], ev: ["ge", 2] },
+    { name: "Cars per household", ctx: "X = number of cars owned by a randomly chosen household.", xs: [0, 1, 2, 3, 4], ps: [0.08, 0.32, 0.38, 0.16, 0.06], ev: ["gt", 2] },
+    { name: "Missing probability", ctx: "X = number of pets in a home. One probability is missing; use the fill button.", xs: [0, 1, 2, 3, 4], ps: [0.35, 0.30, 0.20, 0.10, 0], ev: ["le", 1] },
+    { name: "Not a valid distribution", ctx: "X = goals scored in a game. These probabilities do not add to 1.", xs: [0, 1, 2, 3], ps: [0.30, 0.40, 0.25, 0.15], ev: ["eq", 1] },
+    { name: "Sum of two dice", ctx: "X = sum of two fair six-sided dice.", xs: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], ps: [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1].map(function (k) { return Math.round(k / 36 * 10000) / 10000; }), ev: ["bt", 6, 8] }
+  ];
+  var S;
+  function load(p) {
+    S = { ctx: p.ctx, xs: p.xs.slice(), ps: p.ps.slice(), type: p.ev[0], k: p.ev[1], k2: p.ev[2] != null ? p.ev[2] : p.ev[1] + 1 };
+    $("evType").value = S.type; $("evK").value = S.k; $("evK2").value = S.k2;
+    buildTable(); compute();
+  }
+  function buildTable() {
+    var h = '<thead><tr><th>Value x</th><th>P(X = x)</th></tr></thead><tbody>';
+    S.xs.forEach(function (x, i) {
+      h += '<tr><td><label class="sr" for="x' + i + '">Value ' + (i + 1) + '</label><input type="number" id="x' + i + '" step="1" value="' + x + '"></td>' +
+        '<td><label class="sr" for="p' + i + '">Probability ' + (i + 1) + '</label><input type="number" id="p' + i + '" step="0.01" min="0" max="1" value="' + S.ps[i] + '"></td></tr>';
+    });
+    h += '</tbody><tfoot><tr><td>Total</td><td id="totCell"></td></tr></tfoot>';
+    $("tbl").innerHTML = h;
+    S.xs.forEach(function (_, i) {
+      $("x" + i).addEventListener("input", function (e) { var v = parseFloat(e.target.value); S.xs[i] = isNaN(v) ? 0 : v; compute(); });
+      $("p" + i).addEventListener("input", function (e) { var v = parseFloat(e.target.value); S.ps[i] = isNaN(v) ? 0 : v; compute(); });
+    });
+  }
+  function inEv(x) {
+    switch (S.type) {
+      case "eq": return x === S.k; case "le": return x <= S.k; case "lt": return x < S.k;
+      case "ge": return x >= S.k; case "gt": return x > S.k; default: return x >= Math.min(S.k, S.k2) && x <= Math.max(S.k, S.k2);
+    }
+  }
+  function evText() {
+    var m = { eq: "X = " + S.k, le: "X ≤ " + S.k, lt: "X < " + S.k, ge: "X ≥ " + S.k, gt: "X > " + S.k, bt: Math.min(S.k, S.k2) + " ≤ X ≤ " + Math.max(S.k, S.k2) };
+    return "P(" + m[S.type] + ")";
+  }
+  function compute() {
+    $("ctx").textContent = S.ctx;
+    $("evAnd").style.display = $("evK2").style.display = S.type === "bt" ? "" : "none";
+    var tot = Lab.sum(S.ps), bad = S.ps.some(function (p) { return p < 0 || p > 1; });
+    var valid = !bad && Math.abs(tot - 1) < 0.0015;
+    var dupl = S.xs.some(function (x, i) { return S.xs.indexOf(x) !== i; });
+    $("totCell").textContent = N(tot, 4);
+    $("valid").innerHTML = valid && !dupl ? '<span class="good-msg">Valid distribution.</span> Every probability is between 0 and 1 and they add to 1.' :
+      '<span class="bad-msg">Not valid.</span> ' + (bad ? "A probability is outside 0 to 1. " : "") + (Math.abs(tot - 1) >= 0.0015 ? "The probabilities add to " + N(tot, 4) + ", not 1. " : "") + (dupl ? "Each value of x should appear once." : "");
+    // order rows by x for display/graph
+    var idx = S.xs.map(function (_, i) { return i; }).sort(function (a, b) { return S.xs[a] - S.xs[b]; });
+    var xs = idx.map(function (i) { return S.xs[i]; }), ps = idx.map(function (i) { return S.ps[i]; });
+    var inc = xs.map(inEv), pe = 0; ps.forEach(function (p, i) { if (inc[i]) pe += p; });
+    $("r-tot").textContent = N(tot, 4);
+    $("r-ev").textContent = N(pe, 4);
+    $("r-comp").textContent = N(tot - pe, 4);
+    var mi = 0; ps.forEach(function (p, i) { if (p > ps[mi]) mi = i; });
+    $("r-mode").textContent = "x = " + N(xs[mi], 2);
+    // graph
+    var top = Math.max.apply(null, ps.concat([0.1])), yt = Lab.niceTicks(0, top * 1.15, 5);
+    var lo = xs[0], hi = xs[xs.length - 1];
+    var F = Lab.frame($("hist"), { x: [lo - 0.6, hi + 0.6], y: [0, yt[yt.length - 1]], xLabel: "Value of X", yLabel: "Probability", xTicks: xs, yTicks: yt, fmtX: function (v) { return N(v, 2); }, fmtY: function (v) { return N(v, 2); } });
+    var w = xs.length > 1 ? Math.min(0.9, (hi - lo) / (xs.length - 1) * 0.9) : 0.8;
+    ps.forEach(function (p, i) {
+      if (p <= 0) return;
+      Lab.el("rect", { x: F.sx(xs[i] - w / 2), y: F.sy(Math.min(p, F.yr[1])), width: F.sx(xs[i] + w / 2) - F.sx(xs[i] - w / 2), height: F.sy(0) - F.sy(Math.min(p, F.yr[1])), fill: inc[i] ? "var(--accent)" : "var(--ghost)", opacity: inc[i] ? .9 : .45, stroke: "var(--surface)" }, F.g);
+      Lab.tag(F, xs[i], Math.min(p, F.yr[1]) + (F.yr[1]) * 0.03, N(p, 3), "var(--ink)", "middle");
+    });
+    // work
+    var used = []; xs.forEach(function (x, i) { if (inc[i]) used.push(i); });
+    var r = '<div class="row"><span>Event</span><span>' + evText() + "</span></div>";
+    r += '<div class="row"><span>Values included</span><span style="white-space:normal">' + (used.length ? used.map(function (i) { return N(xs[i], 2); }).join(", ") : "none") + "</span></div>";
+    r += '<div class="row"><span>Add their probabilities: ' + (used.length ? used.map(function (i) { return N(ps[i], 4); }).join(" + ") : "0") + "</span><span>= " + N(pe, 4) + "</span></div>";
+    if (used.length > xs.length / 2 && used.length < xs.length) {
+      var un = []; xs.forEach(function (x, i) { if (!inc[i]) un.push(i); });
+      r += '<div class="row"><span>Faster with the complement: 1 − (' + un.map(function (i) { return N(ps[i], 4); }).join(" + ") + ")</span><span>= " + N(1 - un.reduce(function (a, i) { return a + ps[i]; }, 0), 4) + "</span></div>";
+    }
+    $("calcEv").innerHTML = r;
+    var c = '<thead><tr><th>x</th><th>P(X = x)</th><th>P(X ≤ x)</th></tr></thead><tbody>', run = 0;
+    xs.forEach(function (x, i) { run += ps[i]; c += "<tr><td>" + N(x, 2) + "</td><td>" + N(ps[i], 4) + "</td><td>" + N(run, 4) + "</td></tr>"; });
+    $("cum").innerHTML = c + "</tbody>";
+    story(valid && !dupl, tot, pe, used.length);
+  }
+  function story(valid, tot, pe, k) {
+    var head, t = [];
+    if (!valid) head = "<b>Fix the distribution first.</b> Probabilities computed from an invalid table do not mean anything. " + (Math.abs(tot - 1) >= 0.0015 ? "Right now the total is " + N(tot, 4) + "." : "");
+    else head = "<b>" + evText() + " = " + N(pe, 4) + ".</b> " + (k ? "Add the shaded bars: they are the values that make the event true." : "No values of X satisfy this event, so its probability is 0.");
+    t.push("The complement, " + evText().replace("P(", "P(not ") + ", is 1 − " + N(pe, 4) + " = " + N(1 - pe, 4) + ".");
+    if (S.type === "ge" || S.type === "gt") t.push("Watch the endpoint: \"at least " + S.k + "\" includes " + S.k + ", but \"more than " + S.k + "\" does not. Switch between them and see the shading change.");
+    else if (S.type === "le" || S.type === "lt") t.push("Watch the endpoint: \"at most " + S.k + "\" includes " + S.k + ", but \"less than " + S.k + "\" does not.");
+    if (valid) t.push('AP answer: "' + evText() + " = " + N(pe, 4) + ', so the probability is about ' + Lab.pct(pe) + '."');
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  $("evType").addEventListener("change", function (e) { S.type = e.target.value; compute(); });
+  $("evK").addEventListener("input", function (e) { S.k = parseFloat(e.target.value) || 0; compute(); });
+  $("evK2").addEventListener("input", function (e) { S.k2 = parseFloat(e.target.value) || 0; compute(); });
+  $("addRow").addEventListener("click", function () { if (S.xs.length >= 12) return; S.xs.push(Math.max.apply(null, S.xs) + 1); S.ps.push(0); buildTable(); compute(); });
+  $("delRow").addEventListener("click", function () { if (S.xs.length <= 2) return; S.xs.pop(); S.ps.pop(); buildTable(); compute(); });
+  $("fix").addEventListener("click", function () { var rest = Lab.sum(S.ps.slice(0, -1)); S.ps[S.ps.length - 1] = Math.max(0, Math.round((1 - rest) * 10000) / 10000); buildTable(); compute(); });
+  PRESETS.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); $("scen").appendChild(b); });
+  load(PRESETS[0]);
+
+  var U = { a: 5, b: 12 };
+  function renderU() {
+    var a = Math.min(U.a, U.b), b = Math.max(U.a, U.b);
+    $("ua-o").textContent = N(U.a, 1); $("ub-o").textContent = N(U.b, 1);
+    var F = Lab.frame($("unif"), { x: [-2, 22], y: [0, 0.08], xLabel: "Wait time X (minutes)", yLabel: "Density", xTicks: [0, 5, 10, 15, 20], yTicks: [0, 0.02, 0.04, 0.06, 0.08], fmtX: String, fmtY: function (v) { return N(v, 2); } });
+    Lab.rect(F, a, 0, b, 0.05, "var(--accent)", .35);
+    Lab.line(F, [[-2, 0], [0, 0], [0, 0.05], [20, 0.05], [20, 0], [22, 0]], "var(--accent)", 3);
+    Lab.tag(F, (a + b) / 2, 0.056, "area = " + N((b - a) * 0.05, 3), "var(--ink)", "middle");
+    $("calcU").innerHTML = '<div class="row"><span>P(' + N(a, 1) + " ≤ X ≤ " + N(b, 1) + ") = width × height</span><span></span></div>" +
+      '<div class="row"><span>= (' + N(b, 1) + " − " + N(a, 1) + ") × 0.05</span><span>= " + N((b - a) * 0.05, 3) + "</span></div>" +
+      '<div class="row"><span>P(X = ' + N(a, 1) + ") exactly</span><span>= 0 (a line has no width)</span></div>";
+  }
+  $("ua").addEventListener("input", function (e) { U.a = +e.target.value; renderU(); });
+  $("ub").addEventListener("input", function (e) { U.b = +e.target.value; renderU(); });
+  renderU();
+
+  var Q = [
+    { s: "Which of these is a discrete random variable?", o: ["The time it takes to run a mile", "The number of texts a student sends in a day", "The weight of a newborn", "The height of a tree"], c: 1, w: "A count of texts takes separate whole-number values. Times, weights, and heights can take any value in an interval, so they are continuous." },
+    { s: "X takes values 0, 1, 2, 3 with probabilities 0.2, 0.4, 0.3, and k. What must k be?", o: ["0.1", "0.3", "0.9", "Any value between 0 and 1"], c: 0, w: "The probabilities must add to 1: 0.2 + 0.4 + 0.3 + k = 1, so k = 0.1." },
+    { s: "For the distribution in the previous question, what is P(X ≥ 2)?", o: ["0.3", "0.4", "0.6", "0.9"], c: 1, w: "P(X ≥ 2) = P(X = 2) + P(X = 3) = 0.3 + 0.1 = 0.4." },
+    { s: "For the same distribution, what is P(X < 2)?", o: ["0.2", "0.6", "0.9", "0.4"], c: 1, w: "\"Less than 2\" means 0 or 1: 0.2 + 0.4 = 0.6. Note that this is the complement of P(X ≥ 2) = 0.4." },
+    { s: "Which table is NOT a valid probability distribution?", o: ["P = 0.5, 0.5", "P = 0.1, 0.2, 0.7", "P = 0.6, 0.6, −0.2", "P = 0.25, 0.25, 0.25, 0.25"], c: 2, w: "A probability can never be negative, even if the total is 1." },
+    { s: "A random number X is uniform between 0 and 10. What is P(X = 4)?", o: ["0", "0.1", "0.4", "0.04"], c: 0, w: "X is continuous, so a single exact value has probability 0. Probabilities are areas, and a single point has no width." },
+    { s: "For the uniform X from 0 to 10, what is P(2 < X < 5)?", o: ["0.2", "0.3", "0.5", "0.03"], c: 1, w: "The density height is 1/10. Area = (5 − 2) × 0.1 = 0.3." },
+    { s: "A discrete X has P(X ≤ 4) = 0.72. What is P(X > 4)?", o: ["0.72", "0.28", "Cannot be found without the full table", "1.72"], c: 1, w: "\"More than 4\" is the complement of \"at most 4,\" so P(X > 4) = 1 − 0.72 = 0.28." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.8");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.8", compact: true, storageKey: "topic-2.8" });</script>
+</body>
+</html>

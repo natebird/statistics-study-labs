@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Independent Events and Unions Study Lab</title>
+<meta name="description" content="Set P(A), P(B), and P(A and B), then check independence and find P(A or B) with the general addition rule.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 5px 10px; font-family: var(--mono); font-size: .84rem; text-align: right; }
+.mini th { font-family: var(--body); text-transform: none; letter-spacing: 0; font-size: .82rem; }
+.mini td:first-child, .mini th:first-child { text-align: left; }
+.mini tfoot td { background: var(--paper); font-weight: 600; }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 60px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+.venn text { font-family: var(--mono); }
+.verdict { font-weight: 600; }
+.verdict.yes { color: var(--good); } .verdict.no { color: var(--bad); }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.7</span>
+  <h1>Independent Events and Unions Study Lab</h1>
+  <p class="lede">Two events are independent when knowing one happened does not change the probability of the other. The general addition rule finds the probability that at least one of two events happens. Set the probabilities, watch the Venn diagram, and check independence three ways.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+
+  <div class="sec-head">
+    <h2 id="lab-h">1. Check independence, then add</h2>
+    <p>Move the sliders or choose a preset. The joint probability is limited by the other two, so the sliders keep it possible.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">Independent ⇔ P(A ∩ B) = P(A) · P(B)</span> <span class="formula">P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset situations</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>Probabilities</h3>
+      <p class="note" id="ctx"></p>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl"><label for="pa">P(A) <output id="pa-o"></output></label><input type="range" id="pa" min="0" max="1" step="0.01"><span class="hint" id="pa-h"></span></div>
+        <div class="ctl"><label for="pb">P(B) <output id="pb-o"></output></label><input type="range" id="pb" min="0" max="1" step="0.01"><span class="hint" id="pb-h"></span></div>
+        <div class="ctl"><label for="pab">P(A and B) <output id="pab-o"></output></label><input type="range" id="pab" min="0" max="1" step="0.01"><span class="hint" id="pab-h"></span></div>
+      </div>
+      <div class="scenarios"><button type="button" id="makeInd">Make them independent</button><button type="button" id="makeME">Make them mutually exclusive</button></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Venn diagram <small>probability in each region</small></h3>
+      <svg class="chart venn" id="venn" role="img" aria-label="Venn diagram showing the probability of each region"></svg>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">P(A or B)</div><div class="v" id="r-u"></div></div>
+    <div class="stat"><div class="k">P(A | B)</div><div class="v" id="r-ab"></div></div>
+    <div class="stat"><div class="k">P(A) · P(B)</div><div class="v" id="r-prod"></div></div>
+    <div class="stat"><div class="k">Independent?</div><div class="v" id="r-ind"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Three ways to test independence</h3>
+      <div class="calc" id="calcInd"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>General addition rule</h3>
+      <div class="calc" id="calcU"></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Repeated independent trials: "at least one"</h3>
+    <p>For independent events you can multiply. The fastest route to "at least one" is the complement: <span class="formula">P(at least one) = 1 − P(none) = 1 − (1 − p)ⁿ</span></p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="scenarios" id="scenL"></div>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="lp">Chance of success each trial p <output id="lp-o"></output></label><input type="range" id="lp" min="0.01" max="0.99" step="0.01"></div>
+        <div class="ctl"><label for="ln">Number of independent trials n <output id="ln-o"></output></label><input type="range" id="ln" min="1" max="30" step="1"></div>
+      </div>
+    </div>
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="calc" id="calcL"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+
+    <div class="card"><span class="tag">Independence</span><h3>Knowing one tells you nothing</h3><p>A and B are independent when P(A | B) = P(A). Equivalently P(B | A) = P(B), or P(A ∩ B) = P(A) · P(B). If any one of these holds, all three do.</p></div>
+    <div class="card"><span class="tag">Multiplication rule</span><h3>"And" for independent events</h3><p>Only when A and B are independent can you find P(A and B) by multiplying P(A) · P(B). In general, P(A and B) = P(A) · P(B | A).</p></div>
+    <div class="card"><span class="tag">Union</span><h3>"Or" means at least one</h3><p>P(A ∪ B) is the probability that A happens, B happens, or both. Adding P(A) + P(B) counts the overlap twice, so subtract P(A ∩ B) once.</p></div>
+    <div class="card"><span class="tag">Not the same</span><h3>Independent ≠ mutually exclusive</h3><p>Mutually exclusive events cannot happen together, so P(A ∩ B) = 0. If both have positive probability, knowing A happened tells you B did not. That makes them <b>dependent</b>.</p></div>
+    <div class="card"><span class="tag">Complement</span><h3>At least one</h3><p>"At least one success in n independent trials" has many cases. Its complement, "no successes," has only one: P(none) = (1 − p)ⁿ. Subtract from 1.</p></div>
+    <div class="card"><span class="tag">From data</span><h3>Independence in a two-way table</h3><p>With sample data, compare conditional relative frequencies. If they are close, the variables look independent in the sample. Exact equality is rare in real data.</p></div>
+
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>The rules for "and" and "or," and when each shortcut is allowed.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+
+    <thead><tr><th>Question</th><th>Rule</th><th>When you can use it</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>P(A or B)</b></td><td>P(A) + P(B) − P(A ∩ B)</td><td>Always</td><td>0.5 + 0.4 − 0.2 = 0.7</td></tr>
+      <tr><td><b>P(A or B)</b>, shortcut</td><td>P(A) + P(B)</td><td>Only if A and B are mutually exclusive</td><td>P(roll 1 or 2) = 1/6 + 1/6</td></tr>
+      <tr><td><b>P(A and B)</b></td><td>P(A) · P(B | A)</td><td>Always</td><td>0.5 × 0.4 = 0.2</td></tr>
+      <tr><td><b>P(A and B)</b>, shortcut</td><td>P(A) · P(B)</td><td>Only if A and B are independent</td><td>Two coin flips: 0.5 × 0.5 = 0.25</td></tr>
+      <tr><td><b>Independence check</b></td><td>Is P(A | B) = P(A)?</td><td>Compare the numbers; do not assume</td><td>0.2/0.4 = 0.5 = P(A), so independent</td></tr>
+      <tr><td><b>At least one in n trials</b></td><td>1 − (1 − p)ⁿ</td><td>Trials independent, same p</td><td>1 − 0.9⁵ = 0.410</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+
+        <li>To show independence, compute and compare: "P(A | B) = 0.20 ÷ 0.40 = 0.50, which equals P(A) = 0.50, so A and B are independent."</li>
+        <li>To show dependence, show the two numbers differ: "P(late | rain) = 0.30 but P(late) = 0.12. Since these are not equal, the events are not independent."</li>
+        <li>Write the rule before plugging in: "P(A ∪ B) = P(A) + P(B) − P(A ∩ B) = …"</li>
+        <li>When you multiply probabilities, say why it is allowed: "Because the trials are independent, P(all 3) = 0.9³."</li>
+        <li>Answer in context with a probability between 0 and 1, rounded to at least 3 decimal places if it is not exact.</li>
+
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+
+        <li>Multiplying P(A) · P(B) for "and" when the events are not known to be independent.</li>
+        <li>Adding P(A) + P(B) for "or" when the events overlap, which can give an answer above 1.</li>
+        <li>Thinking mutually exclusive means independent. They are opposites when both probabilities are positive.</li>
+        <li>Computing "at least one" by multiplying p by n. That is not a probability rule and can exceed 1.</li>
+        <li>Declaring sample data "independent" or "dependent" without comparing specific relative frequencies.</li>
+
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.7. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  var P = Lab.pct;
+  function f3(v) { return N(v, 4); }
+  var PRESETS = [
+    { name: "Coin and die (independent)", a: "the coin lands heads", b: "the die shows a 6", pa: 0.5, pb: 0.17, pab: 0.085 },
+    { name: "Rain and lateness (dependent)", a: "a student is late", b: "it rains", pa: 0.12, pb: 0.25, pab: 0.075 },
+    { name: "Plays a sport and in band", a: "a student plays a sport", b: "a student is in band", pa: 0.40, pb: 0.25, pab: 0.10 },
+    { name: "Even or odd roll (mutually exclusive)", a: "the roll is even", b: "the roll is odd", pa: 0.5, pb: 0.5, pab: 0 },
+    { name: "Owns a cat and owns a dog", a: "a household has a cat", b: "a household has a dog", pa: 0.30, pb: 0.40, pab: 0.18 }
+  ];
+  var S = {};
+  function r2(v) { return Math.round(v * 1000) / 1000; }
+  function clampAB() {
+    var lo = Math.max(0, S.pa + S.pb - 1), hi = Math.min(S.pa, S.pb);
+    S.pab = Math.min(hi, Math.max(lo, S.pab));
+    return [lo, hi];
+  }
+  function load(p) { S = { a: p.a, b: p.b, pa: p.pa, pb: p.pb, pab: p.pab }; render(); }
+  function render() {
+    var lim = clampAB();
+    $("pa").value = S.pa; $("pb").value = S.pb; $("pab").value = S.pab;
+    $("pa-o").textContent = f3(S.pa); $("pb-o").textContent = f3(S.pb); $("pab-o").textContent = f3(S.pab);
+    $("pa-h").textContent = "A = " + S.a; $("pb-h").textContent = "B = " + S.b;
+    $("pab-h").textContent = "Possible range here: " + N(lim[0], 3) + " to " + N(lim[1], 3);
+    $("ctx").textContent = "A: " + S.a + ". B: " + S.b + ".";
+    var u = S.pa + S.pb - S.pab, prod = S.pa * S.pb;
+    var aGb = S.pb > 0 ? S.pab / S.pb : NaN, bGa = S.pa > 0 ? S.pab / S.pa : NaN;
+    var ind = Math.abs(S.pab - prod) < 0.0051;
+    $("r-u").textContent = f3(u);
+    $("r-ab").textContent = isNaN(aGb) ? "n/a" : f3(aGb);
+    $("r-prod").textContent = f3(prod);
+    $("r-ind").innerHTML = '<span class="verdict ' + (ind ? "yes" : "no") + '">' + (ind ? "Yes" : "No") + "</span>";
+    venn(u);
+    var r = "";
+    r += '<div class="row"><span>1. P(A | B) = P(A ∩ B) ÷ P(B) = ' + f3(S.pab) + " ÷ " + f3(S.pb) + "</span><span>" + (isNaN(aGb) ? "n/a" : "= " + f3(aGb) + " vs P(A) = " + f3(S.pa)) + "</span></div>";
+    r += '<div class="row"><span>2. P(B | A) = P(A ∩ B) ÷ P(A) = ' + f3(S.pab) + " ÷ " + f3(S.pa) + "</span><span>" + (isNaN(bGa) ? "n/a" : "= " + f3(bGa) + " vs P(B) = " + f3(S.pb)) + "</span></div>";
+    r += '<div class="row"><span>3. P(A) · P(B) = ' + f3(S.pa) + " × " + f3(S.pb) + "</span><span>= " + f3(prod) + " vs P(A ∩ B) = " + f3(S.pab) + "</span></div>";
+    r += '<div class="row"><span>Verdict</span><span>' + (ind ? "Equal → independent" : "Not equal → dependent") + "</span></div>";
+    $("calcInd").innerHTML = r;
+    r = "";
+    r += '<div class="row"><span>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</span><span></span></div>';
+    r += '<div class="row"><span>= ' + f3(S.pa) + " + " + f3(S.pb) + " − " + f3(S.pab) + "</span><span>= " + f3(u) + "</span></div>";
+    r += '<div class="row"><span>Neither A nor B = 1 − P(A ∪ B)</span><span>= ' + f3(1 - u) + "</span></div>";
+    r += '<div class="row"><span>Exactly one = P(A ∪ B) − P(A ∩ B)</span><span>= ' + f3(u - S.pab) + "</span></div>";
+    $("calcU").innerHTML = r;
+    story(u, prod, aGb, ind);
+  }
+  function venn(u) {
+    var svg = $("venn"), W = 440, H = 300;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var el = Lab.el;
+    el("rect", { x: 10, y: 10, width: W - 20, height: H - 20, rx: 10, fill: "var(--paper)", stroke: "var(--rule)" }, svg);
+    var overlap = S.pab > 0.0005, sep = overlap ? 110 : 190;
+    var ca = W / 2 - sep / 2, cb = W / 2 + sep / 2, cy = 150, R = 95;
+    el("circle", { cx: ca, cy: cy, r: R, fill: "var(--accent)", "fill-opacity": .18, stroke: "var(--accent)", "stroke-width": 2.5 }, svg);
+    el("circle", { cx: cb, cy: cy, r: R, fill: "var(--c1)", "fill-opacity": .18, stroke: "var(--c1)", "stroke-width": 2.5 }, svg);
+    el("text", { x: ca - R + 10, y: cy - R + 14, style: "fill:var(--accent);font-weight:700;font-size:15px" }, svg, "A");
+    el("text", { x: cb + R - 22, y: cy - R + 14, style: "fill:var(--c1);font-weight:700;font-size:15px" }, svg, "B");
+    var t = function (x, y, s) { el("text", { x: x, y: y, "text-anchor": "middle", style: "fill:var(--ink);font-size:14px;font-weight:600" }, svg, s); };
+    t(overlap ? ca - 45 : ca, cy + 5, f3(S.pa - S.pab));
+    t(overlap ? cb + 45 : cb, cy + 5, f3(S.pb - S.pab));
+    if (overlap) t(W / 2, cy + 5, f3(S.pab));
+    el("text", { x: W - 24, y: H - 22, "text-anchor": "end", style: "fill:var(--muted);font-size:12px" }, svg, "Neither: " + f3(1 - u));
+    if (overlap) el("text", { x: W / 2, y: cy + 24, "text-anchor": "middle", style: "fill:var(--muted);font-size:10.5px" }, svg, "A and B");
+  }
+  function story(u, prod, aGb, ind) {
+    var head, t = [];
+    if (S.pab === 0 && S.pa > 0 && S.pb > 0) head = "<b>Mutually exclusive, so dependent.</b> A and B never happen together. If you know " + S.b + ", the chance that " + S.a + " drops to 0.";
+    else if (ind) head = "<b>Independent.</b> P(A | B) = " + f3(aGb) + " matches P(A) = " + f3(S.pa) + ". Learning that " + S.b + " does not change the chance that " + S.a + ".";
+    else if (aGb > S.pa) head = "<b>Dependent: B makes A more likely.</b> P(A | B) = " + f3(aGb) + " is higher than P(A) = " + f3(S.pa) + ".";
+    else head = "<b>Dependent: B makes A less likely.</b> P(A | B) = " + f3(aGb) + " is lower than P(A) = " + f3(S.pa) + ".";
+    t.push("The chance that at least one happens is P(A ∪ B) = " + f3(u) + ". Simply adding would give " + f3(S.pa + S.pb) + (S.pab > 0 ? ", which double counts the overlap of " + f3(S.pab) + "." : ", which is correct here only because there is no overlap."));
+    if (!ind) t.push("Multiplying P(A) · P(B) = " + f3(prod) + " would be <b>wrong</b> for P(A and B) here, because the events are not independent. The true value is " + f3(S.pab) + ".");
+    t.push('AP answer: "Because P(A | B) ' + (ind ? "= " : "≠ ") + "P(A), events A and B are " + (ind ? "" : "not ") + 'independent."');
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  $("pa").addEventListener("input", function (e) { S.pa = +e.target.value; render(); });
+  $("pb").addEventListener("input", function (e) { S.pb = +e.target.value; render(); });
+  $("pab").addEventListener("input", function (e) { S.pab = +e.target.value; render(); });
+  $("makeInd").addEventListener("click", function () { S.pab = r2(S.pa * S.pb); render(); });
+  $("makeME").addEventListener("click", function () { if (S.pa + S.pb > 1) S.pb = r2(1 - S.pa); S.pab = 0; render(); });
+  PRESETS.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); $("scen").appendChild(b); });
+  load(PRESETS[0]);
+
+  var L = { p: 0.1, n: 5 };
+  function renderL() {
+    $("lp").value = L.p; $("ln").value = L.n; $("lp-o").textContent = N(L.p, 2); $("ln-o").textContent = L.n;
+    var none = Math.pow(1 - L.p, L.n), all = Math.pow(L.p, L.n), r = "";
+    r += '<div class="row"><span>P(no successes) = (1 − ' + N(L.p, 2) + ")<sup>" + L.n + "</sup></span><span>= " + N(none, 4) + "</span></div>";
+    r += '<div class="row"><span>P(at least one) = 1 − ' + N(none, 4) + "</span><span>= " + N(1 - none, 4) + "</span></div>";
+    r += '<div class="row"><span>P(all ' + L.n + " succeed) = " + N(L.p, 2) + "<sup>" + L.n + "</sup></span><span>= " + N(all, 4) + "</span></div>";
+    r += '<div class="row"><span>Wrong shortcut n × p = ' + L.n + " × " + N(L.p, 2) + "</span><span>= " + N(L.n * L.p, 3) + (L.n * L.p > 1 ? " (over 1!)" : " (not the answer)") + "</span></div>";
+    $("calcL").innerHTML = r;
+  }
+  $("lp").addEventListener("input", function (e) { L.p = +e.target.value; renderL(); });
+  $("ln").addEventListener("input", function (e) { L.n = +e.target.value; renderL(); });
+  [["At least one 6 in 4 rolls", 1 / 6, 4], ["At least one defect in 20 parts (2% each)", 0.02, 20], ["At least one free throw made in 3 tries (70%)", 0.7, 3]].forEach(function (x) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = x[0];
+    b.addEventListener("click", function () { L.p = Math.round(x[1] * 100) / 100; L.n = x[2]; renderL(); });
+    $("scenL").appendChild(b);
+  });
+  renderL();
+
+  var Q = [
+    { s: "P(A) = 0.4, P(B) = 0.5, and P(A and B) = 0.2. Are A and B independent?", o: ["Yes, because P(A)·P(B) = 0.2 = P(A and B)", "No, because P(A) + P(B) ≠ 1", "No, because P(A and B) is not 0", "Cannot be determined without a two-way table"], c: 0, w: "Independence holds when P(A ∩ B) = P(A)·P(B). Here 0.4 × 0.5 = 0.2, which matches." },
+    { s: "Using the same values, what is P(A or B)?", o: ["0.9", "0.7", "0.2", "0.1"], c: 1, w: "P(A ∪ B) = 0.4 + 0.5 − 0.2 = 0.7. Choice A forgets to subtract the overlap." },
+    { s: "Events C and D are mutually exclusive, with P(C) = 0.3 and P(D) = 0.6. Which is true?", o: ["C and D are independent", "P(C and D) = 0.18", "C and D are not independent", "P(C or D) = 0.72"], c: 2, w: "Mutually exclusive means P(C and D) = 0, but P(C)·P(D) = 0.18. Since these differ, C and D are dependent. P(C or D) = 0.9." },
+    { s: "A survey finds P(owns a bike) = 0.35 and P(owns a bike | lives downtown) = 0.50. Which conclusion is correct?", o: ["Owning a bike and living downtown are independent", "Owning a bike and living downtown are mutually exclusive", "Owning a bike and living downtown are not independent", "P(lives downtown) = 0.50"], c: 2, w: "Knowing someone lives downtown changes the probability of owning a bike from 0.35 to 0.50, so the events are not independent." },
+    { s: "A machine part fails with probability 0.05, independently of other parts. What is the probability that at least one of 10 parts fails?", o: ["0.50", "0.401", "0.599", "0.05"], c: 1, w: "P(none fail) = 0.95¹⁰ ≈ 0.599. P(at least one fails) = 1 − 0.599 ≈ 0.401. Choice A uses n × p, which is not a valid rule." },
+    { s: "A spinner lands on red with probability 0.25. It is spun 3 times independently. What is P(red all 3 times)?", o: ["0.75", "0.25", "0.0156", "0.578"], c: 2, w: "Independent trials multiply: 0.25³ ≈ 0.0156. Choice D is P(at least one red) = 1 − 0.75³ ≈ 0.578." },
+    { s: "P(A) = 0.6 and P(B) = 0.7. What is the smallest possible value of P(A and B)?", o: ["0", "0.3", "0.42", "0.6"], c: 1, w: "P(A ∪ B) can be at most 1, so 0.6 + 0.7 − P(A ∩ B) ≤ 1, giving P(A ∩ B) ≥ 0.3. These events cannot be mutually exclusive." },
+    { s: "Which statement about independent events A and B (each with positive probability) is true?", o: ["They cannot occur together", "P(A | B) = P(A)", "P(A or B) = P(A) + P(B)", "P(A and B) = 0"], c: 1, w: "Independence means knowing B does not change the probability of A. Independent events with positive probabilities can and do occur together." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.7");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.7", compact: true, storageKey: "topic-2.7" });</script>
+</body>
+</html>

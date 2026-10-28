@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confidence Interval for a Difference in Proportions Study Lab</title>
+<meta name="description" content="Build a two-sample z-interval for p₁ − p₂ step by step, then simulate many intervals to see what the confidence level means.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl input[type="text"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl input[type="text"] { font-family: var(--body); }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 6px 8px; font-size: .86rem; text-align: right; vertical-align: middle; }
+.mini th:first-child, .mini td:first-child { text-align: left; }
+.mini td.tot, .mini th.tot { background: var(--paper); font-family: var(--mono); }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 56px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: right; }
+.mono { font-family: var(--mono); }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+.steps { display: grid; gap: 12px; }
+.steps .card h3 { display: flex; gap: 10px; align-items: baseline; }
+.steps .card h3 .tag { font-size: .74rem; }
+.steps .card p, .steps .card li { font-size: .95rem; }
+.steps .card ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .mini input[type="number"] { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.10</span>
+  <h1>Confidence Interval for a Difference in Proportions Study Lab</h1>
+  <p class="lede">A two-sample z-interval estimates how far apart two population proportions are. Enter the data, check the conditions, and follow each step from the standard error to the final interval. Then simulate dozens of intervals to see what "95% confident" really promises.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Build a two-proportion z-interval</h2>
+    <p>Enter the successes and sample size for each group and pick a confidence level. The lab checks the conditions and works through every step.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">(p̂₁ − p̂₂) ± z* · √( p̂₁(1 − p̂₁)/n₁ + p̂₂(1 − p̂₂)/n₂ )</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <h3>Data</h3>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="g1">Group 1 name</label><input type="text" id="g1"></div>
+        <div class="ctl"><label for="g2">Group 2 name</label><input type="text" id="g2"></div>
+        <div class="ctl"><label for="x1">Successes x₁</label><input type="number" id="x1" min="0" step="1"></div>
+        <div class="ctl"><label for="x2">Successes x₂</label><input type="number" id="x2" min="0" step="1"></div>
+        <div class="ctl"><label for="n1">Sample size n₁</label><input type="number" id="n1" min="1" step="1"></div>
+        <div class="ctl"><label for="n2">Sample size n₂</label><input type="number" id="n2" min="1" step="1"></div>
+      </div>
+      <div class="ctl"><label for="succ">A "success" means…</label><input type="text" id="succ"></div>
+      <div class="ctlrow"><span class="tag">Confidence level</span><div class="seg" id="conf" role="group" aria-label="Confidence level"></div></div>
+      <p class="note" id="msg" aria-live="polite"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>The interval for p₁ − p₂ <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Number line showing the confidence interval for the difference in proportions"></svg>
+      <div class="legend"><span class="l-ad">Confidence interval</span><span class="l-c1">Zero (no difference)</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">p̂₁ − p̂₂</div><div class="v" id="r-d"></div></div>
+    <div class="stat"><div class="k">Standard error</div><div class="v" id="r-se"></div></div>
+    <div class="stat"><div class="k">Margin of error</div><div class="v" id="r-me"></div></div>
+    <div class="stat"><div class="k">Interval</div><div class="v" id="r-ci" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Plan: conditions</h3>
+      <div class="calc" id="calcCond"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Do: the calculation</h3>
+      <div class="calc" id="calcDo"></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">What does "95% confident" mean?</h3>
+    <p>Pretend the true proportions are known. Take many pairs of samples with the sizes above and build an interval from each. The confidence level is the long-run percent of intervals that capture the true difference.</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="tp1">True p₁ <output id="tp1-o"></output></label><input type="range" id="tp1" min="0.05" max="0.95" step="0.01"></div>
+        <div class="ctl"><label for="tp2">True p₂ <output id="tp2-o"></output></label><input type="range" id="tp2" min="0.05" max="0.95" step="0.01"></div>
+      </div>
+      <div class="scenarios"><button type="button" class="primary" id="m1">Make 1 interval</button><button type="button" id="m50">Make 50</button><button type="button" id="mclr">Clear</button></div>
+      <div class="readout" style="grid-template-columns:1fr 1fr;">
+        <div class="stat"><div class="k">Intervals made</div><div class="v" id="r-made">0</div></div>
+        <div class="stat"><div class="k">Captured p₁ − p₂</div><div class="v" id="r-cap">—</div></div>
+      </div>
+      <p class="note">Intervals that miss are drawn in red. Sample sizes and confidence level come from the builder above.</p>
+    </div>
+    <div class="card graph-card">
+      <h3>Simulated intervals <small id="s-sub"></small></h3>
+      <svg class="chart" id="sim" role="img" aria-label="Stack of simulated confidence intervals with the true difference marked"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Form</span><h3>Estimate ± margin of error</h3><p>Every confidence interval is point estimate ± (critical value)(standard error). Here the estimate is p̂₁ − p̂₂ and the critical value is z*.</p></div>
+    <div class="card"><span class="tag">Standard error</span><h3>Use the sample proportions</h3><p>Because p₁ and p₂ are unknown, the standard error plugs in p̂₁ and p̂₂: SE = √( p̂₁(1 − p̂₁)/n₁ + p̂₂(1 − p̂₂)/n₂ ).</p></div>
+    <div class="card"><span class="tag">Conditions</span><h3>Random, 10%, large counts</h3><p>Two independent random samples or a randomized experiment; each sample ≤ 10% of its population (for sampling); and at least 10 successes and 10 failures in each group.</p></div>
+    <div class="card"><span class="tag">Interpret the interval</span><h3>Plausible values</h3><p>"We are 95% confident that the interval from −0.02 to 0.11 captures the true difference p₁ − p₂." Always say which group was subtracted from which, and give context.</p></div>
+    <div class="card"><span class="tag">Interpret the level</span><h3>Long-run capture rate</h3><p>95% confidence means that if we took many pairs of samples and built an interval from each, about 95% of those intervals would capture the true difference. It is not a probability about this one interval.</p></div>
+    <div class="card"><span class="tag">Width</span><h3>What makes it narrower</h3><p>Lower confidence (smaller z*) and larger sample sizes (smaller SE) both shrink the interval. Higher confidence costs precision.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Critical values and the four-step process for a two-sample z-interval for p₁ − p₂.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Step</th><th>What to write</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>State</b></td><td>Parameter in words and the confidence level</td><td>p₁ − p₂, where p₁ = proportion of all city drivers who wear seatbelts…; 95% confidence</td></tr>
+      <tr><td><b>Plan</b></td><td>Name the procedure and check conditions</td><td>Two-sample z-interval for p₁ − p₂. Random ✓, 10% ✓, 412, 38, 341, 59 all ≥ 10 ✓</td></tr>
+      <tr><td><b>Do</b></td><td>Formula, numbers, and the interval</td><td>(0.916 − 0.853) ± 1.96(0.0220) = (0.020, 0.106)</td></tr>
+      <tr><td><b>Conclude</b></td><td>Interpret in context</td><td>We are 95% confident the interval from 0.020 to 0.106 captures the true difference…</td></tr>
+      <tr><td><b>z* values</b></td><td>90%: 1.645 · 95%: 1.960 · 98%: 2.326 · 99%: 2.576</td><td>invNorm(1 − (1 − C)/2)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Define the parameter with both groups and the order of subtraction: "p₁ − p₂, the difference between the proportion of all city drivers and all rural drivers who wear seatbelts."</li>
+        <li>Name the procedure exactly: two-sample z-interval for a difference in proportions.</li>
+        <li>Check large counts with the observed successes and failures in <i>both</i> samples, with numbers.</li>
+        <li>Show the formula with values substituted, even if you use 2-PropZInt on a calculator.</li>
+        <li>Interpret in context and with the parameter, not the statistic: the interval captures the <i>true</i> difference.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Saying "there is a 95% probability that the true difference is in this interval." The interval either captures it or not.</li>
+        <li>Interpreting the interval as describing the sample proportions. We already know p̂₁ − p̂₂ exactly.</li>
+        <li>Using the pooled proportion. Pooling is only for tests with H₀: p₁ = p₂.</li>
+        <li>Forgetting which group came first, then misreading a negative interval.</li>
+        <li>Checking the 10% condition for an experiment with volunteers. Random assignment replaces random sampling there.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.10. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function P(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function btns(host, list, fn) {
+    host.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = x.name || x[0]; b.addEventListener("click", function () { fn(x, i); }); host.appendChild(b); });
+  }
+  function seg(host, opts, cur, fn) {
+    host.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { Array.prototype.forEach.call(host.children, function (c) { c.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); fn(o[0]); });
+      host.appendChild(b);
+    });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function zstar(c) { return Lab.invNorm(1 - (1 - c) / 2); }
+
+
+  var PRESETS = [
+    { name: "Seatbelt use: city vs. rural drivers", g1: "City", g2: "Rural", s: "wears a seatbelt", x1: 412, n1: 450, x2: 341, n2: 400, c: .95 },
+    { name: "Flu shot: teachers vs. nurses", g1: "Teachers", g2: "Nurses", s: "got a flu shot", x1: 96, n1: 180, x2: 132, n2: 175, c: .95 },
+    { name: "Ad A vs. Ad B click rates", g1: "Ad A", g2: "Ad B", s: "clicked the ad", x1: 54, n1: 1200, x2: 48, n2: 1150, c: .90 },
+    { name: "New drug vs. placebo (experiment)", g1: "Drug", g2: "Placebo", s: "symptoms improved", x1: 63, n1: 100, x2: 44, n2: 100, c: .99 },
+    { name: "Too small: 3/20 vs. 6/22", g1: "Group A", g2: "Group B", s: "has the trait", x1: 3, n1: 20, x2: 6, n2: 22, c: .95 }
+  ];
+  var S = {}, CI = null;
+  function load(p) { S = { g1: p.g1, g2: p.g2, s: p.s, x1: p.x1, n1: p.n1, x2: p.x2, n2: p.n2, c: p.c };
+    ["g1", "g2", "x1", "n1", "x2", "n2"].forEach(function (k) { $(k).value = S[k]; }); $("succ").value = S.s;
+    seg($("conf"), [[.90, "90%"], [.95, "95%"], [.98, "98%"], [.99, "99%"]], S.c, function (v) { S.c = v; render(); });
+    T.p1 = Math.min(.95, Math.max(.05, Math.round(p.x1 / p.n1 * 100) / 100)); T.p2 = Math.min(.95, Math.max(.05, Math.round(p.x2 / p.n2 * 100) / 100)); T.list = [];
+    $("tp1").value = T.p1; $("tp2").value = T.p2;
+    render(); }
+  ["x1", "n1", "x2", "n2"].forEach(function (k) { $(k).addEventListener("input", function (e) { S[k] = Math.floor(+e.target.value); T.list = []; render(); }); });
+  ["g1", "g2"].forEach(function (k) { $(k).addEventListener("input", function (e) { S[k] = e.target.value || (k === "g1" ? "Group 1" : "Group 2"); render(); }); });
+  $("succ").addEventListener("input", function (e) { S.s = e.target.value || "a success"; render(); });
+
+  function compute(x1, n1, x2, n2, c) {
+    var a = x1 / n1, b = x2 / n2, se = Math.sqrt(a * (1 - a) / n1 + b * (1 - b) / n2), z = zstar(c), me = z * se, d = a - b;
+    return { a: a, b: b, d: d, se: se, z: z, me: me, lo: d - me, hi: d + me };
+  }
+
+  function render() {
+    var bad = !(S.n1 >= 1 && S.n2 >= 1 && S.x1 >= 0 && S.x2 >= 0 && S.x1 <= S.n1 && S.x2 <= S.n2);
+    $("msg").textContent = bad ? "Each count of successes must be a whole number from 0 up to its sample size." : "";
+    if (bad) return;
+    var r = compute(S.x1, S.n1, S.x2, S.n2, S.c); CI = r;
+    var cl = Math.round(S.c * 100) + "%";
+    $("r-d").textContent = N(r.d, 3); $("r-se").textContent = N(r.se, 4); $("r-me").textContent = N(r.me, 3);
+    $("r-ci").textContent = "(" + N(r.lo, 3) + ", " + N(r.hi, 3) + ")";
+
+    var span = Math.max(r.me * 1.6, 0.04), lo = Math.min(r.lo - span * 0.35, -span * 0.25), hi = Math.max(r.hi + span * 0.35, span * 0.25);
+    var ticks = Lab.niceTicks(lo, hi, 6);
+    var F = Lab.frame($("g"), { x: [ticks[0], ticks[ticks.length - 1]], y: [0, 10], xLabel: "p₁ − p₂ (" + S.g1 + " − " + S.g2 + ")", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 3); }, height: 220 });
+    Lab.vline(F, 0, "var(--c1)", 2, "6 4");
+    Lab.tag(F, 0, 9.2, "0", "var(--c1)", "middle");
+    Lab.line(F, [[r.lo, 5], [r.hi, 5]], "var(--accent)", 6);
+    Lab.line(F, [[r.lo, 3.8], [r.lo, 6.2]], "var(--accent)", 3); Lab.line(F, [[r.hi, 3.8], [r.hi, 6.2]], "var(--accent)", 3);
+    Lab.dot(F, r.d, 5, "var(--ink)", false);
+    Lab.tag(F, r.lo, 7.2, N(r.lo, 3), "var(--accent)", "middle"); Lab.tag(F, r.hi, 7.2, N(r.hi, 3), "var(--accent)", "middle");
+    Lab.tag(F, r.d, 2.4, "p̂₁ − p̂₂ = " + N(r.d, 3), "var(--ink)", "middle");
+    $("g-sub").textContent = cl + " confidence";
+
+    var cnt = [["n₁p̂₁ = " + S.x1, S.x1], ["n₁(1 − p̂₁) = " + (S.n1 - S.x1), S.n1 - S.x1], ["n₂p̂₂ = " + S.x2, S.x2], ["n₂(1 − p̂₂) = " + (S.n2 - S.x2), S.n2 - S.x2]];
+    var ok = cnt.every(function (x) { return x[1] >= 10; });
+    $("calcCond").innerHTML = rows([["<b>Random:</b> two independent random samples, or random assignment in an experiment", "check the design"],
+      ["<b>10%:</b> n₁ ≤ 10% of population 1 and n₂ ≤ 10% of population 2 (not needed for an experiment)", "check the context"]]
+      .concat(cnt.map(function (x) { return ["<b>Large counts:</b> " + x[0], x[1] >= 10 ? '<span class="ok">≥ 10 ✓</span>' : '<span class="no">&lt; 10 ✗</span>']; })));
+    $("calcDo").innerHTML = rows([
+      ["p̂₁ = " + S.x1 + " ÷ " + S.n1, "= " + N(r.a, 4)],
+      ["p̂₂ = " + S.x2 + " ÷ " + S.n2, "= " + N(r.b, 4)],
+      ["SE = √( " + N(r.a, 4) + "(" + N(1 - r.a, 4) + ")/" + S.n1 + " + " + N(r.b, 4) + "(" + N(1 - r.b, 4) + ")/" + S.n2 + " )", "= " + N(r.se, 4)],
+      ["z* for " + cl + " confidence", "= " + N(r.z, 3)],
+      ["ME = " + N(r.z, 3) + " × " + N(r.se, 4), "= " + N(r.me, 4)],
+      ["(" + N(r.a, 4) + " − " + N(r.b, 4) + ") ± " + N(r.me, 4), "(" + N(r.lo, 3) + ", " + N(r.hi, 3) + ")"]
+    ]);
+
+    var head, t = [];
+    head = "<b>Conclude:</b> We are " + cl + " confident that the interval from " + N(r.lo, 3) + " to " + N(r.hi, 3) + " captures the true difference in the proportion who " + esc(S.s) + " (" + esc(S.g1) + " minus " + esc(S.g2) + ").";
+    if (!ok) t.push('<span class="no">Caution:</span> at least one count is below 10, so the normal-based interval is not trustworthy for these data.');
+    if (r.lo > 0) t.push("The whole interval is above 0, so " + esc(S.g1) + " plausibly has the <b>higher</b> proportion, by somewhere between " + N(r.lo * 100, 1) + " and " + N(r.hi * 100, 1) + " percentage points.");
+    else if (r.hi < 0) t.push("The whole interval is below 0, so " + esc(S.g1) + " plausibly has the <b>lower</b> proportion, by somewhere between " + N(-r.hi * 100, 1) + " and " + N(-r.lo * 100, 1) + " percentage points.");
+    else t.push("The interval contains 0, so \"no difference\" is a plausible value. These data do not give convincing evidence that the proportions differ.");
+    t.push("Raising the confidence level makes z* bigger, so the interval gets wider. Larger samples make the standard error smaller, so the interval gets narrower.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+    renderSim();
+  }
+
+  // ---- capture-rate simulation
+  var T = { p1: .9, p2: .85, list: [] }, R = Lab.rng();
+  function make(k) {
+    for (var i = 0; i < k; i++) {
+      var a = 0, b = 0, j;
+      for (j = 0; j < S.n1; j++) if (R() < T.p1) a++;
+      for (j = 0; j < S.n2; j++) if (R() < T.p2) b++;
+      var r = compute(a, S.n1, b, S.n2, S.c);
+      T.list.push({ lo: r.lo, hi: r.hi, d: r.d, hit: r.lo <= T.p1 - T.p2 && T.p1 - T.p2 <= r.hi });
+      if (T.list.length > 100) T.list.shift();
+    }
+    renderSim();
+  }
+  function renderSim() {
+    $("tp1-o").textContent = N(T.p1); $("tp2-o").textContent = N(T.p2);
+    var tr = T.p1 - T.p2, sd = Math.sqrt(T.p1 * (1 - T.p1) / S.n1 + T.p2 * (1 - T.p2) / S.n2);
+    var ticks = Lab.niceTicks(tr - 4.5 * sd, tr + 4.5 * sd, 6);
+    var L = T.list, n = Math.max(L.length, 20);
+    var F = Lab.frame($("sim"), { x: [ticks[0], ticks[ticks.length - 1]], y: [0, n + 1], xLabel: "p₁ − p₂", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 3); } });
+    L.forEach(function (x, i) { var y = i + 1; Lab.line(F, [[x.lo, y], [x.hi, y]], x.hit ? "var(--accent)" : "var(--bad)", Math.max(1.5, Math.min(4, 200 / n))); });
+    Lab.vline(F, tr, "var(--c1)", 2.5);
+    Lab.tag(F, tr, n + 0.6, "true p₁ − p₂ = " + N(tr, 3), "var(--c1)", "middle");
+    var hits = L.filter(function (x) { return x.hit; }).length;
+    $("r-made").textContent = L.length;
+    $("r-cap").textContent = L.length ? hits + " (" + Lab.pct(hits / L.length, 0) + ")" : "—";
+    $("s-sub").textContent = Math.round(S.c * 100) + "% intervals, n₁ = " + S.n1 + ", n₂ = " + S.n2 + (L.length >= 100 ? " · latest 100" : "");
+  }
+  ["tp1", "tp2"].forEach(function (k) { $(k).addEventListener("input", function (e) { T[k.slice(1)] = +e.target.value; T.list = []; renderSim(); }); });
+  $("m1").addEventListener("click", function () { make(1); });
+  $("m50").addEventListener("click", function () { make(50); });
+  $("mclr").addEventListener("click", function () { T.list = []; renderSim(); });
+  btns($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+ {
+  "s": "In a random sample of 200 adults, 120 said they exercise weekly; in an independent random sample of 250 teens, 175 said so. What is the point estimate for p_adults − p_teens?",
+  "o": [
+   "0.10",
+   "−0.10",
+   "0.60",
+   "−55"
+  ],
+  "c": 1,
+  "w": "p̂₁ = 120/200 = 0.60 and p̂₂ = 175/250 = 0.70. The estimate is 0.60 − 0.70 = −0.10."
+ },
+ {
+  "s": "Which critical value is used for a 98% two-sample z-interval?",
+  "o": [
+   "1.645",
+   "1.960",
+   "2.326",
+   "2.576"
+  ],
+  "c": 2,
+  "w": "98% leaves 1% in each tail, so z* = invNorm(0.99) ≈ 2.326."
+ },
+ {
+  "s": "A 95% interval for p₁ − p₂ is (0.03, 0.12). Which interpretation is correct?",
+  "o": [
+   "There is a 95% chance p₁ − p₂ is between 0.03 and 0.12.",
+   "95% of samples have p̂₁ − p̂₂ between 0.03 and 0.12.",
+   "We are 95% confident that the interval from 0.03 to 0.12 captures the true difference p₁ − p₂.",
+   "The true difference is 0.075 with 95% confidence."
+  ],
+  "c": 2,
+  "w": "Confidence describes the method's long-run capture rate. After the data are collected, the interval either captures the parameter or not, so (A) misuses probability."
+ },
+ {
+  "s": "What does \"95% confidence level\" mean?",
+  "o": [
+   "95% of the data fall inside the interval",
+   "If we repeated the sampling many times, about 95% of the resulting intervals would capture the true difference",
+   "The sample difference is within 5% of the true difference",
+   "The true difference changes 5% of the time"
+  ],
+  "c": 1,
+  "w": "The confidence level is a statement about the procedure in repeated sampling."
+ },
+ {
+  "s": "Which change would make a two-proportion interval narrower?",
+  "o": [
+   "Raising the confidence level from 95% to 99%",
+   "Using smaller samples",
+   "Using larger samples",
+   "Switching which group is subtracted"
+  ],
+  "c": 2,
+  "w": "Larger n decreases the standard error. Higher confidence widens the interval; switching the order just flips the signs."
+ },
+ {
+  "s": "For the large counts condition in a two-proportion interval, which values must all be at least 10?",
+  "o": [
+   "n₁ and n₂",
+   "n₁p̂₁, n₁(1 − p̂₁), n₂p̂₂, n₂(1 − p̂₂)",
+   "n₁p̂c and n₂p̂c only",
+   "x₁ + x₂ and n₁ + n₂"
+  ],
+  "c": 1,
+  "w": "For an interval, use the observed successes and failures in each sample. The pooled p̂c is used for tests."
+ },
+ {
+  "s": "In an experiment, 80 volunteers are randomly assigned to two treatments. Which condition is NOT needed?",
+  "o": [
+   "Random assignment",
+   "Large counts",
+   "10% condition",
+   "Independence of the two groups"
+  ],
+  "c": 2,
+  "w": "The 10% condition is about sampling without replacement from a population. With random assignment of volunteers, it does not apply."
+ },
+ {
+  "s": "The SE for a two-proportion interval is 0.04 and the confidence level is 90%. What is the margin of error?",
+  "o": [
+   "0.040",
+   "0.066",
+   "0.078",
+   "0.103"
+  ],
+  "c": 1,
+  "w": "ME = z* × SE = 1.645 × 0.04 ≈ 0.066."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.10");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.10", compact: true, storageKey: "topic-3.10" });</script>
+</body>
+</html>

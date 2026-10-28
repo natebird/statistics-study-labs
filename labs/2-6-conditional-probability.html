@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conditional Probability Study Lab</title>
+<meta name="description" content="Use a tree diagram and a table of hypothetical counts to find P(A and B), P(B), and P(A | B), and see why P(A | B) and P(B | A) can be very different.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.optrow{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center}
+.ft{min-width:0}.ft th,.ft td{padding:7px 10px;text-align:right;font-family:var(--mono);font-size:.88rem}.ft th{font-family:var(--body);text-align:right}.ft th:first-child,.ft td:first-child{text-align:left;font-family:var(--body)}.ft td.hl{background:var(--accent-soft);color:var(--accent);font-weight:700}.ft td.hd{background:#0000;outline:2px solid var(--c1);outline-offset:-2px}.ft tfoot td{background:var(--paper)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.6</span>
+  <h1>Conditional Probability Study Lab</h1>
+  <p class="lede">A conditional probability is the probability of one event given that another has happened: P(A | B) = P(A and B) ÷ P(B). Set the branch probabilities on a tree, choose a question, and follow the highlighted paths. The table of counts shows the same calculation with whole numbers.</p>
+</header>
+
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Trees, tables, and "given"</h2>
+    <p>Pick a situation, adjust the branch probabilities, and choose what to find.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">P(A | B) = P(A and B) ÷ P(B)</span> <span class="formula">P(A and B) = P(A) · P(B | A)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Situations</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="sc-title"></h3>
+      <p class="note" id="sc-desc"></p>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl"><label for="pA"><span id="l-pA"></span> <output id="o-pA"></output></label><input type="range" id="pA" min="0.01" max="0.99" step="0.01"></div>
+        <div class="ctl"><label for="pBA"><span id="l-pBA"></span> <output id="o-pBA"></output></label><input type="range" id="pBA" min="0" max="1" step="0.01"></div>
+        <div class="ctl"><label for="pBnA"><span id="l-pBnA"></span> <output id="o-pBnA"></output></label><input type="range" id="pBnA" min="0" max="1" step="0.01"></div>
+      </div>
+      <div class="tag">Find</div>
+      <div class="seg" id="askSeg" role="group" aria-label="Which probability to find"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Tree diagram <small>highlighted paths answer the question</small></h3>
+      <svg class="chart" id="tree" role="img" aria-label="Tree diagram"></svg>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k" id="k1"></div><div class="v" id="r1"></div></div>
+    <div class="stat"><div class="k" id="k2"></div><div class="v" id="r2"></div></div>
+    <div class="stat"><div class="k" id="k3"></div><div class="v" id="r3"></div></div>
+    <div class="stat"><div class="k" id="k4"></div><div class="v" id="r4"></div></div>
+  </div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="calc" id="calc"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>The same thing with counts <small style="font-family:var(--body);font-weight:400;font-size:.82rem;color:var(--muted)">out of 10,000</small></h3>
+      <div class="tbl-wrap"><table class="ft" id="ft"></table></div>
+      <p class="note" id="ft-note"></p>
+    </div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Definition</span><h3>Shrink the sample space</h3><p>"Given B" means you only look at outcomes where B happened. P(A | B) is the fraction of those outcomes that are also in A: P(A and B) ÷ P(B).</p></div>
+    <div class="card"><span class="tag">Multiplication rule</span><h3>Multiply along a branch</h3><p>Rearranging the definition gives P(A and B) = P(A) · P(B | A). On a tree, multiply the probabilities along a path to get the probability of that whole path.</p></div>
+    <div class="card"><span class="tag">Tree diagrams</span><h3>Branches add to 1</h3><p>The branches leaving any point add to 1. The second-stage branches are conditional probabilities, because they assume the first-stage outcome already happened.</p></div>
+    <div class="card"><span class="tag">Total probability</span><h3>Add the paths</h3><p>To find P(B), add every path that ends in B: P(B) = P(A)·P(B | A) + P(Aᶜ)·P(B | Aᶜ).</p></div>
+    <div class="card"><span class="tag">Direction matters</span><h3>P(A | B) ≠ P(B | A)</h3><p>The probability of a positive test given disease can be 0.95, while the probability of disease given a positive test is far smaller when the disease is rare. Always check which event is “given.”</p></div>
+    <div class="card"><span class="tag">From tables</span><h3>Divide by the group</h3><p>With a two-way table, P(A | B) is the count in A and B divided by the count in B, the same as a conditional relative frequency.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Worked examples</h2>
+    <p>4% of a population has a condition. A test is positive for 90% of people with it and 8% of people without it.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Find</th><th>Formula</th><th>Work</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>P(condition and positive)</td><td>P(C) · P(+ | C)</td><td>0.04 × 0.90</td><td><b>0.036</b></td></tr>
+      <tr><td>P(no condition and positive)</td><td>P(Cᶜ) · P(+ | Cᶜ)</td><td>0.96 × 0.08</td><td><b>0.0768</b></td></tr>
+      <tr><td>P(positive)</td><td>Add the positive paths</td><td>0.036 + 0.0768</td><td><b>0.1128</b></td></tr>
+      <tr><td>P(condition | positive)</td><td>P(C and +) ÷ P(+)</td><td>0.036 ÷ 0.1128</td><td><b>about 0.319</b></td></tr>
+      <tr><td>P(no condition | negative)</td><td>P(Cᶜ and −) ÷ P(−)</td><td>(0.96 × 0.92) ÷ (1 − 0.1128)</td><td><b>about 0.995</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Define your events with letters and words: "Let D = has the disease, T = tests positive."</li>
+        <li>Write the formula with the right events, then substitute: "P(D | T) = P(D and T) / P(T) = 0.036 / 0.1128 ≈ 0.319."</li>
+        <li>Draw and label a tree, with probabilities on every branch, when the problem has two stages.</li>
+        <li>Interpret in context: "About 32% of people who test positive actually have the condition."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Swapping the condition: using P(T | D) when the question asks for P(D | T).</li>
+        <li>Forgetting the second path when finding P(T); positives come from both people with and without the condition.</li>
+        <li>Multiplying P(A) · P(B) for "A and B" when the events are not independent. Use P(A) · P(B | A).</li>
+        <li>Dividing by the grand total instead of the “given” group in a two-way table.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.6. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  var SC = [
+    { name: "Medical screening", title: "Screening for a rare condition", desc: "D = has the condition, T = tests positive. The test catches most cases but sometimes flags healthy people.", A: "D", Al: "has condition", B: "T", Bl: "positive", pA: 0.01, pBA: 0.95, pBnA: 0.05 },
+    { name: "Rain and being late", title: "Rainy mornings", desc: "R = it rains, L = the bus is late. The bus is late more often when it rains.", A: "R", Al: "rain", B: "L", Bl: "late", pA: 0.30, pBA: 0.40, pBnA: 0.10 },
+    { name: "Two free throws", title: "Free throws in a row", desc: "M1 = makes the first shot, M2 = makes the second. She is more likely to make the second after making the first.", A: "M1", Al: "makes 1st", B: "M2", Bl: "makes 2nd", pA: 0.75, pBA: 0.80, pBnA: 0.60 },
+    { name: "Spam filter", title: "A spam filter", desc: "S = an email is spam, F = the filter flags it.", A: "S", Al: "spam", B: "F", Bl: "flagged", pA: 0.45, pBA: 0.98, pBnA: 0.02 }
+  ];
+  var S, ask = "AgB";
+  function load(i) {
+    S = JSON.parse(JSON.stringify(SC[i]));
+    Array.prototype.forEach.call($("scen").children, function (b, j) { b.className = "chip"; b.setAttribute("aria-pressed", String(i === j)); });
+    $("pA").value = S.pA; $("pBA").value = S.pBA; $("pBnA").value = S.pBnA; askSeg(); render();
+  }
+  function askSeg() {
+    var box = $("askSeg"); box.innerHTML = "";
+    [["AandB", "P(" + S.A + " and " + S.B + ")"], ["B", "P(" + S.B + ")"], ["AgB", "P(" + S.A + " | " + S.B + ")"], ["AgnB", "P(" + S.A + " | " + S.B + "ᶜ)"]].forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1]; b.setAttribute("aria-pressed", String(ask === o[0]));
+      b.addEventListener("click", function () { ask = o[0]; askSeg(); render(); }); box.appendChild(b);
+    });
+  }
+  function render() {
+    var a = S.pA, b1 = S.pBA, b0 = S.pBnA;
+    var j = [a * b1, a * (1 - b1), (1 - a) * b0, (1 - a) * (1 - b0)]; // A&B, A&B', A'&B, A'&B'
+    var pB = j[0] + j[2], pnB = 1 - pB, AgB = pB > 0 ? j[0] / pB : NaN, AgnB = pnB > 0 ? j[1] / pnB : NaN;
+    $("sc-title").textContent = S.title; $("sc-desc").textContent = S.desc;
+    $("l-pA").textContent = "P(" + S.A + ")"; $("o-pA").textContent = N(a, 2);
+    $("l-pBA").textContent = "P(" + S.B + " | " + S.A + ")"; $("o-pBA").textContent = N(b1, 2);
+    $("l-pBnA").textContent = "P(" + S.B + " | " + S.A + "ᶜ)"; $("o-pBnA").textContent = N(b0, 2);
+
+    // which leaves are highlighted (num = numerator, den = denominator-only)
+    var num = { AandB: [0], B: [0, 2], AgB: [0], AgnB: [1] }[ask], den = { AandB: [], B: [], AgB: [2], AgnB: [3] }[ask];
+    var svg = $("tree"); svg.setAttribute("viewBox", "0 0 440 330"); while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var root = [28, 165], mid = [[160, 85], [160, 245]], leaf = [[290, 40], [290, 125], [290, 205], [290, 290]];
+    var hlMid = function (m) { return num.concat(den).some(function (k) { return Math.floor(k / 2) === m; }); };
+    function seg(p, q, lab, on, col) {
+      Lab.el("line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], stroke: on ? col : "var(--ghost)", "stroke-width": on ? 3.5 : 2 }, svg);
+      var mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+      Lab.el("rect", { x: mx - 22, y: my - 10, width: 44, height: 18, rx: 4, fill: "var(--surface)" }, svg);
+      Lab.el("text", { x: mx, y: my + 4, "text-anchor": "middle", style: "fill:var(--ink);font-family:var(--mono);font-size:11px" }, svg, lab);
+    }
+    function colOf(k) { return num.indexOf(k) >= 0 ? "var(--accent)" : "var(--c1)"; }
+    function midCol(m) { return num.some(function (k) { return Math.floor(k / 2) === m; }) ? "var(--accent)" : "var(--c1)"; }
+    seg(root, mid[0], N(a, 3), hlMid(0), midCol(0));
+    seg(root, mid[1], N(1 - a, 3), hlMid(1), midCol(1));
+    var br = [b1, 1 - b1, b0, 1 - b0];
+    leaf.forEach(function (L, k) {
+      var on = num.indexOf(k) >= 0 || den.indexOf(k) >= 0;
+      seg(mid[Math.floor(k / 2)], L, N(br[k], 3), on, colOf(k));
+    });
+    Lab.el("circle", { cx: root[0], cy: root[1], r: 5, fill: "var(--ink)" }, svg);
+    Lab.el("text", { x: mid[0][0], y: mid[0][1] - 10, "text-anchor": "middle", style: "fill:var(--ink);font-weight:700;font-size:13px" }, svg, S.A);
+    Lab.el("text", { x: mid[1][0], y: mid[1][1] + 20, "text-anchor": "middle", style: "fill:var(--ink);font-weight:700;font-size:13px" }, svg, S.A + "ᶜ");
+    var names = [S.A + " and " + S.B, S.A + " and " + S.B + "ᶜ", S.A + "ᶜ and " + S.B, S.A + "ᶜ and " + S.B + "ᶜ"];
+    leaf.forEach(function (L, k) {
+      var on = num.indexOf(k) >= 0 || den.indexOf(k) >= 0;
+      Lab.el("text", { x: L[0] + 8, y: L[1] - 2, style: "fill:" + (on ? colOf(k) : "var(--muted)") + ";font-weight:600;font-size:11.5px" }, svg, names[k]);
+      Lab.el("text", { x: L[0] + 8, y: L[1] + 13, style: "fill:" + (on ? "var(--ink)" : "var(--muted)") + ";font-family:var(--mono);font-size:11px" }, svg, "= " + N(j[k], 4));
+    });
+
+    // readouts
+    var R = [["P(" + S.A + " and " + S.B + ")", N(j[0], 4)], ["P(" + S.B + ")", N(pB, 4)], ["P(" + S.A + " | " + S.B + ")", N(AgB, 4)], ["P(" + S.B + " | " + S.A + ")", N(b1, 4)]];
+    R.forEach(function (r, i) { $("k" + (i + 1)).textContent = r[0]; $("r" + (i + 1)).textContent = r[1]; });
+
+    // calc
+    var c = "";
+    c += "<div class='row'><span>P(" + S.A + " and " + S.B + ") = P(" + S.A + ") · P(" + S.B + " | " + S.A + ") = " + N(a, 3) + " × " + N(b1, 3) + "</span><span>= " + N(j[0], 4) + "</span></div>";
+    c += "<div class='row'><span>P(" + S.A + "ᶜ and " + S.B + ") = " + N(1 - a, 3) + " × " + N(b0, 3) + "</span><span>= " + N(j[2], 4) + "</span></div>";
+    c += "<div class='row'><span>P(" + S.B + ") = " + N(j[0], 4) + " + " + N(j[2], 4) + "</span><span>= " + N(pB, 4) + "</span></div>";
+    if (ask === "AgnB") {
+      c += "<div class='row'><span>P(" + S.A + " and " + S.B + "ᶜ) = " + N(a, 3) + " × " + N(1 - b1, 3) + "</span><span>= " + N(j[1], 4) + "</span></div>";
+      c += "<div class='row'><span>P(" + S.B + "ᶜ) = 1 − " + N(pB, 4) + "</span><span>= " + N(pnB, 4) + "</span></div>";
+      c += "<div class='row'><span>P(" + S.A + " | " + S.B + "ᶜ) = " + N(j[1], 4) + " ÷ " + N(pnB, 4) + "</span><span>= " + N(AgnB, 4) + "</span></div>";
+    } else c += "<div class='row'><span>P(" + S.A + " | " + S.B + ") = " + N(j[0], 4) + " ÷ " + N(pB, 4) + "</span><span>= " + N(AgB, 4) + "</span></div>";
+    $("calc").innerHTML = c;
+
+    // counts table
+    var T = 10000, cnt = j.map(function (x) { return Math.round(x * T); });
+    var hl = function (k) { return num.indexOf(k) >= 0 ? " class='hl'" : den.indexOf(k) >= 0 ? " class='hd'" : ""; };
+    var h = "<thead><tr><th></th><th>" + S.B + " (" + S.Bl + ")</th><th>" + S.B + "ᶜ</th><th>Total</th></tr></thead><tbody>";
+    h += "<tr><td>" + S.A + " (" + S.Al + ")</td><td" + hl(0) + ">" + cnt[0].toLocaleString() + "</td><td" + hl(1) + ">" + cnt[1].toLocaleString() + "</td><td>" + (cnt[0] + cnt[1]).toLocaleString() + "</td></tr>";
+    h += "<tr><td>" + S.A + "ᶜ</td><td" + hl(2) + ">" + cnt[2].toLocaleString() + "</td><td" + hl(3) + ">" + cnt[3].toLocaleString() + "</td><td>" + (cnt[2] + cnt[3]).toLocaleString() + "</td></tr>";
+    h += "</tbody><tfoot><tr><td>Total</td><td>" + (cnt[0] + cnt[2]).toLocaleString() + "</td><td>" + (cnt[1] + cnt[3]).toLocaleString() + "</td><td>10,000</td></tr></tfoot>";
+    $("ft").innerHTML = h;
+    var note = {
+      AandB: "P(" + S.A + " and " + S.B + ") = " + cnt[0].toLocaleString() + " ÷ 10,000 (shaded cell over everyone).",
+      B: "P(" + S.B + ") = (" + cnt[0].toLocaleString() + " + " + cnt[2].toLocaleString() + ") ÷ 10,000: everyone in the " + S.B + " column.",
+      AgB: "Given " + S.B + ", look only at the " + S.B + " column: " + cnt[0].toLocaleString() + " ÷ " + (cnt[0] + cnt[2]).toLocaleString() + ". The shaded cell is the numerator; the outlined cell completes the denominator.",
+      AgnB: "Given " + S.B + "ᶜ, look only at the " + S.B + "ᶜ column: " + cnt[1].toLocaleString() + " ÷ " + (cnt[1] + cnt[3]).toLocaleString() + "."
+    }[ask];
+    $("ft-note").textContent = note;
+
+    // story
+    var st, li = [];
+    if (!(pB > 0)) st = "<b>" + S.B + " never happens</b> with these settings, so P(" + S.A + " | " + S.B + ") is undefined. You cannot condition on an impossible event.";
+    else {
+      var gap = b1 - AgB;
+      st = "<b>P(" + S.A + " | " + S.B + ") = " + N(AgB, 3) + ", while P(" + S.B + " | " + S.A + ") = " + N(b1, 3) + ".</b> ";
+      st += Math.abs(gap) > 0.15 ? "These are very different. The “given” event changes which group you look within." : "Here they happen to be fairly close, but they answer different questions.";
+      if (a < 0.1 && b0 > 0 && AgB < 0.5) li.push("Because " + S.A + " is rare (P = " + N(a, 2) + "), most of the " + S.B + " cases come from the much larger " + S.A + "ᶜ group. Out of 10,000, " + cnt[2].toLocaleString() + " " + S.B + " cases are " + S.A + "ᶜ versus only " + cnt[0].toLocaleString() + " that are " + S.A + ".");
+      if (Math.abs(b1 - b0) < 0.005) li.push("P(" + S.B + " | " + S.A + ") equals P(" + S.B + " | " + S.A + "ᶜ), so knowing " + S.A + " does not change the chance of " + S.B + ". The events are independent (Topic 2.7).");
+      else li.push("P(" + S.B + " | " + S.A + ") = " + N(b1, 2) + " differs from P(" + S.B + " | " + S.A + "ᶜ) = " + N(b0, 2) + ", so knowing whether " + S.A + " happened changes the chance of " + S.B + ".");
+      li.push("Drag P(" + S.A + ") up and down and watch P(" + S.A + " | " + S.B + ") respond, even though the second-stage branch probabilities stay fixed.");
+    }
+    $("story").innerHTML = "<p>" + st + "</p>" + (li.length ? "<ul>" + li.map(function (z) { return "<li>" + z + "</li>"; }).join("") + "</ul>" : "");
+  }
+  [["pA", "pA"], ["pBA", "pBA"], ["pBnA", "pBnA"]].forEach(function (x) { $(x[0]).addEventListener("input", function (e) { S[x[1]] = +e.target.value; render(); }); });
+  SC.forEach(function (s, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = s.name; b.addEventListener("click", function () { load(i); }); $("scen").appendChild(b); });
+  load(0);
+
+  var Q = [
+    { s: "P(A) = 0.5, P(B) = 0.4, and P(A and B) = 0.1. What is P(A | B)?", o: ["0.05", "0.20", "0.25", "0.40"], c: 2, w: "P(A | B) = P(A and B) ÷ P(B) = 0.1 ÷ 0.4 = 0.25. Choice B is P(B | A) = 0.1 ÷ 0.5." },
+    { s: "In a class, 60% of students have a sibling. Of those with a sibling, 30% are the oldest child. What is the probability that a randomly chosen student has a sibling and is the oldest child?", o: ["0.18", "0.30", "0.50", "0.90"], c: 0, w: "Multiplication rule: P(sibling and oldest) = P(sibling) · P(oldest | sibling) = 0.6 × 0.3 = 0.18." },
+    { s: "A survey of 200 students: 80 take Spanish, and 30 of those also take French. 20 of the 120 non-Spanish students take French. What is P(Spanish | French)?", o: ["0.375", "0.60", "0.15", "0.25"], c: 1, w: "Students taking French: 30 + 20 = 50. Of those, 30 take Spanish: 30 ÷ 50 = 0.60. Choice A is P(French | Spanish) = 30 ÷ 80, the reverse conditional, and choice C is the joint probability 30 ÷ 200." },
+    { s: "A disease affects 2% of people. A test is positive for 99% of those with the disease and 3% of those without it. About what is P(disease | positive)?", o: ["0.99", "0.40", "0.03", "0.02"], c: 1, w: "P(D and +) = 0.02 × 0.99 = 0.0198. P(Dᶜ and +) = 0.98 × 0.03 = 0.0294. P(+) = 0.0492. P(D | +) = 0.0198 ÷ 0.0492 ≈ 0.40. The rare disease means many positives are false positives." },
+    { s: "On a tree diagram, the branches in the second stage represent:", o: ["Joint probabilities", "Conditional probabilities given the first-stage outcome", "Marginal probabilities of the second event", "Probabilities that always equal the first stage"], c: 1, w: "Second-stage branches assume the first-stage outcome already happened, so they are conditional probabilities. Multiplying along a path gives a joint probability." },
+    { s: "Which statement is always true?", o: ["P(A | B) = P(B | A)", "P(A and B) = P(A) · P(B)", "P(A and B) = P(B) · P(A | B)", "P(A | B) = P(A)"], c: 2, w: "This is the general multiplication rule, rearranged from the definition of conditional probability. A and D are true only in special cases, and B requires independence." },
+    { s: "P(late | rain) = 0.4 and P(rain) = 0.3. What is P(late and rain)?", o: ["0.12", "0.70", "0.75", "0.10"], c: 0, w: "P(rain and late) = P(rain) · P(late | rain) = 0.3 × 0.4 = 0.12." },
+    { s: "Of 150 dog owners, 90 walk their dog daily. Of 100 non-owners, none walk a dog daily. A person who walks a dog daily is chosen. What is P(dog owner | walks daily)?", o: ["0.36", "0.60", "0.90", "1"], c: 3, w: "Everyone who walks a dog daily (90 people) is a dog owner, so the conditional probability is 90 ÷ 90 = 1. Choice B is P(walks daily | owner)." }
+  ];
+
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.6");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.6", compact: true, storageKey: "topic-2.6" });</script>
+</body>
+</html>

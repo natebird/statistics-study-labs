@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introducing Statistics Study Lab</title>
+<meta name="description" content="Tell statistical questions from ordinary ones, then sample from a population to see why statistics vary while parameters stay fixed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 1 · Topic 1.1</span>
+  <h1>Introducing Statistics Study Lab</h1>
+  <p class="lede">Statistics is the science of learning from data in the presence of variability. A good study starts with an investigative question, collects data from a sample, and uses statistics to say something about the whole population. Sort questions, then take random samples and watch the statistic bounce around the parameter.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Ask a question the data can answer</h2>
+    <p>Statistics starts with a question that expects <b>variability</b> in the answers. Sort each question, then sample from a population to see why a statistic changes from sample to sample while the parameter stays fixed.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:12px;">
+    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center;">
+      <h3>Sorting game: statistical question or not?</h3>
+      <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="sq-score"></span><button type="button" id="sq-new">New set</button></div>
+    </div>
+    <p class="note">A statistical question anticipates variability: answering it needs data from many individuals (or many repeated measurements) that will not all be the same.</p>
+    <div id="sq" style="display:grid; gap:10px;"></div>
+  </div>
+
+  <div class="story" id="sq-story" aria-live="polite"></div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Population, sample, parameter, statistic</h3>
+    <p>The population below is all 1,000 students at a school. We know the truth because this is a simulation. In real life you only see the sample.</p>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span class="tag">Variable</span>
+        <div class="seg" id="varSeg" role="group" aria-label="Choose the variable"></div>
+      </div>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl">
+          <label for="n">Sample size n <output id="n-o"></output></label>
+          <input type="range" id="n" min="5" max="200" step="5" value="30">
+          <span class="hint">Larger samples give statistics that vary less around the parameter.</span>
+        </div>
+      </div>
+      <div class="scenarios">
+        <button type="button" class="primary" id="take1">Take 1 random sample</button>
+        <button type="button" id="take50">Take 50 samples</button>
+        <button type="button" id="clear">Clear</button>
+      </div>
+      <div class="note" id="lastSample"></div>
+    </div>
+    <div class="card graph-card">
+      <h3><span id="g-title">Sample means from every sample</span> <small id="g-sub"></small></h3>
+      <svg class="chart" id="sim" role="img" aria-label="Dotplot of the statistic from each simulated sample with the parameter marked"></svg>
+      <div class="legend"><span class="l-ad">Each dot = one sample's statistic</span><span class="l-c1">Population parameter</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k" id="k-par">Parameter μ (population)</div><div class="v" id="r-par"></div></div>
+    <div class="stat"><div class="k" id="k-stat">Latest statistic x̄</div><div class="v" id="r-stat"></div></div>
+    <div class="stat"><div class="k">Samples taken</div><div class="v" id="r-k"></div></div>
+    <div class="stat"><div class="k">Spread of the statistics (SD)</div><div class="v" id="r-sd"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Variability</span><h3>Why statistics exists</h3><p>Individuals differ, measurements differ, and samples differ. If everything were identical, one observation would tell you everything. Statistics gives tools for drawing conclusions when values vary.</p></div>
+    <div class="card"><span class="tag">Questions</span><h3>Statistical questions</h3><p>A statistical question anticipates variability in the data that answer it. “How tall are 10th graders?” is statistical. “How tall is Ana?” is not.</p></div>
+    <div class="card"><span class="tag">Investigation</span><h3>The investigative cycle</h3><p>Ask a question, collect data, analyze the data, then interpret the results in context. The interpretation often leads to a new question.</p></div>
+    <div class="card"><span class="tag">Who</span><h3>Population vs. sample</h3><p>The population is the entire group of interest. A sample is the part of the population you actually collect data from.</p></div>
+    <div class="card"><span class="tag">Numbers</span><h3>Parameter vs. statistic</h3><p>A parameter describes a population (μ, p, σ). A statistic describes a sample (x̄, p̂, s). Memory trick: <b>P</b>arameter goes with <b>P</b>opulation, <b>S</b>tatistic with <b>S</b>ample.</p></div>
+    <div class="card"><span class="tag">Chance</span><h3>Sampling variability</h3><p>Different random samples give different statistics. That variability is predictable, which is what makes inference later in the course possible.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Worked examples</h2>
+    <p>Identify the pieces of a study. AP questions often ask for exactly these.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Situation</th><th>Population</th><th>Sample</th><th>Parameter</th><th>Statistic</th></tr></thead>
+    <tbody>
+      <tr><td>A poll of 1,200 U.S. adults finds 41% approve of a new law.</td><td>All U.S. adults</td><td>The 1,200 adults polled</td><td>Proportion of all U.S. adults who approve (p)</td><td><b>p̂ = 0.41</b></td></tr>
+      <tr><td>A factory tests 40 bulbs from today's run; mean life is 1,012 hours.</td><td>All bulbs made today</td><td>The 40 tested bulbs</td><td>Mean life of all bulbs today (μ)</td><td><b>x̄ = 1,012 hours</b></td></tr>
+      <tr><td>A teacher surveys 25 of her 150 students; 8 own a pet rabbit.</td><td>Her 150 students</td><td>The 25 surveyed</td><td>Proportion of all 150 with a rabbit</td><td><b>p̂ = 8/25 = 0.32</b></td></tr>
+      <tr><td>The census reports the median age of all residents is 38.9 years.</td><td>All residents</td><td>None (a census)</td><td><b>Median age = 38.9</b> is a parameter</td><td>No statistic needed</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Identify the population and the parameter in context: “the proportion of all registered voters in the county who support the park.”</li>
+        <li>When asked for a statistic, give its symbol, value, and meaning: “p̂ = 0.41 is the proportion of the 1,200 sampled adults who approve.”</li>
+        <li>Explain why a statistic is not exactly equal to a parameter by naming sampling variability, not “mistakes.”</li>
+        <li>Write investigative questions that name the population and the variable, and that anticipate variability.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Calling the sample the population. The population is the larger group you want to learn about.</li>
+        <li>Mixing up symbols. μ and p are parameters; x̄ and p̂ are statistics.</li>
+        <li>Thinking a different result in a second sample means the first was wrong. Statistics vary naturally.</li>
+        <li>Writing a question about one individual (“How many hours did I study?”) when a statistical question is required.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 1.1. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-1.html">Unit 1 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function btn(parent, text, onclick, cls) { var b = document.createElement("button"); b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.addEventListener("click", onclick); parent.appendChild(b); return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  // ================= Sorting game =================
+  var BANK = [
+    ["How many hours do students at my school sleep on a school night?", true, "Different students sleep different amounts, so the answer is a distribution."],
+    ["How many hours did I sleep last night?", false, "One person, one night: a single value with no variability to study."],
+    ["What is the typical price of a used car listed in Georgia?", true, "Listings have many different prices; you summarize them with a typical value."],
+    ["What is the price of this used car?", false, "Asks for one fixed number."],
+    ["Do teens who play varsity sports have higher GPAs than teens who don't?", true, "GPAs vary within each group, so you compare two distributions."],
+    ["What was the final score of last night's game?", false, "There is one answer that you can look up."],
+    ["How long does a AA battery of this brand typically last?", true, "Battery life varies from battery to battery."],
+    ["How tall is the Eiffel Tower?", false, "A single fixed measurement (aside from tiny measurement error)."],
+    ["What proportion of voters in the county support the new park?", true, "Voters differ; the answer summarizes many yes/no responses."],
+    ["How many students are in my statistics class?", false, "One count you can find directly."],
+    ["How much does the weight of a 'one-pound' bag of coffee vary?", true, "Bags differ slightly, and the question is about that variation."],
+    ["What is my locker number?", false, "One fixed value with no variability."],
+    ["Is a coin from my pocket more likely to land heads than tails?", true, "Repeated flips vary; answering needs many trials."],
+    ["What time does school start tomorrow?", false, "One known answer."]
+  ];
+  var R = Lab.rng(), SQ = [], sqDone = 0, sqRight = 0;
+  function newSet() {
+    var t = R.shuffle(BANK.filter(function (b) { return b[1]; })).slice(0, 3).concat(R.shuffle(BANK.filter(function (b) { return !b[1]; })).slice(0, 3));
+    SQ = R.shuffle(t); sqDone = 0; sqRight = 0; drawSQ();
+  }
+  function drawSQ() {
+    var box = $("sq"); box.innerHTML = "";
+    SQ.forEach(function (q, i) {
+      var row = document.createElement("div"); row.className = "card"; row.style.cssText = "display:grid;gap:8px;padding:12px 14px;";
+      row.innerHTML = '<div style="font-weight:500">' + esc(q[0]) + '</div><div class="scenarios"></div><div class="why" hidden></div>';
+      var opts = row.querySelector(".scenarios"), why = row.querySelector(".why");
+      [["Statistical question", true], ["Not statistical", false]].forEach(function (o) {
+        btn(opts, o[0], function () {
+          var all = opts.querySelectorAll("button"); all.forEach(function (x) { x.disabled = true; });
+          var ok = o[1] === q[1]; this.classList.add(ok ? "right" : "wrong"); this.className += " chip";
+          sqDone++; if (ok) sqRight++;
+          why.hidden = false; why.innerHTML = (ok ? "<b style='color:var(--good)'>Correct.</b> " : "<b style='color:var(--bad)'>Not quite.</b> ") + (q[1] ? "Statistical: " : "Not statistical: ") + q[2];
+          sqStory();
+        }, "chip");
+      });
+      box.appendChild(row);
+    });
+    sqStory();
+  }
+  function sqStory() {
+    $("sq-score").textContent = sqRight + " / " + sqDone + " correct";
+    var el = $("sq-story");
+    if (sqDone < SQ.length) el.innerHTML = "<p><b>Test for a statistical question:</b> would you expect different answers from different individuals or different trials? If yes, the question anticipates variability.</p>";
+    else el.innerHTML = "<p><b>Set complete: " + sqRight + " of " + SQ.length + ".</b> " + (sqRight === SQ.length ? "Every one right." : "Look back at the explanations for the ones you missed, then press New set.") + "</p><ul><li>An investigative question names the population and the variable: “How many hours do <i>students at my school</i> sleep on a school night?”</li></ul>";
+  }
+  $("sq-new").addEventListener("click", newSet);
+  newSet();
+
+  // ================= Population sampler =================
+  var P = Lab.rng(2026), POP = [];
+  for (var i = 0; i < 1000; i++) POP.push({ sleep: Math.max(3, Math.min(11, Math.round(P.normal(7, 1.2) * 10) / 10)), job: P() < 0.35 ? 1 : 0 });
+  var MU = Lab.mean(POP.map(function (s) { return s.sleep; })), PJ = Lab.mean(POP.map(function (s) { return s.job; }));
+  var S = { v: "sleep", n: 30, stats: [], last: null };
+  var VARS = { sleep: { name: "Hours of sleep (quantitative)", par: MU, pk: "Parameter μ (population mean)", sk: "Latest statistic x̄", lbl: "Sample mean x̄ (hours)", title: "Sample means from every sample", lo: 5.8, hi: 8.2 },
+               job: { name: "Has a job (categorical)", par: PJ, pk: "Parameter p (population proportion)", sk: "Latest statistic p̂", lbl: "Sample proportion p̂ with a job", title: "Sample proportions from every sample", lo: 0, hi: 0.7 } };
+  ["sleep", "job"].forEach(function (k) {
+    var b = btn($("varSeg"), k === "sleep" ? "Hours of sleep" : "Has a job", function () { S.v = k; S.stats = []; S.last = null; syncSeg(); render(); });
+    b.setAttribute("data-v", k);
+  });
+  function syncSeg() { Array.prototype.forEach.call($("varSeg").children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === S.v)); }); }
+  function take(k) {
+    for (var j = 0; j < k; j++) {
+      var smp = R.sample(POP, S.n), vals = smp.map(function (s) { return s[S.v]; });
+      S.last = { stat: Lab.mean(vals), vals: vals };
+      S.stats.push(S.last.stat);
+    }
+    render();
+  }
+  function render() {
+    var V = VARS[S.v];
+    $("n-o").textContent = S.n;
+    $("k-par").textContent = V.pk; $("k-stat").textContent = V.sk; $("g-title").textContent = V.title;
+    $("r-par").textContent = S.v === "sleep" ? N(V.par, 2) + " h" : N(V.par, 3);
+    $("r-stat").textContent = S.last ? (S.v === "sleep" ? N(S.last.stat, 2) + " h" : N(S.last.stat, 3)) : "—";
+    $("r-k").textContent = S.stats.length;
+    $("r-sd").textContent = S.stats.length > 1 ? N(Lab.sd(S.stats), 3) : "—";
+    $("g-sub").textContent = "n = " + S.n + " per sample";
+    var data = S.stats.length ? S.stats : [];
+    var F;
+    if (data.length) F = Lab.dotplot($("sim"), data, { lo: V.lo, hi: V.hi, xLabel: V.lbl, binWidth: S.v === "sleep" ? 0.05 : 0.01, height: 260, fmt: function (v) { return N(v, 2); } });
+    else F = Lab.axisFrame($("sim"), V.lo, V.hi, { xLabel: V.lbl, height: 260, yMax: 1, fmt: function (v) { return N(v, 2); } });
+    Lab.vline(F, V.par, "var(--c1)", 2.5, "6 4");
+    Lab.tag(F, V.par + (V.hi - V.lo) * 0.01, F.yr[1] * 0.92, (S.v === "sleep" ? "μ = " : "p = ") + N(V.par, S.v === "sleep" ? 2 : 3), "var(--c1)");
+    if (S.last) {
+      var shown = S.last.vals.slice(0, 12).map(function (v) { return S.v === "sleep" ? N(v, 1) : (v ? "yes" : "no"); }).join(", ");
+      $("lastSample").innerHTML = "Latest sample (first " + Math.min(12, S.n) + " of " + S.n + " students): " + shown + (S.n > 12 ? ", …" : "");
+    } else $("lastSample").textContent = "Press a button to draw a simple random sample of students.";
+    story(V);
+  }
+  function story(V) {
+    var el = $("story"), sym = S.v === "sleep" ? "x̄" : "p̂", par = S.v === "sleep" ? "μ" : "p", t = [];
+    if (!S.last) { el.innerHTML = "<p><b>The parameter is fixed.</b> " + par + " describes all 1,000 students. A statistic (" + sym + ") describes one sample, so it changes every time you sample.</p>"; return; }
+    var err = S.last.stat - V.par;
+    var head = "<b>This sample's " + sym + " = " + N(S.last.stat, S.v === "sleep" ? 2 : 3) + "</b>, which is " + N(Math.abs(err), 3) + (err >= 0 ? " above" : " below") + " the parameter " + par + " = " + N(V.par, S.v === "sleep" ? 2 : 3) + ".";
+    t.push("The difference is <b>sampling variability</b>: a random sample won't match the population exactly, and different samples give different statistics.");
+    if (S.stats.length >= 20) t.push("Your " + S.stats.length + " statistics cluster around " + par + " with a standard deviation of " + N(Lab.sd(S.stats), 3) + ". Change n and take more samples: bigger samples cluster more tightly.");
+    else t.push("Take 50 samples to see the pattern of the statistics.");
+    t.push("Vocabulary check: the <b>population</b> is all 1,000 students, the <b>sample</b> is the " + S.n + " chosen, the <b>parameter</b> is " + par + ", and the <b>statistic</b> is " + sym + ".");
+    el.innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  $("n").addEventListener("input", function (e) { S.n = +e.target.value; S.stats = []; S.last = null; render(); });
+  $("take1").addEventListener("click", function () { take(1); });
+  $("take50").addEventListener("click", function () { take(50); });
+  $("clear").addEventListener("click", function () { S.stats = []; S.last = null; render(); });
+  syncSeg(); render();
+
+  var Q = [
+    { s: "Which of the following is a statistical question?", o: ["How many siblings does Maya have?", "How many siblings do students in our school typically have?", "What is the capital of Georgia?", "How many days are in March?"], c: 1, w: "Only B anticipates variability: different students have different numbers of siblings, so answering it needs data from many students." },
+    { s: "A researcher records the hours of TV watched last week by 50 randomly selected adults in a city and finds a mean of 21.4 hours. The number 21.4 is a:", o: ["Parameter, because it describes the city", "Statistic, because it describes the sample", "Population, because the adults were random", "Variable, because it can change"], c: 1, w: "A statistic is a number that describes a sample. The parameter would be the mean for all adults in the city, which is unknown." },
+    { s: "In the study above, what is the population?", o: ["The 50 adults surveyed", "Hours of TV watched last week", "All adults in the city", "The mean of 21.4 hours"], c: 2, w: "The population is the entire group the researcher wants to learn about: all adults in the city. The 50 adults are the sample, and hours of TV is the variable." },
+    { s: "Why do two random samples of the same size from the same population usually give different sample means?", o: ["One of the samples must be biased.", "The population mean changes between samples.", "Sampling variability: each sample contains different individuals.", "The sample size was too small to compute a mean."], c: 2, w: "Different random samples include different individuals, so their statistics differ by chance. The parameter does not change." },
+    { s: "Which is the best investigative question for a study about student sleep?", o: ["Do students sleep?", "How much do students at Cherokee High typically sleep on school nights?", "Is sleep important?", "How much did Jordan sleep last night?"], c: 1, w: "A good investigative question names the population (students at Cherokee High), the variable (hours of sleep on school nights), and anticipates variability." },
+    { s: "A parameter is best described as a number that:", o: ["Describes a sample and varies from sample to sample", "Describes a population and is usually unknown", "Is always calculated from data you collected", "Is the same as a statistic when n > 30"], c: 1, w: "Parameters describe populations. They are fixed, but usually unknown, which is why we estimate them with statistics." },
+    { s: "As the sample size increases, the values of a sample statistic from many random samples tend to:", o: ["Spread out more around the parameter", "Cluster more tightly around the parameter", "Move farther from the parameter", "Become exactly equal to the parameter"], c: 1, w: "Larger random samples produce statistics with less sampling variability. They still vary, just less." },
+    { s: "Which question would require data collection to answer?", o: ["What percent of 12 is 3?", "How does the reaction time of teenagers vary with hours of sleep?", "What is the formula for the mean?", "How many outcomes does a six-sided die have?"], c: 1, w: "Choice B is a statistical question: reaction times vary from person to person, so you must collect and analyze data to answer it." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("1.1");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [1], topic: "1.1", compact: true, storageKey: "topic-1.1" });</script>
+</body>
+</html>

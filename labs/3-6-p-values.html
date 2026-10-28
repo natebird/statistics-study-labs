@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>p-Values Study Lab</title>
+<meta name="description" content="See a p-value as a shaded area under the null model, compare it with a simulation, and practice interpreting it in context.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.k-acc { color: var(--accent); } .k-c1 { color: var(--c1); } .k-c2 { color: var(--c2); } .k-bad { color: var(--bad); } .k-ghost { color: var(--ghost); }
+.steps { display: grid; gap: 10px; }
+.steps .card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.05rem; }
+.steps .card h4 .tag { margin-right: 8px; }
+.steps .card p { font-size: .95rem; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.6</span>
+  <h1>p-Values Study Lab</h1>
+  <p class="lede">A p-value answers one question: <b>if the null hypothesis were true, how surprising is our sample?</b> Drag the observed p̂ and watch the shaded tail area, then check it against a simulation of samples from the null model.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. See the p-value as an area</h2>
+    <p>The p-value is the probability, <b>assuming H₀ is true</b>, of getting a sample proportion at least as extreme as the one observed, in the direction of Hₐ. Move p̂ and watch the shaded area change.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">z = (p̂ − p₀) ÷ √( p₀(1 − p₀) ÷ n )</span> <span class="formula">p-value = area beyond z in the direction of Hₐ</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="ctx"></h3>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="p0">Null value p₀ <output id="p0-o"></output></label><input type="range" id="p0" min="0.05" max="0.95" step="0.01"></div>
+        <div class="ctl"><label for="n">Sample size n <output id="n-o"></output></label><input type="range" id="n" min="20" max="1000" step="5"></div>
+        <div class="ctl"><label for="ph">Observed p̂ <output id="ph-o"></output></label><input type="range" id="ph" min="0" max="1" step="0.001"></div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Alternative</span><div class="seg" id="alt" role="group" aria-label="Alternative hypothesis"></div></div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Significance level</span><div class="seg" id="al" role="group" aria-label="Significance level"></div></div>
+      <div class="tag">Check it by simulation</div>
+      <div class="scenarios" id="simb"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Null model <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Normal null model for p-hat with the p-value shaded"></svg>
+      <div class="marker-key"><span class="k-c1">p-value area</span><span class="k-acc">Observed p̂</span><span class="k-ghost">Simulated p̂ under H₀</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Test statistic z</div><div class="v" id="r-z"></div></div>
+    <div class="stat"><div class="k">p-value (normal model)</div><div class="v" id="r-p"></div></div>
+    <div class="stat"><div class="k">p-value (simulation)</div><div class="v" id="r-sim"></div></div>
+    <div class="stat"><div class="k">Compared with α</div><div class="v" id="r-d" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="card calc-card"><h3>Show your work</h3><div class="calc" id="calc"></div></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Definition</span><h3>Probability, assuming H₀</h3><p>The p-value is the probability of getting a statistic at least as extreme as the observed one, in the direction of Hₐ, assuming H₀ is true.</p></div>
+    <div class="card"><span class="tag">Evidence</span><h3>Small p-value, strong evidence</h3><p>A small p-value means the data would rarely happen if H₀ were true, which is evidence against H₀ and for Hₐ.</p></div>
+    <div class="card"><span class="tag">Direction</span><h3>One tail or two</h3><p>For Hₐ: p > p₀ use the upper tail; for p < p₀, the lower tail; for p ≠ p₀, double the tail beyond |z|.</p></div>
+    <div class="card"><span class="tag">Decision</span><h3>Compare with α</h3><p>If p-value < α, reject H₀ (statistically significant). If p-value ≥ α, fail to reject H₀. Never "accept" H₀.</p></div>
+    <div class="card"><span class="tag">What it is NOT</span><h3>Not P(H₀ is true)</h3><p>The p-value does not give the probability that a hypothesis is true or that results are due to chance. It assumes H₀ is true.</p></div>
+    <div class="card"><span class="tag">Simulation</span><h3>p-values without formulas</h3><p>Simulate many samples assuming H₀ and find the proportion that are at least as extreme as the observed result.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>From z to p-value. Each row assumes the conditions are met.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Alternative</th><th>z</th><th>p-value</th><th>At α = 0.05</th></tr></thead>
+    <tbody>
+      <tr><td>Hₐ: p &gt; p₀</td><td>1.50</td><td>P(Z ≥ 1.50) = <b>0.0668</b></td><td>Fail to reject</td></tr>
+      <tr><td>Hₐ: p &gt; p₀</td><td>2.00</td><td>P(Z ≥ 2.00) = <b>0.0228</b></td><td>Reject</td></tr>
+      <tr><td>Hₐ: p &lt; p₀</td><td>−1.80</td><td>P(Z ≤ −1.80) = <b>0.0359</b></td><td>Reject</td></tr>
+      <tr><td>Hₐ: p ≠ p₀</td><td>2.00</td><td>2 × 0.0228 = <b>0.0455</b></td><td>Reject</td></tr>
+      <tr><td>Hₐ: p ≠ p₀</td><td>−1.80</td><td>2 × 0.0359 = <b>0.0719</b></td><td>Fail to reject</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Interpret with three parts: the assumption ("assuming p = 0.10"), the probability, and "a sample proportion of 0.153 or greater by chance alone."</li>
+        <li>Link the decision to the comparison: "Because the p-value of 0.015 < α = 0.05, we reject H₀."</li>
+        <li>State the conclusion in context about the population: "There is convincing evidence that more than 10% of students at the school are left-handed."</li>
+        <li>For a simulation-based p-value, count the dots at least as extreme and divide by the number of simulated samples.</li>
+        <li>Show the area you found: "P(Z ≥ 2.16) = 0.0154."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Saying the p-value is the probability that H₀ is true.</li>
+        <li>Forgetting to double for a two-sided alternative.</li>
+        <li>Writing "accept H₀" or "H₀ is true" when the p-value is large.</li>
+        <li>Using the wrong tail, e.g., P(Z ≤ z) for Hₐ: p > p₀.</li>
+        <li>Interpreting a p-value without the "assuming H₀ is true" condition.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.6. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  // ---------- helpers shared by the Unit 3 labs (inline on purpose) ----------
+  function buttons(id, list) {
+    var box = $(id); box.innerHTML = "";
+    list.forEach(function (x) { var b = document.createElement("button"); b.type = "button"; b.textContent = x[0]; b.addEventListener("click", x[1]); box.appendChild(b); });
+  }
+  function seg(id, opts, cur, onPick) {
+    var box = $(id); box.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { onPick(o[0]); seg(id, opts, o[0], onPick); });
+      box.appendChild(b);
+    });
+  }
+  function fmtP(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function zStar(C) { return Lab.invNorm(1 - (1 - C) / 2); }
+  function sym(alt) { return alt === "lt" ? "<" : alt === "gt" ? ">" : "≠"; }
+  /* hist(svg, vals, o): density-scaled histogram on a fixed axis so a curve can be laid on top.
+     o = { lo, hi, w, xLabel, ticks, yMax, curve: f(x), colorOf(lo, hi) -> color, lines: [{ x, color, label, dash }] } */
+  function hist(svg, vals, o) {
+    var nb = Math.round((o.hi - o.lo) / o.w), cnt = new Array(nb).fill(0);
+    vals.forEach(function (v) { var i = Math.floor((v - o.lo) / o.w + 1e-9); if (i >= 0 && i < nb) cnt[i]++; else if (i === nb && Math.abs(v - o.hi) < 1e-9) cnt[nb - 1]++; });
+    var dens = cnt.map(function (c) { return vals.length ? c / vals.length / o.w : 0; });
+    var top = o.yMax || Math.max.apply(null, dens.concat([o.curve ? o.curve(o.peak != null ? o.peak : (o.lo + o.hi) / 2) : 0, 1e-9])) * 1.15;
+    var F = Lab.frame(svg, { x: [o.lo, o.hi], y: [0, top], xLabel: o.xLabel || "", yLabel: o.yLabel || "", xTicks: (o.ticks || Lab.niceTicks(o.lo, o.hi, 6)).filter(function (t) { return t >= o.lo - 1e-9 && t <= o.hi + 1e-9; }), yTicks: [], fmtX: o.fmt || function (v) { return N(v, 2); } });
+    dens.forEach(function (dv, i) {
+      if (!dv) return; var a = o.lo + i * o.w, b = a + o.w;
+      Lab.el("rect", { x: F.sx(a) + .3, y: F.sy(dv), width: Math.max(0, F.sx(b) - F.sx(a) - .6), height: F.sy(0) - F.sy(dv), fill: (o.colorOf && o.colorOf(a, b)) || "var(--accent)", opacity: .55 }, F.g);
+    });
+    if (o.curve) Lab.fn(F, o.curve, o.curveColor || "var(--ink)", 2, null, 160);
+    (o.lines || []).forEach(function (l, k) {
+      Lab.vline(F, l.x, l.color, 2.5, l.dash || null);
+      if (l.label) Lab.tag(F, l.x + (o.hi - o.lo) * 0.01 * (l.left ? -1 : 1), top * (0.93 - 0.1 * k), l.label, l.color, l.left ? "end" : "start");
+    });
+    return F;
+  }
+  function binom(r, n, p) { var k = 0; for (var i = 0; i < n; i++) if (r() < p) k++; return k; }
+  function story(id, head, items) { $(id).innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+  function rows(id, list) { $(id).innerHTML = list.map(function (r) { return '<div class="row' + (r[2] ? " h" : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function slider(id, outId, fmt, onChange) { var s = $(id); function u() { $(outId).textContent = fmt(+s.value); } s.addEventListener("input", function () { u(); onChange(+s.value); }); u(); return { set: function (v) { s.value = v; u(); } }; }
+
+  var PRE = [
+    { name: "Left-handed students", ctx: "Is the proportion of left-handed students higher than 10%?", p0: 0.10, n: 150, ph: 0.153, alt: "gt" },
+    { name: "Late deliveries", ctx: "Is the late-delivery rate higher than the claimed 5%?", p0: 0.05, n: 400, ph: 0.065, alt: "gt" },
+    { name: "Is the coin fair?", ctx: "Does the coin land heads a proportion of times different from 0.5?", p0: 0.5, n: 80, ph: 0.6, alt: "ne" },
+    { name: "Fewer texting drivers", ctx: "Has the proportion of drivers who text decreased from 22%?", p0: 0.22, n: 300, ph: 0.17, alt: "lt" },
+    { name: "Very strong evidence", ctx: "Do more than half of voters support the measure?", p0: 0.5, n: 1000, ph: 0.57, alt: "gt" }
+  ];
+  var ALTS = [["lt", "p < p₀"], ["gt", "p > p₀"], ["ne", "p ≠ p₀"]], ALS = [0.01, 0.05, 0.1];
+  var S = { al: 0.05 }, SIM = [], R = Lab.rng(3);
+  var p0S = slider("p0", "p0-o", function (v) { return N(v, 2); }, function (v) { S.p0 = v; SIM = []; render(); });
+  var nS = slider("n", "n-o", function (v) { return v; }, function (v) { S.n = v; SIM = []; render(); });
+  var phS = slider("ph", "ph-o", function (v) { return N(v, 3); }, function (v) { S.ph = v; render(); });
+  function load(p) {
+    S.p0 = p.p0; S.n = p.n; S.ph = p.ph; S.alt = p.alt; SIM = []; $("ctx").textContent = p.ctx;
+    p0S.set(p.p0); nS.set(p.n); phS.set(p.ph);
+    seg("alt", ALTS, S.alt, function (v) { S.alt = v; render(); });
+    render();
+  }
+  seg("al", ALS.map(function (a) { return [a, String(a)]; }), S.al, function (v) { S.al = v; render(); });
+  function pval(z) { return S.alt === "gt" ? Lab.normCdf(z, Infinity) : S.alt === "lt" ? Lab.normCdf(-Infinity, z) : 2 * Lab.normCdf(Math.abs(z), Infinity); }
+  function extreme(x) { var d = x - S.p0, o = S.ph - S.p0; return S.alt === "gt" ? x >= S.ph - 1e-12 : S.alt === "lt" ? x <= S.ph + 1e-12 : Math.abs(d) >= Math.abs(o) - 1e-12; }
+  function addSim(k) { for (var i = 0; i < k; i++) SIM.push(binom(R, S.n, S.p0) / S.n); render(); }
+
+  function render() {
+    var sd = Math.sqrt(S.p0 * (1 - S.p0) / S.n), z = (S.ph - S.p0) / sd, p = pval(z);
+    var a = Math.max(0, Math.min(S.p0 - 4.2 * sd, S.ph - 0.5 * sd)), b = Math.min(1, Math.max(S.p0 + 4.2 * sd, S.ph + 0.5 * sd));
+    var peak = Lab.normPdf(S.p0, S.p0, sd), F, f = function (x) { return Lab.normPdf(x, S.p0, sd); };
+    if (SIM.length) {
+      var w = (1 / S.n) * Math.max(1, Math.ceil((sd / 4) * S.n - 1e-9)); a = Math.floor(a / w) * w - w / 2; b = Math.ceil(b / w) * w + w / 2;
+      F = hist($("g"), SIM, { lo: a, hi: b, w: w, xLabel: "Sample proportion p̂ (if H₀ is true)", curve: f, peak: S.p0, colorOf: function (lo, hi) { return extreme((lo + hi) / 2) ? "var(--c1)" : "var(--ghost)"; } });
+    } else {
+      F = Lab.frame($("g"), { x: [a, b], y: [0, peak * 1.15], xLabel: "Sample proportion p̂ (if H₀ is true)", yLabel: "", xTicks: Lab.niceTicks(a, b, 5).filter(function (t) { return t >= a && t <= b; }), yTicks: [], fmtX: function (v) { return N(v, 3); } });
+      var o = S.ph - S.p0;
+      if (S.alt === "gt") Lab.curve(F, f, "var(--ink)", S.ph, b, "var(--c1)");
+      else if (S.alt === "lt") Lab.curve(F, f, "var(--ink)", a, S.ph, "var(--c1)");
+      else { Lab.curve(F, f, "var(--ink)", a, S.p0 - Math.abs(o), "var(--c1)"); Lab.curve(F, f, "var(--ink)", S.p0 + Math.abs(o), b, "var(--c1)"); }
+    }
+    Lab.vline(F, S.ph, "var(--accent)", 2.5);
+    Lab.tag(F, S.ph, F.yr[1] * 0.93, "p̂ = " + N(S.ph, 3), "var(--accent)", "middle");
+    Lab.vline(F, S.p0, "var(--muted)", 1.5, "4 4");
+    Lab.tag(F, S.p0, F.yr[1] * 0.06, "p₀", "var(--muted)", "middle");
+    $("g-sub").textContent = "N(" + N(S.p0, 2) + ", " + N(sd, 4) + ")";
+    var sim = SIM.length ? SIM.filter(extreme).length / SIM.length : NaN, rej = p < S.al;
+    $("r-z").textContent = N(z, 2); $("r-p").textContent = fmtP(p);
+    $("r-sim").textContent = SIM.length ? N(sim, 4) + " (" + SIM.length + ")" : "–";
+    $("r-d").innerHTML = rej ? '<span class="ok">p &lt; α: reject H₀</span>' : '<span class="no">p ≥ α: fail to reject</span>';
+    var areaTxt = S.alt === "gt" ? "P(Z ≥ " + N(z, 2) + ")" : S.alt === "lt" ? "P(Z ≤ " + N(z, 2) + ")" : "2 × P(Z ≥ " + N(Math.abs(z), 2) + ")";
+    rows("calc", [
+      ["σ<sub>p̂</sub> = √(" + N(S.p0, 2) + " × " + N(1 - S.p0, 2) + " ÷ " + S.n + ")", N(sd, 4)],
+      ["z = (" + N(S.ph, 3) + " − " + N(S.p0, 2) + ") ÷ " + N(sd, 4), N(z, 3)],
+      ["p-value = " + areaTxt, fmtP(p), true]
+    ]);
+    var dirw = S.alt === "gt" ? "as large as or larger than" : S.alt === "lt" ? "as small as or smaller than" : "at least as far from " + N(S.p0, 2) + " (in either direction) as";
+    var head = "<b>Interpretation:</b> Assuming the true proportion is " + N(S.p0, 2) + ", there is about a " + fmtP(p) + " probability of getting a sample proportion " + dirw + " " + N(S.ph, 3) + " by chance alone in a random sample of " + S.n + ".", t = [];
+    if (rej) t.push("Because the p-value (" + fmtP(p) + ") is less than α = " + S.al + ", we <b>reject H₀</b>. The result is statistically significant: there is convincing evidence for Hₐ: p " + sym(S.alt) + " " + N(S.p0, 2) + ".");
+    else t.push("Because the p-value (" + fmtP(p) + ") is not less than α = " + S.al + ", we <b>fail to reject H₀</b>. There is not convincing evidence for Hₐ. That doesn't prove H₀ is true.");
+    if ((S.alt === "gt" && S.ph < S.p0) || (S.alt === "lt" && S.ph > S.p0)) t.push("Notice that p̂ is on the <b>opposite side</b> of p₀ from what Hₐ predicts, so the p-value is above 0.5. The data give no support at all to this alternative.");
+    if (S.alt === "ne") t.push("Two-sided: both tails count as extreme, so the p-value is double the one-tail area.");
+    t.push("Smaller p-value → stronger evidence against H₀. Try moving p̂ farther from p₀, or raising n with p̂ fixed.");
+    if (SIM.length) t.push("The simulation agrees: " + SIM.filter(extreme).length + " of " + SIM.length + " simulated samples were as extreme as the observed p̂.");
+    story("story", head, t);
+  }
+  buttons("simb", [["Simulate 1,000 samples under H₀", function () { SIM = []; addSim(1000); }], ["+1,000 more", function () { addSim(1000); }], ["Hide simulation", function () { SIM = []; render(); }]]);
+  buttons("scen", PRE.map(function (p) { return [p.name, function () { load(p); }]; }));
+  load(PRE[0]);
+
+  var Q = [
+ {
+  "s": "A test of H₀: p = 0.30 vs. Hₐ: p > 0.30 gives a p-value of 0.04. Which is the correct interpretation?",
+  "o": [
+   "There is a 4% chance that H₀ is true.",
+   "Assuming p = 0.30, there is a 4% chance of getting a sample proportion as large as or larger than the one observed by chance alone.",
+   "There is a 4% chance that the alternative is false.",
+   "4% of the sample had the characteristic."
+  ],
+  "c": 1,
+  "w": "A p-value is computed assuming H₀ is true. It is the probability of data at least this extreme, not the probability that a hypothesis is true."
+ },
+ {
+  "s": "A one-sided test has z = 1.80 for Hₐ: p > p₀. What is the p-value?",
+  "o": [
+   "0.0359",
+   "0.0718",
+   "0.9641",
+   "0.18"
+  ],
+  "c": 0,
+  "w": "P(Z ≥ 1.80) = 0.0359. Doubling (B) is for a two-sided test."
+ },
+ {
+  "s": "For a two-sided test, z = −2.10. What is the p-value?",
+  "o": [
+   "0.0179",
+   "0.0357",
+   "0.9821",
+   "0.21"
+  ],
+  "c": 1,
+  "w": "Two-sided: 2 × P(Z ≤ −2.10) = 2 × 0.01786 = 0.0357."
+ },
+ {
+  "s": "If the p-value is 0.12 and α = 0.05, what should you conclude?",
+  "o": [
+   "Reject H₀; there is convincing evidence for Hₐ.",
+   "Fail to reject H₀; there is not convincing evidence for Hₐ.",
+   "Accept H₀; it is proven true.",
+   "Reject Hₐ."
+  ],
+  "c": 1,
+  "w": "Since 0.12 > 0.05, the result is not statistically significant. We never \"accept\" or prove H₀."
+ },
+ {
+  "s": "Which p-value gives the strongest evidence against H₀?",
+  "o": [
+   "0.45",
+   "0.08",
+   "0.03",
+   "0.002"
+  ],
+  "c": 3,
+  "w": "The smaller the p-value, the less likely such data would be if H₀ were true, so the stronger the evidence against it."
+ },
+ {
+  "s": "A test of H₀: p = 0.5 vs Hₐ: p > 0.5 gives p̂ = 0.46. Without calculating, the p-value must be:",
+  "o": [
+   "Less than 0.05",
+   "Less than 0.5",
+   "Greater than 0.5",
+   "Exactly 0.5"
+  ],
+  "c": 2,
+  "w": "p̂ is below p₀, the opposite direction from Hₐ, so the area to the right of p̂ is more than half the curve."
+ },
+ {
+  "s": "Holding p̂ − p₀ the same, what happens to the p-value when the sample size increases?",
+  "o": [
+   "It increases",
+   "It decreases",
+   "It stays the same",
+   "It becomes exactly α"
+  ],
+  "c": 1,
+  "w": "A larger n shrinks σ<sub>p̂</sub>, so the same difference is more standard deviations from p₀: |z| grows and the p-value shrinks."
+ },
+ {
+  "s": "In 1,000 simulated samples assuming p = 0.20 with n = 100, 23 had p̂ ≥ 0.28. A real sample gave p̂ = 0.28. The estimated p-value for Hₐ: p > 0.20 is:",
+  "o": [
+   "0.023",
+   "0.28",
+   "0.977",
+   "0.20"
+  ],
+  "c": 0,
+  "w": "The simulated p-value is the proportion of samples, generated under H₀, that are at least as extreme as observed: 23/1000 = 0.023."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.6");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.6", compact: true, storageKey: "topic-3.6" });</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+/* AP Statistics Unit 1 terms: Exploring One-Variable Data and Collecting Data.
+   Fields: t term, d definition, u unit, tp topic where introduced, also later topics that use it, x example or AP tip, f formula, r related terms. */
+window.GLOSSARY = (window.GLOSSARY || []).concat([
+  // 1.1 Introducing Statistics
+  { t: "Statistics", d: "The science of collecting, organizing, analyzing, and drawing conclusions from data, while accounting for variability.", u: 1, tp: "1.1", r: ["Data","Variability"] },
+  { t: "Data", d: "Information collected about individuals, such as measurements, counts, or category labels, recorded so it can be analyzed.", u: 1, tp: "1.1", r: ["Individual","Variable"] },
+  { t: "Variability", d: "The tendency of values to differ from one individual to the next or from one sample to the next. Statistics exists because data vary.", u: 1, tp: "1.1", also: ["1.7"], x: "AP tip: almost every conclusion in statistics is about separating a real pattern from natural variability.", r: ["Statistics","Sampling variability"] },
+  { t: "Statistical question", d: "A question that is answered by collecting data that are expected to vary, such as \"How many hours do students at our school sleep on a school night?\"", u: 1, tp: "1.1", x: "\"How many hours did I sleep last night?\" is not statistical because it has one answer with no variability.", r: ["Investigative question","Variability"] },
+  { t: "Investigative question", d: "The question a statistical study is designed to answer. It names the population, the variable or variables of interest, and what we want to learn about them.", u: 1, tp: "1.1", also: ["1.10"], x: "Example: \"Do students at our school who eat breakfast tend to score higher on morning quizzes than students who skip it?\"", r: ["Statistical question","Population"] },
+  { t: "Statistical problem-solving process", d: "The four steps of an investigation: formulate an investigative question, collect or consider data, analyze the data, and interpret the results in context.", u: 1, tp: "1.1", also: ["1.10"], r: ["Investigative question"] },
+  { t: "Pattern", d: "A tendency in data that shows up across many individuals, such as values clustering around a center or one group tending to be higher than another.", u: 1, tp: "1.1", r: ["Variability"] },
+  { t: "Context", d: "The real-world setting of the data: who or what was measured, which variable, and the units. AP answers must be written in context.", u: 1, tp: "1.1", x: "AP tip: a correct number with no context usually earns partial credit at best. Say what the number means for these individuals.", r: ["Data"] },
+
+  // 1.2 Variables
+  { t: "Individual", d: "An object described by a set of data, such as a person, animal, school, or day. Also called a case or observational unit.", u: 1, tp: "1.2", r: ["Variable","Data"] },
+  { t: "Variable", d: "A characteristic that can take different values for different individuals.", u: 1, tp: "1.2", r: ["Categorical variable","Quantitative variable"] },
+  { t: "Categorical variable", d: "A variable that places each individual into one of several groups or categories, such as eye color or yes/no.", u: 1, tp: "1.2", also: ["1.3","2.1"], x: "AP tip: ZIP codes and jersey numbers are categorical even though they are numbers, because averaging them makes no sense.", r: ["Quantitative variable","Variable"] },
+  { t: "Quantitative variable", d: "A variable that takes numerical values for which arithmetic, such as finding an average, makes sense.", u: 1, tp: "1.2", also: ["1.5"], r: ["Categorical variable","Discrete variable","Continuous variable"] },
+  { t: "Discrete variable", d: "A quantitative variable that takes a countable set of values, often whole-number counts, such as the number of siblings.", u: 1, tp: "1.2", also: ["2.8"], r: ["Continuous variable","Quantitative variable"] },
+  { t: "Continuous variable", d: "A quantitative variable that can take any value in an interval, such as height or time, limited only by how precisely it is measured.", u: 1, tp: "1.2", also: ["2.8"], r: ["Discrete variable","Quantitative variable"] },
+  { t: "Univariate data", d: "Data on a single variable for each individual.", u: 1, tp: "1.2", r: ["Bivariate data"] },
+  { t: "Bivariate data", d: "Data on two variables for each individual, so the two values can be studied together.", u: 1, tp: "1.2", also: ["2.1","5.1"], r: ["Univariate data"] },
+
+  // 1.3 Tables for one categorical variable
+  { t: "Frequency table", d: "A table that lists each category of a variable and the number of individuals (count) in that category.", u: 1, tp: "1.3", r: ["Relative frequency table","Frequency"] },
+  { t: "Frequency", d: "The count of individuals that fall into a category or interval.", u: 1, tp: "1.3", r: ["Relative frequency"] },
+  { t: "Relative frequency", d: "The proportion or percent of individuals that fall into a category or interval: its frequency divided by the total.", u: 1, tp: "1.3", also: ["1.4","2.2"], f: "Relative frequency = frequency ÷ total", x: "If 18 of 60 students choose soccer, the relative frequency is 18 ÷ 60 = 0.30, or 30%.", r: ["Frequency","Proportion"] },
+  { t: "Relative frequency table", d: "A table that shows the proportion or percent of individuals in each category. The relative frequencies add to 1 (or 100%), up to rounding.", u: 1, tp: "1.3", r: ["Frequency table","Relative frequency"] },
+  { t: "Proportion", d: "A fraction of the whole, written as a number from 0 to 1. A sample proportion is written p̂ (\"p-hat\").", u: 1, tp: "1.3", also: ["3.1"], f: "p̂ = number in category ÷ n", r: ["Relative frequency","Sample proportion"] },
+  { t: "Mode (categorical)", d: "The category with the largest frequency. It is the only measure of center that applies to categorical data.", u: 1, tp: "1.3", r: ["Frequency table"] },
+
+  // 1.4 Graphs for one categorical variable
+  { t: "Bar graph", d: "A graph of a categorical variable that uses a separate bar for each category, with bar height showing the frequency or relative frequency. Bars do not touch.", u: 1, tp: "1.4", also: ["2.1"], x: "AP tip: bar heights must start at zero. A truncated axis exaggerates differences.", r: ["Pie chart","Histogram"] },
+  { t: "Pie chart", d: "A circle divided into slices whose areas show each category's share of the whole. Every category must be included so the slices make up 100%.", u: 1, tp: "1.4", r: ["Bar graph"] },
+  { t: "Distribution", d: "A description of the values a variable takes and how often it takes them.", u: 1, tp: "1.4", also: ["1.6"], r: ["Frequency table"] },
+  { t: "Misleading graph", d: "A graph whose design distorts the data, for example by starting an axis above zero, using uneven scales, or drawing 3-D or picture-based bars whose area exaggerates differences.", u: 1, tp: "1.4", r: ["Bar graph"] },
+
+  // 1.5 Graphs for one quantitative variable
+  { t: "Dotplot", d: "A graph of quantitative data that places one dot for each value above a number line, stacking dots for repeated values.", u: 1, tp: "1.5", r: ["Stemplot","Histogram"] },
+  { t: "Stemplot", d: "A display that splits each value into a stem (all but the final digit) and a leaf (the final digit), listing leaves in order beside their stems. Also called stem-and-leaf plot. It keeps every data value.", u: 1, tp: "1.5", x: "AP tip: always include a key, such as 4 | 7 = 47 points.", r: ["Split stems","Back-to-back stemplot"] },
+  { t: "Split stems", d: "A stemplot in which each stem appears twice, once for leaves 0–4 and once for leaves 5–9, to spread out data with few stems.", u: 1, tp: "1.5", r: ["Stemplot"] },
+  { t: "Histogram", d: "A graph of quantitative data grouped into equal-width intervals (bins), with bar height showing the count or relative frequency in each interval. Bars touch.", u: 1, tp: "1.5", x: "AP tip: you cannot find exact values, the exact median, or the exact mean from a histogram, only intervals.", r: ["Bin","Dotplot","Bar graph"] },
+  { t: "Bin", d: "One of the equal-width intervals used to group values in a histogram. Changing the bin width can change how the shape looks.", u: 1, tp: "1.5", r: ["Histogram"] },
+  { t: "Cumulative relative frequency graph", d: "A graph that plots, for each value, the proportion of data at or below that value. It is used to read off percentiles. Also called an ogive.", u: 1, tp: "1.5", also: ["1.8"], r: ["Percentile"] },
+
+  // 1.6 Describing distributions
+  { t: "Shape", d: "The overall form of a distribution: symmetric or skewed, and how many peaks (modes) it has.", u: 1, tp: "1.6", r: ["Symmetric","Skewed right","Skewed left","Unimodal"] },
+  { t: "Symmetric", d: "A distribution whose left and right sides are roughly mirror images of each other.", u: 1, tp: "1.6", r: ["Skewed right","Skewed left"] },
+  { t: "Skewed right", d: "A distribution with a long tail stretching toward larger values. Also called positively skewed.", u: 1, tp: "1.6", x: "AP tip: skew is named for the direction of the tail, not the peak. Incomes are usually skewed right.", r: ["Skewed left","Symmetric"] },
+  { t: "Skewed left", d: "A distribution with a long tail stretching toward smaller values. Also called negatively skewed.", u: 1, tp: "1.6", r: ["Skewed right","Symmetric"] },
+  { t: "Unimodal", d: "A distribution with a single clear peak.", u: 1, tp: "1.6", r: ["Bimodal","Uniform distribution"] },
+  { t: "Bimodal", d: "A distribution with two clear peaks, which often signals that two different groups are mixed together.", u: 1, tp: "1.6", r: ["Unimodal"] },
+  { t: "Uniform distribution", d: "A distribution in which every value or interval has roughly the same frequency, so the graph looks flat.", u: 1, tp: "1.6", r: ["Unimodal"] },
+  { t: "Outlier", d: "An individual value that falls outside the overall pattern of the distribution. On the AP exam, outliers are usually identified with the 1.5 × IQR rule or the 2-standard-deviation rule.", u: 1, tp: "1.6", also: ["1.7","1.8","5.4"], r: ["1.5 × IQR rule","Gap","Cluster"] },
+  { t: "Gap", d: "A region of a distribution with no values between groups of values.", u: 1, tp: "1.6", r: ["Cluster","Outlier"] },
+  { t: "Cluster", d: "A concentrated group of values separated from other values by a gap.", u: 1, tp: "1.6", r: ["Gap"] },
+  { t: "SOCS", d: "A checklist for describing a quantitative distribution: Shape, Outliers (and other unusual features), Center, and Spread, all in context.", u: 1, tp: "1.6", also: ["1.9"], x: "AP tip: describe all four, give numbers for center and spread, and name the variable and units.", r: ["Shape","Outlier","Center","Spread"] },
+
+  // 1.7 Summary statistics
+  { t: "Center", d: "A single value that represents a typical value of a distribution, usually measured by the mean or median.", u: 1, tp: "1.7", r: ["Mean","Median"] },
+  { t: "Spread", d: "How much the values of a distribution vary, usually measured by the standard deviation, IQR, or range.", u: 1, tp: "1.7", r: ["Standard deviation","Interquartile range (IQR)","Range"] },
+  { t: "Mean", d: "The arithmetic average of the values: add them and divide by how many there are. It is the balance point of the distribution. The sample mean is x̄ and the population mean is μ.", u: 1, tp: "1.7", also: ["2.9","4.1"], f: "x̄ = Σx ÷ n", r: ["Median","Resistant"] },
+  { t: "Median", d: "The middle value of the ordered data. With an even number of values, it is the average of the two middle values. Half the data lie at or below it.", u: 1, tp: "1.7", also: ["1.8"], x: "AP tip: the median is in position (n + 1) ÷ 2 of the sorted list.", r: ["Mean","Resistant","Quartiles"] },
+  { t: "Standard deviation", d: "A measure of spread that gives the typical distance of the values from the mean. It is 0 only when all values are equal. The sample standard deviation is s and the population standard deviation is σ.", u: 1, tp: "1.7", also: ["2.9","4.1"], f: "s = √( Σ(x − x̄)² ÷ (n − 1) )", x: "Interpret it as \"the values typically vary by about s [units] from the mean of x̄ [units].\"", r: ["Variance","Mean"] },
+  { t: "Variance", d: "The square of the standard deviation: roughly the average squared distance from the mean. Its units are the square of the data's units.", u: 1, tp: "1.7", also: ["2.9"], f: "s² = Σ(x − x̄)² ÷ (n − 1)", r: ["Standard deviation"] },
+  { t: "Range", d: "The difference between the maximum and minimum values. It depends only on the two extremes, so it is not resistant.", u: 1, tp: "1.7", f: "Range = max − min", r: ["Interquartile range (IQR)"] },
+  { t: "Quartiles", d: "The values that divide the ordered data into four parts with about 25% each. Q₁ is the median of the lower half and Q₃ is the median of the upper half.", u: 1, tp: "1.7", also: ["1.8"], x: "AP tip: when n is odd, leave the overall median out of both halves before finding Q₁ and Q₃.", r: ["Interquartile range (IQR)","Median","Percentile"] },
+  { t: "Interquartile range (IQR)", d: "The range of the middle 50% of the data: Q₃ − Q₁. It is a resistant measure of spread.", u: 1, tp: "1.7", also: ["1.8"], f: "IQR = Q₃ − Q₁", r: ["Quartiles","1.5 × IQR rule"] },
+  { t: "Resistant", d: "Describes a statistic that is not strongly affected by outliers or skewness. The median and IQR are resistant; the mean, standard deviation, and range are not.", u: 1, tp: "1.7", r: ["Median","Mean"] },
+  { t: "1.5 × IQR rule", d: "A value is an outlier if it is more than 1.5 × IQR below Q₁ or more than 1.5 × IQR above Q₃.", u: 1, tp: "1.7", also: ["1.8"], f: "Outlier if x < Q₁ − 1.5·IQR or x > Q₃ + 1.5·IQR", x: "AP tip: show the fence calculation with numbers, then compare the suspect value to the fence.", r: ["Outlier","Interquartile range (IQR)"] },
+  { t: "Percentile", d: "The pth percentile is the value with p% of the data less than (or at or below) it. Q₁ is about the 25th percentile and Q₃ the 75th.", u: 1, tp: "1.7", also: ["2.11"], r: ["Quartiles","z-score"] },
+  { t: "z-score", d: "The number of standard deviations a value lies above (positive) or below (negative) the mean. Also called a standardized score.", u: 1, tp: "1.7", also: ["2.11"], f: "z = (x − mean) ÷ standard deviation", x: "A z-score of −1.5 means the value is 1.5 standard deviations below the mean.", r: ["Standard deviation","Percentile"] },
+  { t: "Linear transformation", d: "Changing every value by the rule new = a + b × old. Adding a shifts measures of center and position by a but leaves spread unchanged; multiplying by b multiplies center, position, and spread by |b|.", u: 1, tp: "1.7", also: ["2.9"], f: "new = a + b·x", x: "Converting °C to °F (F = 32 + 1.8C) multiplies the standard deviation by 1.8 and ignores the 32.", r: ["Mean","Standard deviation"] },
+  { t: "Summation notation", d: "The symbol Σ (capital sigma) means \"add up.\" Σx is the sum of all the values of x.", u: 1, tp: "1.7", r: ["Mean"] },
+
+  // 1.8 Boxplots
+  { t: "Five-number summary", d: "The minimum, Q₁, median, Q₃, and maximum of a distribution.", u: 1, tp: "1.8", r: ["Boxplot","Quartiles"] },
+  { t: "Boxplot", d: "A graph of the five-number summary. A box runs from Q₁ to Q₃ with a line at the median, and whiskers extend to the smallest and largest values that are not outliers. Also called a box-and-whisker plot.", u: 1, tp: "1.8", also: ["1.9"], x: "AP tip: a boxplot cannot show gaps, clusters, or the number of peaks, so it can hide bimodality.", r: ["Modified boxplot","Five-number summary","Whisker"] },
+  { t: "Modified boxplot", d: "A boxplot in which outliers (by the 1.5 × IQR rule) are plotted as separate points, and the whiskers end at the most extreme values that are not outliers.", u: 1, tp: "1.8", r: ["Boxplot","1.5 × IQR rule"] },
+  { t: "Whisker", d: "A line in a boxplot that extends from the box to the smallest or largest value that is not an outlier.", u: 1, tp: "1.8", r: ["Boxplot"] },
+
+  // 1.9 Comparing distributions
+  { t: "Comparative boxplots", d: "Two or more boxplots drawn on the same scale so the distributions of a quantitative variable can be compared across groups. Also called parallel or side-by-side boxplots.", u: 1, tp: "1.9", r: ["Boxplot","Back-to-back stemplot"] },
+  { t: "Back-to-back stemplot", d: "Two stemplots that share a common column of stems, with one group's leaves going left and the other's going right.", u: 1, tp: "1.9", r: ["Stemplot","Comparative boxplots"] },
+  { t: "Comparison language", d: "When comparing distributions, use comparative words such as \"greater than,\" \"less than,\" or \"about the same as\" for each feature, rather than just listing values for each group.", u: 1, tp: "1.9", x: "AP tip: \"The median for Group A (34) is greater than the median for Group B (27)\" earns credit; two separate lists of numbers does not.", r: ["SOCS"] },
+
+  // 1.10 Investigative question and data collection
+  { t: "Population", d: "The entire group of individuals that we want information about.", u: 1, tp: "1.10", also: ["3.1"], r: ["Sample","Census","Parameter"] },
+  { t: "Sample", d: "The part of the population from which data are actually collected.", u: 1, tp: "1.10", also: ["1.11"], r: ["Population","Simple random sample (SRS)"] },
+  { t: "Census", d: "A study that collects data from every individual in the population.", u: 1, tp: "1.10", r: ["Population","Sample"] },
+  { t: "Parameter", d: "A number that describes a population, such as the population mean μ or population proportion p. It is usually unknown.", u: 1, tp: "1.10", also: ["3.1"], x: "Memory aid: Parameter goes with Population; Statistic goes with Sample.", r: ["Statistic","Population"] },
+  { t: "Statistic", d: "A number that describes a sample, such as the sample mean x̄ or sample proportion p̂. It is used to estimate a parameter.", u: 1, tp: "1.10", also: ["3.1"], r: ["Parameter","Sample"] },
+  { t: "Observational study", d: "A study that observes individuals and measures variables of interest without trying to influence the responses. It cannot show cause and effect.", u: 1, tp: "1.10", also: ["1.13"], r: ["Experiment","Confounding"] },
+  { t: "Experiment", d: "A study that deliberately imposes treatments on individuals to measure their responses.", u: 1, tp: "1.10", also: ["1.13"], x: "AP tip: only a well-designed experiment with random assignment can show that a treatment causes a change in the response.", r: ["Observational study","Random assignment"] },
+  { t: "Sample survey", d: "An observational study that collects data from a sample, usually by asking questions, to learn about a population.", u: 1, tp: "1.10", r: ["Sample","Observational study"] },
+  { t: "Retrospective study", d: "An observational study that looks backward, examining existing data on individuals' past behavior or conditions.", u: 1, tp: "1.10", r: ["Prospective study","Observational study"] },
+  { t: "Prospective study", d: "An observational study that follows individuals forward in time and records outcomes as they happen.", u: 1, tp: "1.10", r: ["Retrospective study"] },
+  { t: "Generalization", d: "Applying the results of a study to a larger population. It is justified only when the individuals were randomly selected from that population.", u: 1, tp: "1.10", also: ["1.11","1.13"], r: ["Random sampling","Scope of inference"] },
+  { t: "Scope of inference", d: "What conclusions a study's design allows: random sampling lets you generalize to the population; random assignment lets you conclude cause and effect.", u: 1, tp: "1.10", also: ["1.13"], x: "Random sample + random assignment: both. Neither: conclusions apply only to the individuals studied and only as an association.", r: ["Generalization","Random assignment"] },
+
+  // 1.11 Random sampling
+  { t: "Random sampling", d: "Using a chance process to select which members of the population are included in a sample.", u: 1, tp: "1.11", r: ["Simple random sample (SRS)","Bias"] },
+  { t: "Simple random sample (SRS)", d: "A sample of size n chosen so that every group of n individuals in the population has the same chance of being selected.", u: 1, tp: "1.11", also: ["3.2","4.1"], x: "To pick one: number every individual, then use a random number generator to choose n different numbers, ignoring repeats.", r: ["Random sampling","Sampling frame"] },
+  { t: "Sampling with replacement", d: "Sampling in which a selected individual is returned to the population and could be selected again.", u: 1, tp: "1.11", r: ["Sampling without replacement"] },
+  { t: "Sampling without replacement", d: "Sampling in which a selected individual cannot be selected again. Most real samples are taken without replacement.", u: 1, tp: "1.11", also: ["3.2"], r: ["Sampling with replacement","10% condition"] },
+  { t: "Stratified random sample", d: "A sample formed by dividing the population into groups of similar individuals (strata) and taking a separate SRS from every stratum.", u: 1, tp: "1.11", x: "AP tip: stratify by a variable related to the response. It gives more precise estimates when strata are similar inside and different from each other.", r: ["Strata","Cluster sample"] },
+  { t: "Strata", d: "Groups of individuals in a population that are similar in some way that might affect the response. Singular: stratum.", u: 1, tp: "1.11", r: ["Stratified random sample"] },
+  { t: "Cluster sample", d: "A sample formed by dividing the population into groups (clusters), randomly choosing some clusters, and including every individual in the chosen clusters.", u: 1, tp: "1.11", x: "AP tip: clusters are ideally mini-versions of the population (different inside). Cluster sampling is used mainly for convenience and cost.", r: ["Stratified random sample"] },
+  { t: "Systematic random sample", d: "A sample formed by randomly choosing a starting point from the first k individuals in a list and then taking every kth individual.", u: 1, tp: "1.11", r: ["Simple random sample (SRS)"] },
+  { t: "Sampling frame", d: "The list of individuals from which a sample is actually drawn. Ideally it matches the population.", u: 1, tp: "1.11", also: ["1.12"], r: ["Undercoverage"] },
+
+  // 1.12 Problems with sampling
+  { t: "Bias", d: "A systematic tendency of a sampling or measurement method to overestimate or underestimate the value we want to know.", u: 1, tp: "1.12", also: ["3.1"], x: "AP tip: say which way the estimate is likely to be off and why: \"likely overestimates the proportion who support the fee because...\"", r: ["Selection bias","Response bias","Nonresponse bias"] },
+  { t: "Convenience sample", d: "A sample made of individuals who are easiest to reach. It is usually biased because those individuals may differ from the rest of the population.", u: 1, tp: "1.12", r: ["Voluntary response sample","Bias"] },
+  { t: "Voluntary response sample", d: "A sample made of people who choose themselves by responding to a general invitation. People with strong (often negative) opinions are more likely to respond.", u: 1, tp: "1.12", r: ["Convenience sample","Bias"] },
+  { t: "Selection bias", d: "Bias that occurs when the way individuals are chosen systematically favors some parts of the population over others.", u: 1, tp: "1.12", r: ["Undercoverage","Bias"] },
+  { t: "Undercoverage", d: "When some members of the population are left out of the sampling frame or cannot be chosen for the sample.", u: 1, tp: "1.12", r: ["Sampling frame","Selection bias"] },
+  { t: "Nonresponse bias", d: "Bias that occurs when individuals chosen for the sample can't be contacted or refuse to respond, and they differ from those who do respond.", u: 1, tp: "1.12", x: "AP tip: nonresponse happens after someone is selected. Voluntary response is when people choose themselves.", r: ["Bias","Voluntary response sample"] },
+  { t: "Response bias", d: "Bias that occurs when respondents give inaccurate answers, for example because of wording, the interviewer, the desire to look good, or poor memory.", u: 1, tp: "1.12", r: ["Question wording bias","Bias"] },
+  { t: "Question wording bias", d: "Response bias caused by confusing, leading, or loaded wording, or by the order of questions.", u: 1, tp: "1.12", r: ["Response bias"] },
+  { t: "Sampling variability", d: "The fact that different random samples from the same population give different values of a statistic. Larger samples have less sampling variability; it is not bias.", u: 1, tp: "1.12", also: ["2.12","3.2"], r: ["Variability","Bias","Sampling distribution"] },
+
+  // 1.13 Experimental design
+  { t: "Experimental unit", d: "The object to which a treatment is randomly assigned. When the units are people, they are called subjects.", u: 1, tp: "1.13", r: ["Treatment","Subjects"] },
+  { t: "Subjects", d: "Human experimental units.", u: 1, tp: "1.13", r: ["Experimental unit"] },
+  { t: "Treatment", d: "A specific condition applied to the experimental units. With more than one factor, a treatment is a combination of a level of each factor.", u: 1, tp: "1.13", r: ["Factor","Level"] },
+  { t: "Factor", d: "An explanatory variable that is manipulated in an experiment and may cause a change in the response.", u: 1, tp: "1.13", r: ["Level","Treatment"] },
+  { t: "Level", d: "A specific value of a factor in an experiment.", u: 1, tp: "1.13", x: "Two factors with 2 and 3 levels make 2 × 3 = 6 treatments.", r: ["Factor"] },
+  { t: "Explanatory variable", d: "A variable that may help explain or predict changes in a response variable.", u: 1, tp: "1.13", also: ["5.1"], r: ["Response variable","Factor"] },
+  { t: "Response variable", d: "A variable that measures an outcome of a study.", u: 1, tp: "1.13", also: ["5.1"], r: ["Explanatory variable"] },
+  { t: "Confounding", d: "When two variables are associated in such a way that their effects on a response cannot be separated from each other.", u: 1, tp: "1.13", x: "AP tip: name the confounding variable and explain how it is linked to BOTH the explanatory variable and the response.", r: ["Confounding variable","Random assignment"] },
+  { t: "Confounding variable", d: "A variable related to both the explanatory variable and the response variable that creates the appearance of a relationship between them.", u: 1, tp: "1.13", r: ["Confounding","Observational study"] },
+  { t: "Random assignment", d: "Using a chance process to decide which experimental units get which treatment. It creates roughly equivalent groups so differences in response can be attributed to the treatments.", u: 1, tp: "1.13", also: ["3.12","4.9"], r: ["Completely randomized design","Scope of inference"] },
+  { t: "Control group", d: "A group that receives an inactive treatment (such as a placebo) or an existing baseline treatment, to give a basis for comparison.", u: 1, tp: "1.13", r: ["Placebo","Treatment"] },
+  { t: "Placebo", d: "A treatment with no active ingredient that looks like the real treatment.", u: 1, tp: "1.13", r: ["Placebo effect","Control group"] },
+  { t: "Placebo effect", d: "A response to a dummy treatment that happens because subjects expect it to work.", u: 1, tp: "1.13", r: ["Placebo","Blinding"] },
+  { t: "Blinding", d: "Keeping subjects (single-blind) or both subjects and the people who interact with them and measure the response (double-blind) from knowing which treatment each subject received.", u: 1, tp: "1.13", r: ["Placebo effect"] },
+  { t: "Replication", d: "Using enough experimental units in each treatment group so that real differences between treatments can be distinguished from chance variation.", u: 1, tp: "1.13", r: ["Random assignment"] },
+  { t: "Principles of experimental design", d: "Comparison of two or more treatments, random assignment of treatments to units, control of other variables, and replication with enough units in each group.", u: 1, tp: "1.13", r: ["Random assignment","Replication","Control group"] },
+  { t: "Completely randomized design", d: "An experimental design in which all experimental units are randomly assigned to treatments, with no blocking.", u: 1, tp: "1.13", r: ["Randomized block design","Random assignment"] },
+  { t: "Randomized block design", d: "An experimental design that first groups similar units into blocks, then randomly assigns treatments separately within each block.", u: 1, tp: "1.13", x: "AP tip: block on a variable you expect to affect the response. Blocking reduces variability so treatment effects are easier to detect.", r: ["Block","Matched pairs design"] },
+  { t: "Block", d: "A group of experimental units that are known before the experiment to be similar in some way expected to affect the response.", u: 1, tp: "1.13", r: ["Randomized block design"] },
+  { t: "Matched pairs design", d: "A block design with blocks of size two: either two similar units each get one treatment (in random order of assignment), or one unit gets both treatments in a random order.", u: 1, tp: "1.13", also: ["4.2","4.4"], r: ["Randomized block design","Paired data"] },
+  { t: "Statistically significant", d: "A result so unlikely to occur by chance alone, if there were no real effect, that it provides convincing evidence of a real effect.", u: 1, tp: "1.13", also: ["3.6"], r: ["P-value","Significance level"] }
+]);

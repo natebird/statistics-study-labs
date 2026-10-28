@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sampling Distributions for a Difference in Means Study Lab</title>
+<meta name="description" content="Simulate thousands of differences in sample means and see why the mean is μ₁ − μ₂, the variances add, and the shape becomes normal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.calc .row.code span:first-child { font-family: var(--mono); font-size: .86rem; white-space: normal; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .92rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+.grp { font-size: .8rem; font-weight: 600; color: var(--accent); grid-column: 1 / -1; margin-top: 4px; }
+.grp.g2 { color: var(--c1); }
+.verdict { font-weight: 600; }
+.steps4 { display: grid; gap: 10px; }
+.steps4 > div { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; }
+.steps4 b.k { display: block; font-family: var(--mono); font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .grid3 { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 4 · Topic 4.6</span>
+  <h1>Sampling Distributions for a Difference in Means Study Lab</h1>
+  <p class="lede">When you compare two groups by subtracting their sample means, the answer changes from sample to sample. The sampling distribution of x̄₁ − x̄₂ describes that variation: where it centers, how spread out it is, and when it is approximately normal. Simulate it yourself and check every formula.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Simulate the sampling distribution</h2>
+    <p>Take a random sample from each of two populations, find each sample mean, and subtract. Repeat many times. The distribution of all those differences is the sampling distribution of x̄₁ − x̄₂.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">μ(x̄₁ − x̄₂) = μ₁ − μ₂</span> <span class="formula">σ(x̄₁ − x̄₂) = √( σ₁²/n₁ + σ₂²/n₂ )</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset situations</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>The two populations</h3>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Population shape</span><div class="seg" id="shapeSeg" role="group" aria-label="Population shape"></div></div>
+      <div class="controls" id="ctl" style="grid-template-columns:repeat(3, minmax(0,1fr));"></div>
+      <p class="note" id="ctx"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>Population distributions <small>what we sample from</small></h3>
+      <svg class="chart" id="pop" role="img" aria-label="Density curves of population 1 and population 2"></svg>
+      <div class="legend"><span class="l-ad">Population 1</span><span class="l-c1">Population 2</span></div>
+    </div>
+  </div>
+
+  <div class="lab-bar">
+    <div class="scenarios" id="drawBtns"></div>
+    <span class="note" id="drawCount"></span>
+  </div>
+
+  <div class="card graph-card">
+    <h3>Simulated values of x̄₁ − x̄₂ <small id="hsub"></small></h3>
+    <svg class="chart" id="hist" role="img" aria-label="Histogram of simulated differences in sample means with the normal model drawn on top"></svg>
+    <div class="legend"><span class="l-ad">Simulated differences</span><span class="l-c1">Normal model N(μ₁ − μ₂, σ)</span><span class="l-ghost">Value c</span></div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Mean of x̄₁ − x̄₂ (formula)</div><div class="v" id="r-mu"></div></div>
+    <div class="stat"><div class="k">SD of x̄₁ − x̄₂ (formula)</div><div class="v" id="r-sd"></div></div>
+    <div class="stat"><div class="k">Mean of simulated differences</div><div class="v" id="r-smu"></div></div>
+    <div class="stat"><div class="k">SD of simulated differences</div><div class="v" id="r-ssd"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Center, spread, and shape</h3>
+      <div class="calc" id="calcCSS"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>Find a probability</h3>
+      <div class="controls" style="grid-template-columns:1fr;">
+        <div class="ctl">
+          <label for="cval">P(x̄₁ − x̄₂ ≥ c), with c = <output id="cval-o"></output></label>
+          <input type="number" id="cval" step="0.1">
+          <span class="hint">The shaded area on the histogram.</span>
+        </div>
+      </div>
+      <div class="calc" id="calcP"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Center</span><h3>Unbiased estimator</h3><p>The mean of the sampling distribution of x̄₁ − x̄₂ is exactly μ₁ − μ₂. On average, the difference in sample means hits the true difference, so x̄₁ − x̄₂ is an unbiased estimator of μ₁ − μ₂.</p></div>
+    <div class="card"><span class="tag">Spread</span><h3>Variances add</h3><p>Each sample mean has its own variability, σ²/n. When you subtract two independent sample means, the variances <b>add</b>: σ₁²/n₁ + σ₂²/n₂. Take the square root to get the standard deviation. Never subtract the standard deviations.</p></div>
+    <div class="card"><span class="tag">Sample size</span><h3>Bigger samples, less spread</h3><p>Larger n₁ and n₂ shrink the standard deviation of x̄₁ − x̄₂. Multiplying both sample sizes by 4 cuts the standard deviation in half.</p></div>
+    <div class="card"><span class="tag">Shape</span><h3>When is it approximately normal?</h3><p>If both populations are normal, the sampling distribution is normal for any sample sizes. If not, it is approximately normal when both n₁ ≥ 30 and n₂ ≥ 30, by the central limit theorem.</p></div>
+    <div class="card"><span class="tag">Independence</span><h3>Two kinds of independence</h3><p>The two samples must be independent of each other (not paired). Within each sample, when sampling without replacement, check the 10% condition: n₁ ≤ 10% of population 1 and n₂ ≤ 10% of population 2.</p></div>
+    <div class="card"><span class="tag">Probability</span><h3>Standardize the difference</h3><p>To find a probability, compute z = (value − (μ₁ − μ₂)) ÷ σ(x̄₁ − x̄₂), then use the normal distribution. On a calculator, normalcdf with the mean and SD of the difference does the same thing.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Everything you need to describe the sampling distribution of x̄₁ − x̄₂.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Feature</th><th>Formula or rule</th><th>Condition needed</th><th>Example (σ₁ = 6, n₁ = 36, σ₂ = 8, n₂ = 16)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Mean</b></td><td>μ₁ − μ₂</td><td>None; always true</td><td>If μ₁ = 50 and μ₂ = 42, the mean is 8</td></tr>
+      <tr><td><b>Standard deviation</b></td><td>√(σ₁²/n₁ + σ₂²/n₂)</td><td>Independent samples; 10% condition for each sample</td><td>√(36/36 + 64/16) = √5 ≈ 2.24</td></tr>
+      <tr><td><b>Shape: normal</b></td><td>Exactly normal</td><td>Both populations normal</td><td>Heights, if each population is normal</td></tr>
+      <tr><td><b>Shape: approximately normal</b></td><td>Central limit theorem</td><td>n₁ ≥ 30 and n₂ ≥ 30</td><td>Here n₂ = 16, so we would need population 2 to be normal</td></tr>
+      <tr><td><b>Probability</b></td><td>z = (value − (μ₁ − μ₂)) ÷ SD</td><td>Shape is (approximately) normal</td><td>P(x̄₁ − x̄₂ &gt; 10) → z = (10 − 8) ÷ 2.24 ≈ 0.89, area ≈ 0.186</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Describe all three features: center, spread, and shape. "The sampling distribution of x̄₁ − x̄₂ has mean 4 cm, standard deviation 1.78 cm, and is approximately normal."</li>
+        <li>Justify the shape: "because both sample sizes are at least 30" or "because both populations are normally distributed."</li>
+        <li>Show the standard deviation work: √(8²/30 + 6²/35), not just the answer.</li>
+        <li>For a probability, label the distribution, give the boundary, and shade or state the direction: "N(4, 1.78), P(x̄₁ − x̄₂ ≥ 5) ≈ 0.287."</li>
+        <li>Mention the 10% condition when the problem involves sampling without replacement.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Subtracting standard deviations: σ₁/√n₁ − σ₂/√n₂ is wrong. Square, add, then take the square root.</li>
+        <li>Forgetting to divide each variance by its own sample size.</li>
+        <li>Claiming the distribution is normal when one sample is small and its population is skewed.</li>
+        <li>Mixing up the population distribution, the distribution of one sample, and the sampling distribution.</li>
+        <li>Using this formula for paired data. Paired differences are one sample of differences, not two independent samples.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 4.6. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-4.html">Unit 4 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function welch(s1, n1, s2, n2) { var a = s1 * s1 / n1, b = s2 * s2 / n2; return (a + b) * (a + b) / (a * a / (n1 - 1) + b * b / (n2 - 1)); }
+  function pfmt(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function seg(el, items, cur, pick) {
+    el.innerHTML = "";
+    items.forEach(function (it) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = it[1];
+      b.setAttribute("aria-pressed", String(it[0] === cur));
+      b.addEventListener("click", function () { pick(it[0]); });
+      el.appendChild(b);
+    });
+  }
+  function presetButtons(el, list, load) {
+    list.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); el.appendChild(b); });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function story(el, head, items) { el.innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+
+
+  var PRESETS = [
+    { name: "Plant heights: fertilizer vs. none", shape: "normal", m1: 52, s1: 8, n1: 30, m2: 48, s2: 6, n2: 35, ctx: "Population 1: plants given fertilizer. Population 2: plants given none. Heights in cm.", c: 5 },
+    { name: "Equal population means", shape: "normal", m1: 70, s1: 10, n1: 25, m2: 70, s2: 10, n2: 25, ctx: "Two populations with the same mean, 70. Differences in sample means come only from sampling variability.", c: 4 },
+    { name: "Skewed populations, small samples", shape: "skewed", m1: 20, s1: 12, n1: 5, m2: 15, s2: 10, n2: 6, ctx: "Both populations are strongly right-skewed (for example, minutes waiting in line). The samples are small.", c: 10 },
+    { name: "Skewed populations, large samples", shape: "skewed", m1: 20, s1: 12, n1: 40, m2: 15, s2: 10, n2: 50, ctx: "Same skewed populations, but now n₁ = 40 and n₂ = 50. Watch the central limit theorem at work.", c: 8 },
+    { name: "Quadruple the sample sizes", shape: "normal", m1: 52, s1: 8, n1: 100, m2: 48, s2: 6, n2: 100, ctx: "The fertilizer example with much larger samples. Compare the spread to the first preset.", c: 5 }
+  ];
+  var S = {}, R = Lab.rng(2026);
+  var SL = [["m1", "μ₁", 0, 100, 1], ["s1", "σ₁", 1, 30, 0.5], ["n1", "n₁", 2, 100, 1], ["m2", "μ₂", 0, 100, 1], ["s2", "σ₂", 1, 30, 0.5], ["n2", "n₂", 2, 100, 1]];
+  var LS = 0.8, LE = Math.exp(LS * LS / 2), LD = Math.sqrt((Math.exp(LS * LS) - 1) * Math.exp(LS * LS));
+
+  SL.forEach(function (c) {
+    var d = document.createElement("div"); d.className = "ctl";
+    d.innerHTML = '<label for="s-' + c[0] + '">' + c[1] + ' <output id="o-' + c[0] + '"></output></label><input type="range" id="s-' + c[0] + '" min="' + c[2] + '" max="' + c[3] + '" step="' + c[4] + '">';
+    $("ctl").appendChild(d);
+    d.querySelector("input").addEventListener("input", function (e) { S[c[0]] = +e.target.value; S.diffs = []; S.last = null; $("ctx").textContent = "Custom populations."; render(); });
+  });
+
+  function draw1(m, s) { if (S.shape === "normal") return R.normal(m, s); var y = Math.exp(LS * R.normal()); return m + s * (y - LE) / LD; }
+  function popPdf(x, m, s) {
+    if (S.shape === "normal") return Lab.normPdf(x, m, s);
+    var y = (x - m) * LD / s + LE; if (y <= 0) return 0;
+    return Math.exp(-Math.pow(Math.log(y), 2) / (2 * LS * LS)) / (y * LS * Math.sqrt(2 * Math.PI)) * LD / s;
+  }
+  function sMean(m, s, n) { var t = 0; for (var i = 0; i < n; i++) t += draw1(m, s); return t / n; }
+  function theory() { return { mu: S.m1 - S.m2, sd: Math.sqrt(S.s1 * S.s1 / S.n1 + S.s2 * S.s2 / S.n2) }; }
+  function drawMany(k) { for (var i = 0; i < k; i++) { var a = sMean(S.m1, S.s1, S.n1), b = sMean(S.m2, S.s2, S.n2); S.diffs.push(a - b); S.last = [a, b]; } render(); }
+  function shapeOK() { return S.shape === "normal" || (S.n1 >= 30 && S.n2 >= 30); }
+
+  function load(p) {
+    S = { shape: p.shape, m1: p.m1, s1: p.s1, n1: p.n1, m2: p.m2, s2: p.s2, n2: p.n2, diffs: [], last: null, c: p.c };
+    $("ctx").textContent = p.ctx; render();
+  }
+
+  function render() {
+    SL.forEach(function (c) { $("s-" + c[0]).value = S[c[0]]; $("o-" + c[0]).textContent = N(S[c[0]], 1); });
+    seg($("shapeSeg"), [["normal", "Normal"], ["skewed", "Right-skewed"]], S.shape, function (v) { S.shape = v; S.diffs = []; S.last = null; render(); });
+    $("cval").value = S.c; $("cval-o").textContent = N(S.c, 2);
+    var th = theory();
+
+    // populations
+    var kL = S.shape === "skewed" ? 1.25 : 3.5, lo = Math.min(S.m1 - kL * S.s1, S.m2 - kL * S.s2), hi = Math.max(S.m1 + (S.shape === "skewed" ? 5 : 3.5) * S.s1, S.m2 + (S.shape === "skewed" ? 5 : 3.5) * S.s2);
+    var tk = Lab.niceTicks(lo, hi, 6), peak = 0;
+    for (var i = 0; i <= 200; i++) { var x = tk[0] + (tk[tk.length - 1] - tk[0]) * i / 200; peak = Math.max(peak, popPdf(x, S.m1, S.s1), popPdf(x, S.m2, S.s2)); }
+    var F = Lab.frame($("pop"), { x: [tk[0], tk[tk.length - 1]], y: [0, peak * 1.2], xLabel: "Value of the variable", yLabel: "Density", xTicks: tk, yTicks: [], fmtX: function (v) { return N(v, 1); } });
+    Lab.fn(F, function (x) { return popPdf(x, S.m1, S.s1); }, "var(--accent)", 2.5, null, 200);
+    Lab.fn(F, function (x) { return popPdf(x, S.m2, S.s2); }, "var(--c1)", 2.5, null, 200);
+    Lab.vline(F, S.m1, "var(--accent)", 1, "4 4"); Lab.vline(F, S.m2, "var(--c1)", 1, "4 4");
+
+    // histogram of differences
+    var lo2 = th.mu - 4.2 * th.sd, hi2 = th.mu + 4.2 * th.sd, t2 = Lab.niceTicks(lo2, hi2, 7);
+    var a = t2[0], b = t2[t2.length - 1], w = Lab.niceStep(b - a, 32), nb = Math.ceil((b - a) / w - 1e-9), cnt = [];
+    for (i = 0; i < nb; i++) cnt.push(0);
+    S.diffs.forEach(function (d) { var j = Math.floor((d - a) / w); if (j >= 0 && j < nb) cnt[j]++; });
+    var n = S.diffs.length, dens = cnt.map(function (c) { return n ? c / (n * w) : 0; });
+    var top = Math.max(Lab.normPdf(th.mu, th.mu, th.sd), Math.max.apply(null, dens)) * 1.15;
+    var H = Lab.frame($("hist"), { x: [a, b], y: [0, top], xLabel: "x̄₁ − x̄₂", yLabel: "Density", xTicks: t2, yTicks: [], fmtX: function (v) { return N(v, 2); }, width: 880, height: 300 });
+    dens.forEach(function (d, j) { if (d > 0) Lab.rect(H, a + j * w, 0, a + (j + 1) * w, d, (a + j * w + w / 2) >= S.c ? "var(--c3)" : "var(--accent)", .6); });
+    Lab.curve(H, function (x) { return Lab.normPdf(x, th.mu, th.sd); }, "var(--c1)", S.c, Infinity, "var(--c1)");
+    Lab.vline(H, S.c, "var(--ghost)", 2, "6 4");
+    Lab.tag(H, S.c, top * 0.94, " c = " + N(S.c, 2), "var(--muted)");
+    $("hsub").textContent = n ? n + " simulated differences" : "click a Draw button";
+    $("drawCount").textContent = n ? "Total simulated: " + n : "";
+
+    $("r-mu").textContent = N(th.mu, 3);
+    $("r-sd").textContent = N(th.sd, 3);
+    $("r-smu").textContent = n ? N(Lab.mean(S.diffs), 3) : "—";
+    $("r-ssd").textContent = n > 1 ? N(Lab.sd(S.diffs), 3) : "—";
+
+    // center/spread/shape work
+    var v1 = S.s1 * S.s1 / S.n1, v2 = S.s2 * S.s2 / S.n2;
+    $("calcCSS").innerHTML = rows([
+      ["Center: μ₁ − μ₂ = " + N(S.m1) + " − " + N(S.m2), "= " + N(th.mu, 3)],
+      ["Spread: √(" + N(S.s1) + "²/" + S.n1 + " + " + N(S.s2) + "²/" + S.n2 + ")", ""],
+      ["= √(" + N(v1, 4) + " + " + N(v2, 4) + ") = √" + N(v1 + v2, 4), "= " + N(th.sd, 3)],
+      ["Shape", shapeOK() ? "approximately normal" : "not safely normal"],
+      [S.shape === "normal" ? "Both populations are normal, so x̄₁ − x̄₂ is normal for any n." : (shapeOK() ? "Populations are skewed, but n₁ = " + S.n1 + " ≥ 30 and n₂ = " + S.n2 + " ≥ 30 (central limit theorem)." : "Populations are skewed and " + (S.n1 < 30 ? "n₁ = " + S.n1 : "n₂ = " + S.n2) + " < 30, so the shape may still be skewed."), ""]
+    ]);
+
+    // probability
+    var z = (S.c - th.mu) / th.sd, pn = Lab.normCdf(S.c, Infinity, th.mu, th.sd);
+    var ps = n ? S.diffs.filter(function (d) { return d >= S.c; }).length / n : NaN;
+    $("calcP").innerHTML = rows([
+      ["z = (" + N(S.c, 2) + " − " + N(th.mu, 3) + ") ÷ " + N(th.sd, 3), "= " + N(z, 3)],
+      ["Normal model: P(Z ≥ " + N(z, 2) + ")", "≈ " + N(pn, 4)],
+      ["normalcdf(lower: " + N(S.c, 2) + ", upper: 1E99, μ: " + N(th.mu, 3) + ", σ: " + N(th.sd, 3) + ")", "", "code"],
+      ["Simulation: share of differences ≥ c", n ? N(ps, 4) + " (" + S.diffs.filter(function (d) { return d >= S.c; }).length + " of " + n + ")" : "draw first"],
+      [shapeOK() ? "The normal model is appropriate here." : "Careful: the normal model may not fit, so trust the simulation more.", ""]
+    ]);
+
+    // story
+    var head, t = [];
+    if (!n) head = "<b>Nothing simulated yet.</b> Click a Draw button. Each draw takes one sample of " + S.n1 + " from population 1 and one sample of " + S.n2 + " from population 2, and records x̄₁ − x̄₂.";
+    else if (n < 30) head = "<b>" + n + " difference" + (n > 1 ? "s" : "") + " so far.</b> Too few to see a clear shape. Draw a few hundred more.";
+    else head = "<b>The simulated differences center near " + N(Lab.mean(S.diffs), 2) + "</b> (the formula says " + N(th.mu, 2) + ") with spread about " + N(Lab.sd(S.diffs), 2) + " (the formula says " + N(th.sd, 2) + ").";
+    if (S.last) t.push("Last draw: x̄₁ = " + N(S.last[0], 2) + ", x̄₂ = " + N(S.last[1], 2) + ", so x̄₁ − x̄₂ = " + N(S.last[0] - S.last[1], 2) + ".");
+    if (n >= 30) t.push(shapeOK() ? "The histogram follows the normal model, as expected." : "The populations are skewed and at least one sample is small, so the histogram can be skewed. Compare it with the normal curve.");
+    if (th.mu === 0) t.push("The populations have the same mean, yet the sample means almost never match exactly. That is sampling variability.");
+    else t.push("Even though μ₁ − μ₂ = " + N(th.mu, 2) + ", individual differences range widely. Some draws can even have the opposite sign" + (n ? " (" + S.diffs.filter(function (d) { return th.mu > 0 ? d < 0 : d > 0; }).length + " of " + n + " here)." : "."));
+    t.push("Try raising n₁ and n₂: the histogram gets narrower because σ(x̄₁ − x̄₂) shrinks.");
+    story($("story"), head, t);
+  }
+
+  [["Draw 1", 1], ["Draw 10", 10], ["Draw 100", 100], ["Draw 1,000", 1000]].forEach(function (x) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = x[0]; if (x[1] === 100) b.className = "primary";
+    b.addEventListener("click", function () { drawMany(x[1]); });
+    $("drawBtns").appendChild(b);
+  });
+  var clr = document.createElement("button"); clr.type = "button"; clr.textContent = "Clear";
+  clr.addEventListener("click", function () { S.diffs = []; S.last = null; render(); }); $("drawBtns").appendChild(clr);
+  $("cval").addEventListener("input", function (e) { var v = parseFloat(e.target.value); if (!isNaN(v)) { S.c = v; render(); } });
+  presetButtons($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+   {
+    "s": "Population 1 has mean 50 and population 2 has mean 42. Independent random samples are taken from each. What is the mean of the sampling distribution of x̄₁ − x̄₂?",
+    "o": [
+     "8",
+     "92",
+     "4",
+     "It depends on the sample sizes"
+    ],
+    "c": 0,
+    "w": "The mean of x̄₁ − x̄₂ is always μ₁ − μ₂ = 50 − 42 = 8, no matter the sample sizes."
+   },
+   {
+    "s": "σ₁ = 6 with n₁ = 36, and σ₂ = 8 with n₂ = 16. What is the standard deviation of x̄₁ − x̄₂?",
+    "o": [
+     "1",
+     "√5 ≈ 2.24",
+     "5",
+     "3"
+    ],
+    "c": 1,
+    "w": "√(6²/36 + 8²/16) = √(1 + 4) = √5 ≈ 2.24. Choice A subtracts the sample means' standard deviations (2 − 1), choice D adds them (1 + 2), and choice C forgets the square root. Variances add, not standard deviations."
+   },
+   {
+    "s": "Which statement about the standard deviation of x̄₁ − x̄₂ is true?",
+    "o": [
+     "It equals σ₁/√n₁ − σ₂/√n₂.",
+     "It is found by adding the variances σ₁²/n₁ and σ₂²/n₂ and taking the square root.",
+     "It is smaller than the standard deviation of either sample mean alone.",
+     "It equals the difference of the population standard deviations."
+    ],
+    "c": 1,
+    "w": "For independent samples the variances add. The result is larger than either sample mean's standard deviation, because both sample means vary."
+   },
+   {
+    "s": "Two populations are strongly right-skewed. Independent random samples of size 8 and 10 are taken. Which describes the sampling distribution of x̄₁ − x̄₂?",
+    "o": [
+     "Exactly normal, because it is a difference",
+     "Approximately normal by the central limit theorem",
+     "Possibly skewed, because the samples are small and the populations are not normal",
+     "Uniform"
+    ],
+    "c": 2,
+    "w": "The central limit theorem needs large samples (n ≥ 30 is the usual guide). With skewed populations and small samples we cannot assume normality."
+   },
+   {
+    "s": "Both populations are normal. Samples of size 5 and 6 are taken. The sampling distribution of x̄₁ − x̄₂ is:",
+    "o": [
+     "Normal",
+     "Approximately normal only if n ≥ 30",
+     "Skewed",
+     "Impossible to describe"
+    ],
+    "c": 0,
+    "w": "When both populations are normal, each sample mean is normal for any n, and the difference of independent normal variables is normal."
+   },
+   {
+    "s": "Both sample sizes are multiplied by 4. What happens to the standard deviation of x̄₁ − x̄₂?",
+    "o": [
+     "It is multiplied by 4.",
+     "It is divided by 4.",
+     "It is cut in half.",
+     "It does not change."
+    ],
+    "c": 2,
+    "w": "Each variance term σ²/n is divided by 4, so the sum is divided by 4 and its square root is divided by 2."
+   },
+   {
+    "s": "Which condition is needed for the formula √(σ₁²/n₁ + σ₂²/n₂) to be correct?",
+    "o": [
+     "Both populations must be normal.",
+     "The two samples must be independent of each other, and each sample must be less than 10% of its population when sampling without replacement.",
+     "The sample sizes must be equal.",
+     "The population standard deviations must be equal."
+    ],
+    "c": 1,
+    "w": "Adding variances requires independence. The 10% condition keeps observations within each sample close enough to independent. Normality matters for shape, not for the SD formula."
+   },
+   {
+    "s": "The sampling distribution of x̄₁ − x̄₂ is approximately normal with mean 2 and standard deviation 1.6. What is P(x̄₁ − x̄₂ > 0)?",
+    "o": [
+     "About 0.894",
+     "About 0.106",
+     "About 0.500",
+     "About 0.788"
+    ],
+    "c": 0,
+    "w": "z = (0 − 2) ÷ 1.6 = −1.25. The area to the right of −1.25 is about 0.894. Choice B is the area to the left."
+   }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("4.6");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [4], topic: "4.6", compact: true, storageKey: "topic-4.6" });</script>
+</body>
+</html>

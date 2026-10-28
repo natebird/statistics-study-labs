@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting Up a Test for a Difference in Proportions Study Lab</title>
+<meta name="description" content="Write hypotheses for p₁ − p₂, pick the right alternative, and check conditions using the pooled proportion.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl input[type="text"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl input[type="text"] { font-family: var(--body); }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 6px 8px; font-size: .86rem; text-align: right; vertical-align: middle; }
+.mini th:first-child, .mini td:first-child { text-align: left; }
+.mini td.tot, .mini th.tot { background: var(--paper); font-family: var(--mono); }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 56px; padding: 5px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: right; }
+.mono { font-family: var(--mono); }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+.steps { display: grid; gap: 12px; }
+.steps .card h3 { display: flex; gap: 10px; align-items: baseline; }
+.steps .card h3 .tag { font-size: .74rem; }
+.steps .card p, .steps .card li { font-size: .95rem; }
+.steps .card ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } .mini input[type="number"] { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.12</span>
+  <h1>Setting Up a Test for a Difference in Proportions Study Lab</h1>
+  <p class="lede">Before you calculate anything, a significance test needs clear parameters, hypotheses that match the question, and conditions checked under the assumption that H₀ is true. Practice choosing Hₐ from the wording, then see why the pooled proportion appears in the test.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Set up the test</h2>
+    <p>Every two-proportion test starts the same way: define the parameters, write hypotheses about p₁ − p₂, and check conditions using the pooled proportion. Pick a study, choose the alternative hypothesis the question calls for, and check the conditions.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">H₀: p₁ − p₂ = 0</span> <span class="formula">p̂c = (x₁ + x₂) ÷ (n₁ + n₂)</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset studies</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>The question</h3>
+      <p id="q" style="font-size:1.02rem"></p>
+      <div class="tag">Which alternative hypothesis fits?</div>
+      <div class="seg" id="ha" role="group" aria-label="Alternative hypothesis"></div>
+      <div class="story" id="haFb" aria-live="polite"></div>
+    </div>
+    <div class="card calc-card">
+      <h3>State: parameters and hypotheses</h3>
+      <div class="calc" id="state"></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:6px;">
+    <h3 style="font-size:1.2rem;">Plan: check conditions with the pooled proportion</h3>
+    <p>The test assumes H₀ is true, so both groups share one proportion. Its best estimate combines the two samples.</p>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="x1">Successes x₁</label><input type="number" id="x1" min="0" step="1"></div>
+        <div class="ctl"><label for="x2">Successes x₂</label><input type="number" id="x2" min="0" step="1"></div>
+        <div class="ctl"><label for="n1">Sample size n₁</label><input type="number" id="n1" min="1" step="1"></div>
+        <div class="ctl"><label for="n2">Sample size n₂</label><input type="number" id="n2" min="1" step="1"></div>
+      </div>
+      <div class="calc" id="cond"></div>
+      <p class="note" id="msg" aria-live="polite"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>If H₀ were true <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Null distribution of the difference in sample proportions centered at zero, with the observed difference marked"></svg>
+      <div class="legend"><span class="l-ad">Null model N(0, SE)</span><span class="l-c1">Observed p̂₁ − p̂₂</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">p̂₁</div><div class="v" id="r-a"></div></div>
+    <div class="stat"><div class="k">p̂₂</div><div class="v" id="r-b"></div></div>
+    <div class="stat"><div class="k">Pooled p̂c</div><div class="v" id="r-c"></div></div>
+    <div class="stat"><div class="k">Null SE</div><div class="v" id="r-se"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Parameters</span><h3>Define both proportions</h3><p>Name p₁ and p₂ in context, with the population or treatment and what counts as a success. Hypotheses are always about parameters, never about p̂₁ and p̂₂.</p></div>
+    <div class="card"><span class="tag">Null hypothesis</span><h3>No difference</h3><p>H₀: p₁ − p₂ = 0 (equivalently p₁ = p₂). The test asks how surprising the data would be if there were no difference.</p></div>
+    <div class="card"><span class="tag">Alternative</span><h3>Direction comes from the question</h3><p>Use &gt; or &lt; when the question names a direction (increase, lower, more), and ≠ when it asks about any difference. Decide before looking at the data.</p></div>
+    <div class="card"><span class="tag">Pooling</span><h3>One shared proportion</h3><p>If H₀ is true, both groups have the same p. The pooled proportion p̂c = (x₁ + x₂)/(n₁ + n₂) estimates it, and it is used in the conditions and the standard error.</p></div>
+    <div class="card"><span class="tag">Conditions</span><h3>Random, 10%, large counts</h3><p>Random samples or random assignment; each sample ≤ 10% of its population when sampling; and n₁p̂c, n₁(1 − p̂c), n₂p̂c, n₂(1 − p̂c) all at least 10.</p></div>
+    <div class="card"><span class="tag">Significance level</span><h3>Set α in advance</h3><p>α (often 0.05) is the cutoff for how small the p-value must be to reject H₀. Choose it before collecting data.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Writing hypotheses for a two-proportion z-test.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Question wording</th><th>Hₐ</th><th>Sides</th></tr></thead>
+    <tbody>
+      <tr><td>"Is there a difference…?" "Do they differ…?"</td><td>p₁ − p₂ ≠ 0</td><td>Two-sided</td></tr>
+      <tr><td>"Is group 1 higher / more likely / improved…?"</td><td>p₁ − p₂ &gt; 0</td><td>One-sided (right)</td></tr>
+      <tr><td>"Is group 1 lower / less likely / reduced…?"</td><td>p₁ − p₂ &lt; 0</td><td>One-sided (left)</td></tr>
+      <tr><td>Pooled proportion</td><td>p̂c = (x₁ + x₂) ÷ (n₁ + n₂)</td><td>Used only in tests of H₀: p₁ = p₂</td></tr>
+      <tr><td>Null standard error</td><td>√( p̂c(1 − p̂c)(1/n₁ + 1/n₂) )</td><td>—</td></tr>
+      <tr><td>Large counts (test)</td><td>n₁p̂c, n₁(1 − p̂c), n₂p̂c, n₂(1 − p̂c) ≥ 10</td><td>Some teachers accept observed counts; pooled is the standard</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Define both parameters in context, including the order: "p₁ = the true proportion of patients who get vaccinated after a reminder text; p₂ = … without a reminder."</li>
+        <li>Write hypotheses with parameter symbols: H₀: p₁ − p₂ = 0, Hₐ: p₁ − p₂ &gt; 0.</li>
+        <li>Name the test: two-sample z-test for a difference in proportions.</li>
+        <li>Check large counts with the pooled proportion and show all four products.</li>
+        <li>Address random sampling or random assignment, and the 10% condition when sampling.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Writing hypotheses with p̂ (statistics) instead of p (parameters).</li>
+        <li>Picking the direction of Hₐ after seeing which sample proportion is larger.</li>
+        <li>Using p̂₁ and p̂₂ separately in the test's standard error instead of the pooled p̂c.</li>
+        <li>Writing H₀: p₁ − p₂ &gt; 0. The null always has the equals sign.</li>
+        <li>Forgetting to define which group is 1 and which is 2.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.12. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function P(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function btns(host, list, fn) {
+    host.innerHTML = "";
+    list.forEach(function (x, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = x.name || x[0]; b.addEventListener("click", function () { fn(x, i); }); host.appendChild(b); });
+  }
+  function seg(host, opts, cur, fn) {
+    host.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { Array.prototype.forEach.call(host.children, function (c) { c.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); fn(o[0]); });
+      host.appendChild(b);
+    });
+  }
+  function rows(list) { return list.map(function (r) { return '<div class="row' + (r[2] ? " " + r[2] : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function zstar(c) { return Lab.invNorm(1 - (1 - c) / 2); }
+
+
+  var PRESETS = [
+    { name: "Does a reminder text raise vaccination?", q: "In a randomized experiment, 300 patients got a reminder text and 300 did not. Does the reminder <b>increase</b> the proportion who get vaccinated?", g1: "reminder group", g2: "no-reminder group", s: "get vaccinated", pop: "patients like these", ha: "gt", exp: true, x1: 141, n1: 300, x2: 117, n2: 300 },
+    { name: "Do men and women differ on a ballot measure?", q: "Independent random samples of 250 men and 280 women in a city were asked if they support a ballot measure. Is there a <b>difference</b> in the proportion who support it?", g1: "men in the city", g2: "women in the city", s: "support the measure", pop: "", ha: "ne", exp: false, x1: 118, n1: 250, x2: 151, n2: 280 },
+    { name: "Is the new coating less likely to crack?", q: "A factory tests 120 parts with a new coating and 120 with the old coating, randomly assigned. Is the proportion that crack <b>lower</b> with the new coating?", g1: "new coating", g2: "old coating", s: "crack", pop: "parts", ha: "lt", exp: true, x1: 9, n1: 120, x2: 21, n2: 120 },
+    { name: "Too few successes", q: "A school surveys random samples of 40 freshmen and 40 seniors. Is the proportion who have been to a hospital ER this year <b>different</b>?", g1: "freshmen at the school", g2: "seniors at the school", s: "visited an ER this year", pop: "", ha: "ne", exp: false, x1: 3, n1: 40, x2: 5, n2: 40 }
+  ];
+  var HA = [["ne", "p₁ − p₂ ≠ 0"], ["gt", "p₁ − p₂ > 0"], ["lt", "p₁ − p₂ < 0"]];
+  var S = {}, pick = null;
+  function load(p) {
+    S = JSON.parse(JSON.stringify(p)); pick = null;
+    ["x1", "n1", "x2", "n2"].forEach(function (k) { $(k).value = S[k]; });
+    $("q").innerHTML = S.q;
+    seg($("ha"), HA, null, function (v) { pick = v; renderHa(); });
+    renderHa(); render();
+  }
+  function renderHa() {
+    var sym = { ne: "≠", gt: ">", lt: "<" }, words = { ne: "a difference (either direction)", gt: "group 1 is higher", lt: "group 1 is lower" };
+    var fb = $("haFb");
+    if (!pick) fb.innerHTML = "<p>Read the question for a direction word like <i>increase</i>, <i>lower</i>, or <i>differ</i>, then choose.</p>";
+    else if (pick === S.ha) fb.innerHTML = "<p><b class='ok'>Correct.</b> The question asks whether " + words[S.ha] + ", so Hₐ: p₁ − p₂ " + sym[S.ha] + " 0.</p>";
+    else fb.innerHTML = "<p><b class='no'>Not quite.</b> The question asks whether " + words[S.ha] + ". Decide the direction before looking at the data. Choosing Hₐ because of what the sample shows is not allowed.</p>";
+    var h = pick === S.ha ? S.ha : null;
+    $("state").innerHTML = rows([
+      ["p₁ = true proportion who " + S.s + ": " + S.g1, ""],
+      ["p₂ = true proportion who " + S.s + ": " + S.g2, ""],
+      ["H₀: p₁ − p₂ = 0", "no difference"],
+      ["Hₐ: p₁ − p₂ " + (h ? sym[h] : "?") + " 0", h ? (h === "ne" ? "two-sided" : "one-sided") : "choose above"],
+      ["Significance level", "α = 0.05 unless stated"]
+    ]);
+  }
+  ["x1", "n1", "x2", "n2"].forEach(function (k) { $(k).addEventListener("input", function (e) { S[k] = Math.floor(+e.target.value); render(); }); });
+
+  function render() {
+    var bad = !(S.n1 >= 1 && S.n2 >= 1 && S.x1 >= 0 && S.x2 >= 0 && S.x1 <= S.n1 && S.x2 <= S.n2) || S.x1 + S.x2 === 0 || S.x1 + S.x2 === S.n1 + S.n2;
+    $("msg").textContent = bad ? "Enter whole-number successes from 0 up to each sample size, with at least one success and one failure overall." : "";
+    if (bad) return;
+    var a = S.x1 / S.n1, b = S.x2 / S.n2, pc = (S.x1 + S.x2) / (S.n1 + S.n2), se = Math.sqrt(pc * (1 - pc) * (1 / S.n1 + 1 / S.n2)), d = a - b;
+    $("r-a").textContent = N(a, 4); $("r-b").textContent = N(b, 4); $("r-c").textContent = N(pc, 4); $("r-se").textContent = N(se, 4);
+    var ex = [["n₁p̂c = " + S.n1 + "(" + N(pc, 4) + ")", S.n1 * pc], ["n₁(1 − p̂c)", S.n1 * (1 - pc)], ["n₂p̂c = " + S.n2 + "(" + N(pc, 4) + ")", S.n2 * pc], ["n₂(1 − p̂c)", S.n2 * (1 - pc)]];
+    var ok = ex.every(function (x) { return x[1] >= 10; });
+    $("cond").innerHTML = rows([["p̂c = (" + S.x1 + " + " + S.x2 + ") ÷ (" + S.n1 + " + " + S.n2 + ")", "= " + N(pc, 4)]]
+      .concat(ex.map(function (x) { return [x[0] + " = " + N(x[1], 1), x[1] >= 10 ? '<span class="ok">≥ 10 ✓</span>' : '<span class="no">&lt; 10 ✗</span>']; }))
+      .concat([["<b>Random:</b> " + (S.exp ? "treatments were randomly assigned" : "two independent random samples"), "✓"],
+        ["<b>10%:</b> " + (S.exp ? "not needed for a randomized experiment" : "each sample ≤ 10% of its population"), S.exp ? "—" : "check"]]));
+    var m = Math.max(4.2, Math.abs(d / se) + 0.8);
+    var ticks = Lab.niceTicks(-m * se, m * se, 6);
+    var F = Lab.frame($("g"), { x: [ticks[0], ticks[ticks.length - 1]], y: [0, Lab.normPdf(0, 0, se) * 1.15], xLabel: "p̂₁ − p̂₂", yLabel: "", xTicks: ticks, yTicks: [], fmtX: function (v) { return N(v, 3); } });
+    Lab.fn(F, function (x) { return Lab.normPdf(x, 0, se); }, "var(--accent)", 2.5, null, 160);
+    Lab.vline(F, d, "var(--c1)", 2.5);
+    Lab.tag(F, d, Lab.normPdf(0, 0, se) * 1.06, "observed " + N(d, 3), "var(--c1)", "middle");
+    $("g-sub").textContent = "center 0, SE " + N(se, 4);
+    var z = d / se, t = [];
+    var head = ok ? "<b>Conditions for a two-sample z-test are met.</b> All four expected counts are at least 10." : "<b>The large counts condition fails.</b> At least one expected count is below 10, so a normal-based z-test is not appropriate here.";
+    t.push("Under H₀ the two groups share one proportion, so we estimate it once from all " + (S.n1 + S.n2) + " observations: p̂c = " + N(pc, 4) + ". That is why the test uses the pooled SE, but a confidence interval does not.");
+    t.push("The observed difference " + N(d, 3) + " is " + N(Math.abs(z), 2) + " standard errors " + (z >= 0 ? "above" : "below") + " 0. Whether that is unusual enough is the job of the next step (topic 3.13).");
+    if (S.exp) t.push("Because this is a randomized experiment, a significant result would support a cause-and-effect conclusion.");
+    else t.push("Because these are random samples, not an experiment, a significant result would show a difference between populations, not cause and effect.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  btns($("scen"), PRESETS, load);
+  load(PRESETS[0]);
+
+  var Q = [
+ {
+  "s": "A study asks whether a new training program increases the proportion of employees who pass a certification exam. Which hypotheses are correct, with p₁ = program and p₂ = no program?",
+  "o": [
+   "H₀: p₁ − p₂ = 0, Hₐ: p₁ − p₂ ≠ 0",
+   "H₀: p₁ − p₂ = 0, Hₐ: p₁ − p₂ > 0",
+   "H₀: p̂₁ − p̂₂ = 0, Hₐ: p̂₁ − p̂₂ > 0",
+   "H₀: p₁ − p₂ > 0, Hₐ: p₁ − p₂ = 0"
+  ],
+  "c": 1,
+  "w": "\"Increases\" gives a one-sided Hₐ. Hypotheses use parameters (p), and the null always contains equality."
+ },
+ {
+  "s": "In a test of H₀: p₁ = p₂, x₁ = 45 of n₁ = 150 and x₂ = 30 of n₂ = 100. What is the pooled proportion?",
+  "o": [
+   "0.30",
+   "0.25",
+   "0.60",
+   "0.33"
+  ],
+  "c": 0,
+  "w": "p̂c = (45 + 30) ÷ (150 + 100) = 75 ÷ 250 = 0.30. Here both groups happen to have p̂ = 0.30 too."
+ },
+ {
+  "s": "Why does a two-proportion z-test use a pooled proportion?",
+  "o": [
+   "Because the samples are different sizes",
+   "Because the test assumes H₀: p₁ = p₂, so both groups share one proportion",
+   "To make the standard error larger",
+   "Because the population proportions are known"
+  ],
+  "c": 1,
+  "w": "Calculations in a test assume H₀ is true. If p₁ = p₂, the best estimate of that common value combines both samples."
+ },
+ {
+  "s": "Which is the correct large counts check for a two-proportion z-test?",
+  "o": [
+   "n₁ ≥ 30 and n₂ ≥ 30",
+   "n₁p̂c, n₁(1 − p̂c), n₂p̂c, n₂(1 − p̂c) all ≥ 10",
+   "x₁ + x₂ ≥ 10",
+   "n₁ + n₂ ≥ 100"
+  ],
+  "c": 1,
+  "w": "The test uses the pooled proportion for expected successes and failures in each group."
+ },
+ {
+  "s": "A researcher sees that p̂₁ = 0.42 and p̂₂ = 0.35, then decides to use Hₐ: p₁ > p₂. What is the problem?",
+  "o": [
+   "There is no problem.",
+   "Hₐ should be chosen from the research question before seeing the data.",
+   "Hₐ must always be two-sided.",
+   "The hypotheses should use p̂."
+  ],
+  "c": 1,
+  "w": "Choosing the direction after looking at the data makes the p-value misleading. The research question decides Hₐ."
+ },
+ {
+  "s": "Which question calls for a two-sided alternative?",
+  "o": [
+   "Is the new drug more effective than the old one?",
+   "Do left-handed and right-handed students differ in the proportion who play an instrument?",
+   "Does the new layout reduce the proportion of abandoned carts?",
+   "Is the defect rate higher on the night shift?"
+  ],
+  "c": 1,
+  "w": "\"Differ\" does not name a direction, so Hₐ: p₁ − p₂ ≠ 0."
+ },
+ {
+  "s": "In a randomized experiment with 60 volunteers per group, which condition does NOT need to be checked?",
+  "o": [
+   "Random assignment",
+   "Large counts",
+   "10% condition",
+   "Independence of the groups"
+  ],
+  "c": 2,
+  "w": "The 10% condition applies to sampling without replacement from a population, not to random assignment of volunteers."
+ },
+ {
+  "s": "Which statement is a correct description of H₀ for a two-proportion test?",
+  "o": [
+   "The sample proportions are equal.",
+   "The population proportions are equal.",
+   "Group 1's sample proportion is larger.",
+   "The difference in sample proportions is due to the treatment."
+  ],
+  "c": 1,
+  "w": "H₀: p₁ = p₂ is a claim about the population (or true treatment) proportions."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.12");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.12", compact: true, storageKey: "topic-3.12" });</script>
+</body>
+</html>

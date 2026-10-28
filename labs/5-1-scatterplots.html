@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scatterplots Study Lab</title>
+<meta name="description" content="Drag and add points on a scatterplot, then practice describing direction, form, strength, and unusual features in context.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.dev { min-width: 0; }
+.dev th, .dev td { padding: 5px 10px; font-family: var(--mono); font-size: .84rem; text-align: right; }
+.dev th { font-family: var(--body); text-transform: none; letter-spacing: 0; }
+.dev tfoot td { background: var(--paper); font-weight: 600; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toolbar button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chk { display: grid; gap: 12px; align-content: start; }
+.chk-group { display: grid; gap: 6px; }
+.chk-group .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.marker-key .k-acc { color: var(--accent); } .marker-key .k-c1 { color: var(--c1); } .marker-key .k-c2 { color: var(--c2); }
+.marker-key .k-good { color: var(--good); } .marker-key .k-bad { color: var(--bad); } .marker-key .k-c3 { color: var(--c3); }
+.marker-key .k-dash::before { background: none; border-top: 2px dashed currentColor; height: 0; }
+svg.chart.drag { touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none; }
+.out { min-width: 0; }
+.out th, .out td { font-family: var(--mono); font-size: .86rem; padding: 6px 12px; text-align: right; }
+.out th { text-transform: none; letter-spacing: 0; }
+.out th:first-child, .out td:first-child { text-align: left; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+.lab51 { grid-template-columns: 1.25fr 1fr; }
+#feedback p + p { margin-top: 6px; }
+.practice .readout, .practice #story, .practice #calcCard { filter: blur(7px); pointer-events: none; user-select: none; }
+@media (max-width: 860px) { .lab51 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 5 · Topic 5.1</span>
+  <h1>Scatterplots Study Lab</h1>
+  <p class="lede">A scatterplot shows the relationship between two quantitative variables measured on the same individuals. The explanatory variable goes on the x-axis and the response variable on the y-axis. Drag points, add your own, and practice the four-part description graders look for: direction, form, strength, and unusual features.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h" id="labsec">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Build and describe a scatterplot</h2>
+    <p>Pick a data set, then drag any point. Turn on <b>Click to add points</b> to place new ones. Describe what you see with the four AP words, then check yourself.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">Explanatory (x) → Response (y)</span> <span class="formula">Describe: direction · form · strength · unusual features</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Data sets</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab lab51">
+    <div class="card graph-card">
+      <h3><span id="sc-title">Scatterplot</span> <small id="sc-sub"></small></h3>
+      <svg class="chart" id="sc" role="img" aria-label="Scatterplot. Drag points to move them."></svg>
+      <div class="toolbar">
+        <button type="button" id="addMode" aria-pressed="false">Click to add points</button>
+        <button type="button" id="undo">Remove last point</button>
+        <button type="button" id="swap">Swap axes</button>
+        <button type="button" id="clear">Start from a blank graph</button>
+      </div>
+      <div class="marker-key"><span class="k-acc">Data point</span><span class="k-bad">Unusual point</span><span class="k-c1 k-dash">Pattern the computer sees</span></div>
+    </div>
+    <div class="card chk">
+      <h3>Describe it yourself</h3>
+      <div class="chk-group"><span class="tag">Direction</span><div class="chips" data-g="dir"></div></div>
+      <div class="chk-group"><span class="tag">Form</span><div class="chips" data-g="form"></div></div>
+      <div class="chk-group"><span class="tag">Strength</span><div class="chips" data-g="strength"></div></div>
+      <div class="chk-group"><span class="tag">Unusual features</span><div class="chips" data-g="unusual"></div></div>
+      <div class="toolbar"><button type="button" class="primary" id="check">Check my description</button><button type="button" id="showPattern" aria-pressed="false">Show the pattern</button><button type="button" id="practice" aria-pressed="false">Hide answers while I practice</button></div>
+      <div id="feedback" class="note" aria-live="polite">Choose one word in each row, then check.</div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Number of points</div><div class="v" id="r-n"></div></div>
+    <div class="stat"><div class="k">Direction</div><div class="v" id="r-dir"></div></div>
+    <div class="stat"><div class="k">Form</div><div class="v" id="r-form"></div></div>
+    <div class="stat"><div class="k">Strength</div><div class="v" id="r-str"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="card calc-card" id="calcCard">
+    <h3>How the computer decided</h3>
+    <div class="calc" id="calc"></div>
+    <p class="note">The cutoffs here are rough guides, not AP rules. On the exam, any reasonable description earns credit when it matches the graph and is written in context.</p>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Variables</span><h3>Explanatory and response</h3><p>The <b>explanatory</b> variable (x) may help explain or predict changes in the <b>response</b> variable (y). Put the explanatory variable on the horizontal axis. Example: hours studied (x) and exam score (y).</p></div>
+    <div class="card"><span class="tag">Direction</span><h3>Positive, negative, or neither</h3><p><b>Positive:</b> as x increases, y tends to increase. <b>Negative:</b> as x increases, y tends to decrease. A curved pattern that goes down and then up has no single direction.</p></div>
+    <div class="card"><span class="tag">Form</span><h3>Linear or curved</h3><p>If the points follow a straight-line pattern, the form is <b>linear</b>. If they bend, the form is <b>nonlinear</b> (curved). A shapeless cloud has no clear form.</p></div>
+    <div class="card"><span class="tag">Strength</span><h3>How closely the points follow the form</h3><p><b>Strong</b> means the points hug the pattern tightly. <b>Weak</b> means they are widely scattered around it. Strength is about scatter, not steepness: a steep line can be weak, and a flat-ish line can be strong.</p></div>
+    <div class="card"><span class="tag">Unusual features</span><h3>Outliers and clusters</h3><p>An <b>outlier</b> is a point that falls far from the overall pattern. <b>Clusters</b> are separate groups of points with gaps between them. Always mention them, or say there are none.</p></div>
+    <div class="card"><span class="tag">Association</span><h3>Association is not causation</h3><p>A scatterplot shows whether two variables are <b>associated</b>. It cannot show that changing x <i>causes</i> y to change unless the data come from a well-designed experiment.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Describing a scatterplot</h2>
+    <p>Each part of the description, what it means, and a model sentence. Always name both variables and the individuals.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Feature</th><th>Options</th><th>What to look for</th><th>Sample wording</th></tr></thead>
+    <tbody>
+      <tr><td><b>Direction</b></td><td>Positive, negative, none</td><td>Do the points rise or fall from left to right?</td><td>"As hours studied increase, exam scores tend to increase."</td></tr>
+      <tr><td><b>Form</b></td><td>Linear, curved (nonlinear)</td><td>Would a straight line or a curve summarize the pattern?</td><td>"The relationship is roughly linear."</td></tr>
+      <tr><td><b>Strength</b></td><td>Strong, moderate, weak</td><td>How tightly do points cluster around the pattern?</td><td>"The points are tightly clustered, so the association is strong."</td></tr>
+      <tr><td><b>Unusual features</b></td><td>Outliers, clusters, none</td><td>Points far from the pattern; separate groups</td><td>"The student who studied 3 hours and scored 98 is an outlier."</td></tr>
+      <tr><td><b>Context</b></td><td>Both variables + individuals</td><td>Name what x and y measure and who was measured</td><td>"...between hours studied and exam score for these 14 students."</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Use all four parts and context in one or two sentences: "There is a strong, positive, linear association between hours studied and exam score for these students, with no apparent outliers."</li>
+        <li>Identify the explanatory and response variables when asked, and put the explanatory variable on the x-axis when you draw a scatterplot.</li>
+        <li>Label both axes with the variable names and units, and use an even scale.</li>
+        <li>When you mention an outlier, identify it specifically, for example by giving its coordinates.</li>
+        <li>If the data come from an observational study, avoid causal language. Say "is associated with," not "causes" or "leads to."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Describing only direction ("it's positive") and skipping form, strength, and unusual features.</li>
+        <li>Leaving out context. "Strong positive linear" earns little without naming the variables.</li>
+        <li>Confusing strength with slope. A steep pattern with lots of scatter is still weak.</li>
+        <li>Calling a curved pattern "linear" because it trends upward. Check whether a straight line would miss the bend.</li>
+        <li>Saying x causes y because the association is strong.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 5.1. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-5.html">Unit 5 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  // ================= Regression helpers (inline for this lab) =================
+  function fit(P) {
+    var n = P.length, xs = P.map(function (p) { return p[0]; }), ys = P.map(function (p) { return p[1]; });
+    var mx = Lab.mean(xs), my = Lab.mean(ys), sx = n > 1 ? Lab.sd(xs) : NaN, sy = n > 1 ? Lab.sd(ys) : NaN, sxy = 0;
+    P.forEach(function (p) { sxy += (p[0] - mx) * (p[1] - my); });
+    var r = n > 1 && sx > 1e-12 && sy > 1e-12 ? sxy / ((n - 1) * sx * sy) : NaN;
+    if (!isNaN(r)) r = Math.max(-1, Math.min(1, r));
+    var b1 = n > 1 && sx > 1e-12 ? sxy / ((n - 1) * sx * sx) : NaN, b0 = my - b1 * mx;
+    var res = P.map(function (p) { return p[1] - (b0 + b1 * p[0]); });
+    var sse = res.reduce(function (a, e) { return a + e * e; }, 0);
+    var sst = ys.reduce(function (a, y) { return a + (y - my) * (y - my); }, 0);
+    return { n: n, xs: xs, ys: ys, mx: mx, my: my, sx: sx, sy: sy, r: r, r2: sst > 1e-12 ? 1 - sse / sst : NaN, b1: b1, b0: b0, res: res, sse: sse, sst: sst, s: n > 2 ? Math.sqrt(sse / (n - 2)) : NaN };
+  }
+  function quad(P) {
+    if (P.length < 4) return null;
+    var mx = Lab.mean(P.map(function (p) { return p[0]; })), S = [0, 0, 0, 0, 0], T = [0, 0, 0];
+    P.forEach(function (p) { var u = p[0] - mx, k = 1; for (var i = 0; i < 5; i++) { S[i] += k; if (i < 3) T[i] += k * p[1]; k *= u; } });
+    var A = [[S[0], S[1], S[2], T[0]], [S[1], S[2], S[3], T[1]], [S[2], S[3], S[4], T[2]]];
+    for (var c = 0; c < 3; c++) {
+      var piv = c; for (var r = c + 1; r < 3; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
+      var t = A[c]; A[c] = A[piv]; A[piv] = t;
+      if (Math.abs(A[c][c]) < 1e-12) return null;
+      for (r = 0; r < 3; r++) { if (r === c) continue; var f = A[r][c] / A[c][c]; for (var k2 = c; k2 < 4; k2++) A[r][k2] -= f * A[c][k2]; }
+    }
+    var a = A[0][3] / A[0][0], b = A[1][3] / A[1][1], cc = A[2][3] / A[2][2];
+    var fq = function (x) { var u = x - mx; return a + b * u + cc * u * u; };
+    var my = Lab.mean(P.map(function (p) { return p[1]; })), sse = 0, sst = 0;
+    P.forEach(function (p) { var e = p[1] - fq(p[0]); sse += e * e; sst += (p[1] - my) * (p[1] - my); });
+    return { f: fq, sse: sse, r2: sst > 1e-12 ? 1 - sse / sst : NaN, c: cc };
+  }
+  function robustZ(v) {
+    var m = Lab.median(v), mad = Lab.median(v.map(function (x) { return Math.abs(x - m); })) * 1.4826;
+    return v.map(function (x) { return mad > 1e-9 ? (x - m) / mad : 0; });
+  }
+  // signed number with a true minus sign and an explicit plus
+  function sgn(v, d) { var s = N(v, d); return v > 0 && s !== "0" ? "+" + s : s; }
+  // "ŷ = 55.2 + 4.1x" with a true minus sign
+  function eqStr(b0, b1, d, yv, xv) {
+    d = d == null ? 3 : d; yv = yv || "ŷ"; xv = xv || "x";
+    return yv + " = " + N(b0, d) + (b1 < 0 ? " − " : " + ") + N(Math.abs(b1), d) + xv;
+  }
+  // scatter(svg, P, o): o { xr, yr, xLabel, yLabel, color(i) -> css, r, under(F), over(F) } -> F
+  function scatter(svg, P, o) {
+    var xt = o.xTicks || Lab.niceTicks(o.xr[0], o.xr[1], 6), yt = o.yTicks || Lab.niceTicks(o.yr[0], o.yr[1], 5);
+    var F = Lab.frame(svg, { x: [xt[0], xt[xt.length - 1]], y: [yt[0], yt[yt.length - 1]], xLabel: o.xLabel, yLabel: o.yLabel, xTicks: xt, yTicks: yt,
+      fmtX: function (v) { return N(v, 2); }, fmtY: function (v) { return N(v, 2); }, width: o.width, height: o.height });
+    if (o.under) o.under(F);
+    P.forEach(function (p, i) {
+      var c = (o.color && o.color(i)) || "var(--accent)";
+      Lab.el("circle", { cx: F.sx(p[0]), cy: F.sy(p[1]), r: (o.big && o.big(i)) ? 8 : (o.r || 6), fill: c, stroke: "var(--surface)", "stroke-width": 1.5 }, F.g);
+    });
+    if (o.over) o.over(F);
+    return F;
+  }
+  function toData(svg, F, e) {
+    var rc = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+    var px = (e.clientX - rc.left) / rc.width * vb.width, py = (e.clientY - rc.top) / rc.height * vb.height;
+    return { px: px, py: py,
+      x: F.xr[0] + (px - F.M.l) / (F.W - F.M.l - F.M.r) * (F.xr[1] - F.xr[0]),
+      y: F.yr[0] + (F.H - F.M.b - py) / (F.H - F.M.t - F.M.b) * (F.yr[1] - F.yr[0]) };
+  }
+  // drag(svg, getF, getP, onChange(kind, i), o { add() -> bool, select(i), snap: [dx, dy] })
+  function drag(svg, getF, getP, onChange, o) {
+    o = o || {}; var idx = -1;
+    svg.classList.add("drag");
+    function snap(v, st) { return st ? Math.round(v / st) * st : v; }
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    svg.addEventListener("pointerdown", function (e) {
+      var F = getF(), P = getP(); if (!F) return;
+      var d = toData(svg, F, e), best = -1, bd = 16;
+      P.forEach(function (p, i) { var dd = Math.hypot(F.sx(p[0]) - d.px, F.sy(p[1]) - d.py); if (dd < bd) { bd = dd; best = i; } });
+      if (best < 0 && o.add && o.add() && d.x >= F.xr[0] && d.x <= F.xr[1] && d.y >= F.yr[0] && d.y <= F.yr[1]) {
+        P.push([snap(d.x, o.snap && o.snap[0]), snap(d.y, o.snap && o.snap[1])]); best = P.length - 1; onChange("add", best);
+      }
+      if (best >= 0) { idx = best; try { svg.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault(); if (o.select) o.select(best); }
+    });
+    svg.addEventListener("pointermove", function (e) {
+      if (idx < 0) return; var F = getF(), P = getP(), d = toData(svg, F, e);
+      P[idx] = [clamp(snap(d.x, o.snap && o.snap[0]), F.xr[0], F.xr[1]), clamp(snap(d.y, o.snap && o.snap[1]), F.yr[0], F.yr[1])];
+      onChange("move", idx);
+    });
+    function up() { if (idx >= 0) { idx = -1; onChange("end", -1); } }
+    svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
+  }
+  // reproducible preset data: gen(seed, n, xFn(i, R), yFn(x, R), dx, dy)
+  function gen(seed, n, xf, yf, dx, dy) {
+    var R = Lab.rng(seed), P = [];
+    for (var i = 0; i < n; i++) { var x = xf(i, R); P.push([+x.toFixed(dx == null ? 1 : dx), +yf(x, R).toFixed(dy == null ? 1 : dy)]); }
+    return P;
+  }
+  function strengthWord(a) { return a >= 0.8 ? "strong" : a >= 0.5 ? "moderate" : "weak"; }
+  function scenButtons(id, list, onPick) {
+    list.forEach(function (p, i) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = p.name;
+      b.addEventListener("click", function () { onPick(p, i); });
+      $(id).appendChild(b);
+    });
+  }
+
+
+  // ================= Presets =================
+  var PRESETS = [
+    { name: "Hours studied vs. exam score", x: "hours studied", y: "exam score", who: "students", xl: "Hours studied", yl: "Exam score (points)", xr: [0, 10], yr: [40, 110],
+      P: function () { return gen(11, 14, function (i, R) { return 0.5 + R() * 9; }, function (x, R) { return 55 + 4 * x + R.normal(0, 4); }); } },
+    { name: "Car age vs. price", x: "age", y: "price", who: "used cars", xl: "Age (years)", yl: "Price (thousands of $)", xr: [0, 12], yr: [0, 35],
+      P: function () { return gen(12, 15, function (i, R) { return 1 + R() * 10.5; }, function (x, R) { return 28 - 2 * x + R.normal(0, 1.8); }); } },
+    { name: "Temperature vs. hot cocoa sold", x: "high temperature", y: "cups of cocoa sold", who: "days", xl: "High temperature (°F)", yl: "Cups of cocoa sold", xr: [20, 90], yr: [0, 140],
+      P: function () { return gen(13, 16, function (i, R) { return 22 + R() * 66; }, function (x, R) { return Math.max(0, 0.02 * (x - 95) * (x - 95) + 5 + R.normal(0, 4)); }, 0, 0); } },
+    { name: "Driving speed vs. fuel used (U-shaped)", x: "speed", y: "fuel used", who: "test drives", xl: "Speed (mph)", yl: "Gallons per 100 miles", xr: [20, 80], yr: [2.5, 5],
+      P: function () { return gen(17, 15, function (i, R) { return 22 + i * 4 + R() * 2; }, function (x, R) { return 3 + 0.0012 * (x - 50) * (x - 50) + R.normal(0, 0.12); }, 0, 2); } },
+    { name: "Shoe size vs. GPA", x: "shoe size", y: "GPA", who: "students", xl: "Shoe size", yl: "GPA", xr: [4, 14], yr: [1.5, 4.5],
+      P: function () { return gen(14, 18, function (i, R) { return 5 + R() * 8; }, function (x, R) { return 2 + R() * 2; }, 1, 2); } },
+    { name: "Height vs. arm span (with an outlier)", x: "height", y: "arm span", who: "people", xl: "Height (cm)", yl: "Arm span (cm)", xr: [145, 195], yr: [140, 210],
+      P: function () { var P = gen(15, 13, function (i, R) { return 150 + R() * 40; }, function (x, R) { return x + R.normal(0, 3); }, 0, 0); P.push([165, 196]); return P; } },
+    { name: "Geyser eruption length vs. wait (clusters)", x: "eruption length", y: "wait until the next eruption", who: "eruptions", xl: "Eruption length (minutes)", yl: "Wait until next eruption (min)", xr: [1, 6], yr: [40, 110],
+      P: function () { return gen(18, 18, function (i, R) { return i < 8 ? 1.7 + R() * 0.7 : 3.9 + R() * 0.9; }, function (x, R) { return 33 + 12 * x + R.normal(0, 4); }, 1, 0); } }
+  ];
+  var S = {}, F = null, showPattern = false, addMode = false;
+  function load(p) {
+    S = { p: p, P: p.P(), x: p.x, y: p.y, xl: p.xl, yl: p.yl, xr: p.xr.slice(), yr: p.yr.slice(), swapped: false, blank: false };
+    clearMarks(); render();
+  }
+
+  // ================= Describe =================
+  function gapCheck(v) {
+    var s = Lab.sorted(v), n = s.length, range = s[n - 1] - s[0];
+    if (n < 6 || range <= 0) return false;
+    for (var i = 0; i < n - 1; i++) if (s[i + 1] - s[i] > 0.3 * range && i + 1 >= 3 && n - (i + 1) >= 3) return true;
+    return false;
+  }
+  function cap(w) { return w.charAt(0).toUpperCase() + w.slice(1); }
+  function describe(P) {
+    var f = fit(P); if (P.length < 3 || isNaN(f.r)) return null;
+    var q = quad(P), r = f.r, ar = Math.abs(r), n = P.length;
+    var imp = q && f.sse > 1e-12 ? (f.sse - q.sse) / f.sse : 0;
+    var curved = !!(q && n >= 5 && imp > 0.35 && q.r2 > 0.5);
+    var D = { f: f, q: q, imp: imp, curved: curved, r: r };
+    D.form = curved ? "Curved" : ar >= 0.3 ? "Linear" : "No clear form";
+    D.formOK = [D.form];
+    if (q && n >= 5 && imp > 0.25 && imp <= 0.45 && q.r2 > 0.4) { ["Curved", "Linear"].forEach(function (w) { if (D.formOK.indexOf(w) < 0) D.formOK.push(w); }); }
+    if (!curved && ar >= 0.25 && ar < 0.35) D.formOK.push(D.form === "Linear" ? "No clear form" : "Linear");
+    D.dir = ar < 0.25 ? "None" : r > 0 ? "Positive" : "Negative";
+    D.dirOK = [D.dir];
+    if (ar >= 0.18 && ar < 0.32) D.dirOK.push(D.dir === "None" ? (r > 0 ? "Positive" : "Negative") : "None");
+    var sv = curved ? Math.sqrt(Math.max(0, q.r2)) : ar; D.sv = sv;
+    D.strength = D.form === "No clear form" ? "Weak" : cap(strengthWord(sv));
+    D.strOK = [D.strength];
+    if (D.form !== "No clear form") {
+      if (Math.abs(sv - 0.8) < 0.05) ["Strong", "Moderate"].forEach(function (w) { if (D.strOK.indexOf(w) < 0) D.strOK.push(w); });
+      if (Math.abs(sv - 0.5) < 0.05) ["Moderate", "Weak"].forEach(function (w) { if (D.strOK.indexOf(w) < 0) D.strOK.push(w); });
+    }
+    // unusual features: points far from the pattern (robust check), isolated x-values, gaps that split the data
+    var res = curved ? P.map(function (p) { return p[1] - q.f(p[0]); }) : f.res;
+    var sse = res.reduce(function (a, e) { return a + e * e; }, 0), s = Math.sqrt(sse / Math.max(1, n - (curved ? 3 : 2)));
+    var rz = robustZ(res);
+    D.out = []; P.forEach(function (p, i) { if ((Math.abs(rz[i]) > 3.5 && Math.abs(res[i]) > 2 * s) || Math.abs(f.xs[i] - f.mx) > 3 * f.sx) D.out.push(i); });
+    D.clusters = gapCheck(f.xs) || gapCheck(f.ys);
+    D.unOK = []; if (D.out.length) D.unOK.push("Outlier"); if (D.clusters) D.unOK.push("Clusters"); if (!D.unOK.length) D.unOK.push("None");
+    D.res = res; D.s = s;
+    return D;
+  }
+
+  // ================= Render =================
+  function render() {
+    var D = describe(S.P);
+    F = scatter($("sc"), S.P, { xr: S.xr, yr: S.yr, xLabel: S.xl, yLabel: S.yl,
+      color: function (i) { return D && D.out.indexOf(i) >= 0 ? "var(--bad)" : null; },
+      under: function (F) {
+        if (!showPattern || !D) return;
+        if (D.curved) Lab.fn(F, D.q.f, "var(--c1)", 2.5, "7 5", 120);
+        else if (D.form === "Linear") Lab.fn(F, function (x) { return D.f.b0 + D.f.b1 * x; }, "var(--c1)", 2.5, "7 5", 2);
+      } });
+    $("sc-title").textContent = S.yl.replace(/ \(.*\)/, "") + " vs. " + S.xl.replace(/ \(.*\)/, "").toLowerCase();
+    $("sc-sub").textContent = S.blank ? "blank graph · click to add points" : "drag any point";
+    $("r-n").textContent = S.P.length;
+    if (!D) {
+      ["r-dir", "r-form", "r-str"].forEach(function (id) { $(id).textContent = "—"; });
+      $("story").innerHTML = "<p><b>Add more points.</b> You need at least 3 points that do not all line up vertically or horizontally to describe a relationship. Turn on <i>Click to add points</i> and click inside the graph.</p>";
+      $("calc").innerHTML = ""; return;
+    }
+    $("r-dir").textContent = D.dir;
+    $("r-form").textContent = D.form;
+    $("r-str").innerHTML = D.strength + ' <span style="font-size:.8rem;color:var(--muted)">' + (D.curved ? "curve fit R = " + N(D.sv) : "r = " + N(D.r)) + "</span>";
+    story(D); calc(D);
+  }
+
+  function story(D) {
+    var n = S.P.length, words = [], head, t = [];
+    if (D.form === "No clear form") head = "<b>No clear association</b> between " + S.x + " and " + S.y + " for these " + n + " " + S.p.who + ". The points look like a shapeless cloud, so knowing " + S.x + " tells you little about " + S.y + ".";
+    else {
+      words.push(D.strength.toLowerCase()); if (D.dir !== "None") words.push(D.dir.toLowerCase()); words.push(D.form === "Curved" ? "curved (nonlinear)" : "linear");
+      head = "<b>There is a " + words.join(", ") + " association</b> between " + S.x + " and " + S.y + " for these " + n + " " + S.p.who + ".";
+      if (D.dir === "Positive") t.push("Positive: as " + S.x + " increases, " + S.y + " tends to increase.");
+      else if (D.dir === "Negative") t.push("Negative: as " + S.x + " increases, " + S.y + " tends to decrease.");
+      else t.push("No single direction: " + S.y + " falls and then rises (or rises and then falls) as " + S.x + " increases, so the pattern is curved but neither positive nor negative overall.");
+      if (D.form === "Curved") t.push("Curved: a straight line would miss the bend. Click <i>Show the pattern</i> to see the curve.");
+    }
+    D.out.forEach(function (i) { var p = S.P[i]; t.push("<b>Unusual point:</b> (" + N(p[0]) + ", " + N(p[1]) + ") falls far from the pattern of the other points. Name it and give its values on the FRQ."); });
+    if (D.clusters) t.push("<b>Clusters:</b> the points fall into separate groups with a gap between them. Mention the groups when you describe the graph.");
+    if (!D.out.length && !D.clusters) t.push("No obvious outliers or clusters. Say so: \"There are no apparent outliers.\"");
+    if (S.swapped) t.push("<b>Axes swapped.</b> " + cap(S.p.y) + " is now on the x-axis. Direction, form, and strength stay the same, but by convention the <i>explanatory</i> variable (" + S.p.x + ") belongs on the x-axis.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+
+  function calc(D) {
+    var r = "";
+    r += '<div class="row"><span>Direction: sign of the correlation r (see topic 5.2)</span><span>r = ' + N(D.r, 3) + " → " + D.dir + "</span></div>";
+    r += '<div class="row"><span>Form: how much better a curve fits than a line (drop in squared misses)</span><span>' + (D.q ? Lab.pct(Math.max(0, D.imp), 0) : "n/a") + " → " + D.form + "</span></div>";
+    r += '<div class="row"><span>Strength: how tightly the points follow the ' + (D.curved ? "curve" : "line") + " (0 to 1)</span><span>" + N(D.sv, 2) + " → " + D.strength + "</span></div>";
+    r += '<div class="row"><span>Unusual: points much farther from the pattern than the rest; gaps that split the data</span><span>' + D.unOK.join(", ") + "</span></div>";
+    $("calc").innerHTML = r;
+  }
+
+  // ================= Self-check chips =================
+  var GROUPS = { dir: ["Positive", "Negative", "None"], form: ["Linear", "Curved", "No clear form"], strength: ["Strong", "Moderate", "Weak"], unusual: ["None", "Outlier", "Clusters"] };
+  var pick = {};
+  Object.keys(GROUPS).forEach(function (g) {
+    var box = document.querySelector('[data-g="' + g + '"]');
+    GROUPS[g].forEach(function (w) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = w; b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { pick[g] = w; clearMarks(true); Array.prototype.forEach.call(box.children, function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); }); });
+      box.appendChild(b);
+    });
+  });
+  function clearMarks(keep) {
+    document.querySelectorAll(".chk .chip").forEach(function (c) { c.classList.remove("right", "wrong"); if (!keep) c.setAttribute("aria-pressed", "false"); });
+    if (!keep) { pick = {}; $("feedback").textContent = "Choose one word in each row, then check."; }
+  }
+  $("check").addEventListener("click", function () {
+    var D = describe(S.P);
+    if (!D) { $("feedback").textContent = "Add at least 3 points first."; return; }
+    var ok = { dir: D.dirOK, form: D.formOK, strength: D.strOK, unusual: D.unOK }, right = 0, miss = [];
+    Object.keys(GROUPS).forEach(function (g) {
+      var box = document.querySelector('[data-g="' + g + '"]');
+      Array.prototype.forEach.call(box.children, function (c) {
+        c.classList.remove("right", "wrong");
+        if (c.textContent === pick[g]) { if (ok[g].indexOf(pick[g]) >= 0) { c.classList.add("right"); right++; } else { c.classList.add("wrong"); miss.push(g); } }
+      });
+      if (!pick[g]) miss.push(g);
+    });
+    var names = { dir: "direction", form: "form", strength: "strength", unusual: "unusual features" };
+    $("feedback").innerHTML = "<p><b>" + right + " of 4 match.</b> " + (miss.length ? "Look again at: " + miss.map(function (g) { return names[g] + (pick[g] ? "" : " (no choice yet)"); }).join(", ") + "." : "Nice description.") + "</p>" +
+      "<p>Computer's read: " + D.dirOK.join(" or ") + " · " + D.formOK.join(" or ") + " · " + D.strOK.join(" or ") + " · " + D.unOK.join(" and ") + ".</p>";
+  });
+
+  // ================= Controls =================
+  drag($("sc"), function () { return F; }, function () { return S.P; }, function (k) { if (k !== "end") { clearMarks(true); render(); } }, { add: function () { return addMode; } });
+  function setAdd(v) { addMode = v; $("addMode").setAttribute("aria-pressed", String(v)); }
+  $("addMode").addEventListener("click", function () { setAdd(!addMode); });
+  $("undo").addEventListener("click", function () { S.P.pop(); render(); });
+  $("showPattern").addEventListener("click", function () { showPattern = !showPattern; this.setAttribute("aria-pressed", String(showPattern)); render(); });
+  $("practice").addEventListener("click", function () { var on = !$("labsec").classList.contains("practice"); $("labsec").classList.toggle("practice", on); this.setAttribute("aria-pressed", String(on)); });
+  $("swap").addEventListener("click", function () {
+    S.P = S.P.map(function (p) { return [p[1], p[0]]; });
+    var t = S.x; S.x = S.y; S.y = t; t = S.xl; S.xl = S.yl; S.yl = t; t = S.xr; S.xr = S.yr; S.yr = t; S.swapped = !S.swapped;
+    render();
+  });
+  $("clear").addEventListener("click", function () { S.P = []; S.blank = true; setAdd(true); clearMarks(); render(); });
+  scenButtons("scen", PRESETS, function (p) { setAdd(false); load(p); });
+  load(PRESETS[0]);
+
+
+  // ================= Quiz =================
+  var Q = [
+  {
+    "s": "A researcher records the number of hours of sunlight a tomato plant gets per day and its yield in kilograms. Which variable should go on the x-axis?",
+    "o": [
+      "Yield, because it is measured second",
+      "Hours of sunlight, because it is the explanatory variable",
+      "Either one; it never matters",
+      "Yield, because it has larger numbers"
+    ],
+    "c": 1,
+    "w": "The explanatory variable, hours of sunlight, may help explain yield, the response. By convention it goes on the horizontal axis."
+  },
+  {
+    "s": "In a scatterplot of car age (x) and price (y), the points slope downward and lie close to a straight line. Which description is best?",
+    "o": [
+      "Strong, positive, linear",
+      "Weak, negative, linear",
+      "Strong, negative, linear",
+      "Strong, negative, curved"
+    ],
+    "c": 2,
+    "w": "Downward from left to right is negative, close to a line is strong, and a straight-line pattern is linear."
+  },
+  {
+    "s": "Which statement about the strength of an association is correct?",
+    "o": [
+      "A steeper pattern always means a stronger association.",
+      "Strength describes how closely the points follow the overall pattern.",
+      "Strength is the same as direction.",
+      "Strong associations always have positive direction."
+    ],
+    "c": 1,
+    "w": "Strength is about scatter around the form, not steepness or direction."
+  },
+  {
+    "s": "A scatterplot of fuel used per 100 miles against driving speed shows fuel use falling until about 50 mph and then rising. How should the form and direction be described?",
+    "o": [
+      "Linear and positive",
+      "Linear and negative",
+      "Curved, with no single direction",
+      "No association"
+    ],
+    "c": 2,
+    "w": "The points follow a U-shaped curve. Because y falls and then rises, the association has no single overall direction, but it is clearly not \"no association.\""
+  },
+  {
+    "s": "A study finds a strong positive association between the number of firefighters at a fire and the amount of damage. Which conclusion is appropriate?",
+    "o": [
+      "Sending more firefighters causes more damage.",
+      "The two variables are associated; a larger fire likely leads to both more firefighters and more damage.",
+      "There is no relationship because firefighters reduce damage.",
+      "The association must be negative."
+    ],
+    "c": 1,
+    "w": "Association does not show causation. Fire size is a likely lurking variable that drives both."
+  },
+  {
+    "s": "Which of these is the most complete description of a scatterplot?",
+    "o": [
+      "\"The graph is positive.\"",
+      "\"There is a strong linear relationship.\"",
+      "\"There is a moderate, positive, linear association between height and arm span for these 14 people, with one outlier at (165, 196).\"",
+      "\"Height causes arm span to increase.\""
+    ],
+    "c": 2,
+    "w": "C includes direction, form, strength, unusual features, and context. D uses causal language that a scatterplot cannot support."
+  },
+  {
+    "s": "A scatterplot shows two separate groups of points: short eruptions with short waits, and long eruptions with long waits. What unusual feature should be mentioned?",
+    "o": [
+      "Clusters",
+      "An outlier",
+      "Negative direction",
+      "No unusual features"
+    ],
+    "c": 0,
+    "w": "Separate groups of points with a gap between them are clusters. Mention them along with direction, form, and strength."
+  },
+  {
+    "s": "If you swap the axes of a scatterplot (put y on the horizontal axis and x on the vertical axis), what happens to the direction and strength of the association?",
+    "o": [
+      "Both reverse",
+      "Direction reverses but strength stays the same",
+      "Both stay the same",
+      "Strength changes but direction stays the same"
+    ],
+    "c": 2,
+    "w": "Swapping the axes reflects the plot across the line y = x. A rising pattern still rises, and the scatter around the pattern is the same."
+  }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("5.1");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [5], topic: "5.1", compact: true, storageKey: "topic-5.1" });</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrying Out a Test for a Mean Study Lab</title>
+<meta name="description" content="Run a one-sample or paired t test from raw data or summary statistics: compute t and the p-value, see the area on the t curve, and write all four steps.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl select { width: 100%; }
+.cond { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: .92rem; }
+.cond li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+.cond .ok { color: var(--good); font-weight: 700; } .cond .no { color: var(--bad); font-weight: 700; } .cond .maybe { color: var(--c1); font-weight: 700; }
+.steps { display: grid; gap: 10px; }
+.steps .card { display: grid; gap: 6px; align-content: start; }
+.steps .tag { color: var(--accent); }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+[hidden] { display: none !important; }
+.inrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.inrow.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.checks { display: grid; gap: 6px; font-size: .9rem; }
+.checks label { display: flex; gap: 8px; align-items: flex-start; }
+.difflist { font-family: var(--mono); font-size: .82rem; color: var(--muted); }
+.decision { font-size: .8rem; font-weight: 600; padding: 3px 12px; border-radius: 999px; }
+.decision.rej { background: var(--bad-soft); color: var(--bad); }
+.decision.fail { background: var(--accent-soft); color: var(--accent); }
+.steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 860px) { .inrow.four, .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .inrow, .inrow.four, .steps { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 4 · Topic 4.5</span>
+  <h1>Carrying Out a Test for a Mean Study Lab</h1>
+  <p class="lede">A t test asks: if H₀ were true, how surprising is our sample? Compute the test statistic <span class="formula">t = (x̄ − μ₀) ÷ (s/√n)</span>, find the p-value from the t distribution with df = n − 1, compare it with α, and conclude in context. Enter data or pick a preset and follow every step.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Run the test</h2>
+    <p>Pick a preset or enter your own data. Change Hₐ or α and watch the p-value and decision.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">t = (x̄ − μ₀) ÷ (s/√n)</span> <span class="formula">df = n − 1</span> <span class="formula">p-value &lt; α → reject H₀</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset problems</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+        <div class="seg" id="modeSeg" role="group" aria-label="Type of data"></div>
+        <div class="seg" id="inSeg" role="group" aria-label="Input format"></div>
+      </div>
+      <div id="rawBox" style="display:grid; gap:10px;">
+        <div class="ctl"><label for="raw1" id="raw1L">Data</label><textarea id="raw1" class="data" spellcheck="false"></textarea></div>
+        <div class="ctl" id="raw2Wrap"><label for="raw2" id="raw2L">Second measurement</label><textarea id="raw2" class="data" spellcheck="false"></textarea></div>
+        <p class="difflist" id="diffs"></p>
+      </div>
+      <div id="sumBox" class="inrow">
+        <div class="ctl"><label for="sx"><span id="sxL">x̄</span></label><input type="number" id="sx" step="any"></div>
+        <div class="ctl"><label for="ss"><span id="ssL">s</span></label><input type="number" id="ss" step="any" min="0"></div>
+        <div class="ctl"><label for="sn"><span id="snL">n</span></label><input type="number" id="sn" step="1" min="2"></div>
+      </div>
+      <div class="inrow four">
+        <div class="ctl"><label for="mu0"><span id="mu0L">μ₀ (null value)</span></label><input type="number" id="mu0" step="any"></div>
+        <div class="ctl"><label for="ha">Hₐ</label><select id="ha"><option value="gt">&gt; μ₀</option><option value="lt">&lt; μ₀</option><option value="ne">≠ μ₀</option></select></div>
+        <div class="ctl"><label for="alpha">α</label><select id="alpha"><option>0.01</option><option selected>0.05</option><option>0.10</option></select></div>
+        <div class="ctl"><label for="units">Units</label><input type="text" id="units" style="min-width:0; width:100%; font:inherit; padding:6px 10px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); color:var(--ink);"></div>
+      </div>
+      <div class="checks">
+        <span class="tag">About how the data were collected</span>
+        <label><input type="checkbox" id="cRandom"> <span id="cRandomL">The data come from a random sample (or random assignment).</span></label>
+        <label><input type="checkbox" id="c10"> The sample is less than 10% of the population (or this is an experiment).</label>
+        <label><input type="checkbox" id="cNorm"> The population (of differences) is known to be approximately normal.</label>
+      </div>
+      <p class="note" id="msg" aria-live="polite"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>p-value on the t curve <small id="t-sub"></small></h3>
+      <svg class="chart" id="tg" role="img" aria-label="t distribution assuming the null hypothesis, with the p-value area shaded beyond the observed t statistic"></svg>
+      <div class="legend"><span class="l-ad">t curve if H₀ is true</span><span class="l-c1">Observed t</span></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span class="note" id="t-note"></span>
+        <span class="decision" id="decision"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k" id="k-mean">x̄</div><div class="v" id="r-mean"></div></div>
+    <div class="stat"><div class="k" id="k-sd">s</div><div class="v" id="r-sd"></div></div>
+    <div class="stat"><div class="k">n, df</div><div class="v" id="r-n"></div></div>
+    <div class="stat"><div class="k">Standard error s/√n</div><div class="v" id="r-se"></div></div>
+    <div class="stat"><div class="k">Test statistic t</div><div class="v" id="r-t"></div></div>
+    <div class="stat"><div class="k">p-value</div><div class="v" id="r-p"></div></div>
+    <div class="stat"><div class="k">α</div><div class="v" id="r-a"></div></div>
+    <div class="stat"><div class="k">Decision</div><div class="v" id="r-dec" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">The four steps, written out</h3>
+    <p>This is the full answer an AP grader expects. It rewrites itself as you change the inputs.</p>
+  </div>
+  <div class="steps" id="steps"></div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Same effect, different sample size</h3>
+    <p>Keep this x̄ and s but imagine a different n. The p-value shrinks as n grows, because the standard error shrinks.</p>
+  </div>
+  <div class="card graph-card">
+    <svg class="chart" id="png" role="img" aria-label="p-value plotted against sample size, with a line at alpha"></svg>
+    <div class="legend"><span class="l-ad">p-value</span><span class="l-c4">α</span></div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Test statistic</span><h3>How many standard errors away?</h3><p>t = (x̄ − μ₀) ÷ (s/√n) measures how far the sample mean is from the null value, in standard errors. Values far from 0 are surprising if H₀ is true.</p></div>
+    <div class="card"><span class="tag">p-value</span><h3>Probability, assuming H₀</h3><p>The p-value is the probability, assuming H₀ is true, of getting a sample result at least as extreme as the one observed, in the direction of Hₐ. For ≠, count both tails.</p></div>
+    <div class="card"><span class="tag">Decision</span><h3>Compare p with α</h3><p>If p-value &lt; α, reject H₀: the data give convincing evidence for Hₐ. If p-value ≥ α, fail to reject H₀: the data do not give convincing evidence for Hₐ.</p></div>
+    <div class="card"><span class="tag">Never "accept"</span><h3>Failing to reject is not proof</h3><p>A large p-value means the data are consistent with H₀, not that H₀ is true. Say "we do not have convincing evidence that…," never "we accept H₀."</p></div>
+    <div class="card"><span class="tag">Paired</span><h3>Test the differences</h3><p>For paired data, compute the differences in a stated order, then run a one-sample t test on them with μ₀ = 0 (usually) and df = number of pairs − 1.</p></div>
+    <div class="card"><span class="tag">Sample size</span><h3>Big n finds small effects</h3><p>With a huge sample, even a tiny difference from μ₀ can give a tiny p-value. Statistically significant does not always mean practically important.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Finding the p-value from t for each alternative. Calculator: tcdf(lower, upper, df), or STAT → TESTS → T-Test.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Hₐ</th><th>p-value</th><th>Calculator</th><th>Example (t = 2.10, df = 15)</th></tr></thead>
+    <tbody>
+      <tr><td><b>μ &gt; μ₀</b></td><td>Area to the right of t</td><td>tcdf(t, 1E99, df)</td><td>tcdf(2.10, 1E99, 15) ≈ 0.0265</td></tr>
+      <tr><td><b>μ &lt; μ₀</b></td><td>Area to the left of t</td><td>tcdf(−1E99, t, df)</td><td>tcdf(−1E99, 2.10, 15) ≈ 0.9735</td></tr>
+      <tr><td><b>μ ≠ μ₀</b></td><td>2 × area beyond |t|</td><td>2 · tcdf(|t|, 1E99, df)</td><td>2 × 0.0265 ≈ 0.0530</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Step</th><th>What to write</th></tr></thead>
+    <tbody>
+      <tr><td><b>State</b></td><td>H₀ and Hₐ with the parameter defined in context; α.</td></tr>
+      <tr><td><b>Plan</b></td><td>Name the procedure (one-sample t test for μ, or paired t test for μ<sub>d</sub>); check Random, 10%, Normal/Large with evidence.</td></tr>
+      <tr><td><b>Do</b></td><td>t = (x̄ − μ₀) ÷ (s/√n) with numbers; df; p-value.</td></tr>
+      <tr><td><b>Conclude</b></td><td>Compare p with α, make a decision, and state the conclusion about Hₐ in context.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Show the formula with numbers: t = (32.4 − 30) ÷ (5.1/√25) = 2.35, df = 24. Calculator output alone earns little credit.</li>
+        <li>Give the p-value and interpret it if asked: "Assuming the true mean delivery time is 30 minutes, there is about a 0.014 probability of getting a sample mean of 32.4 minutes or more by chance."</li>
+        <li>Link the decision to α explicitly: "Because 0.014 &lt; 0.05, we reject H₀."</li>
+        <li>Conclude about Hₐ, in context, with uncertainty: "We have convincing evidence that the true mean delivery time is greater than 30 minutes."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Forgetting to double the one-tail area for a two-sided test.</li>
+        <li>Using the wrong tail, such as the area to the right when Hₐ is μ &lt; μ₀.</li>
+        <li>Writing "we accept H₀" or "H₀ is true" when the p-value is large.</li>
+        <li>Saying "the p-value is the probability that H₀ is true." It is computed <i>assuming</i> H₀ is true.</li>
+        <li>For paired data, using two separate lists and df = n₁ + n₂ − 2 instead of the differences and df = pairs − 1.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 4.5. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-4.html">Unit 4 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  function parse(t) { return t.split(/[\s,;]+/).filter(function (x) { return x !== ""; }).map(Number); }
+  function shade(F, f, a, b, color, op) {
+    a = Math.max(a, F.xr[0]); b = Math.min(b, F.xr[1]); if (b <= a) return;
+    var pts = [[a, 0]]; for (var i = 0; i <= 80; i++) { var x = a + (b - a) * i / 80; pts.push([x, f(x)]); } pts.push([b, 0]);
+    Lab.el("path", { d: pts.map(function (p, j) { return (j ? "L" : "M") + F.sx(p[0]).toFixed(1) + " " + F.sy(p[1]).toFixed(1); }).join(" ") + " Z", fill: color, opacity: op == null ? .3 : op }, F.g);
+  }
+  function pval(t, df, ha) { return ha === "gt" ? Lab.tCdf(t, Infinity, df) : ha === "lt" ? Lab.tCdf(-Infinity, t, df) : Math.min(1, 2 * Lab.tCdf(Math.abs(t), Infinity, df)); }
+  function pfmt(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function pEq(p) { return p < 0.0001 ? "< 0.0001" : "= " + N(p, 4); }
+  function pWord(p) { return p < 0.0001 ? "less than 0.0001" : N(p, 4); }
+
+  var PRESETS = [
+    { name: "Pizza delivery (summary)", mode: "one", input: "sum", x: 32.4, s: 5.1, n: 25, mu0: 30, ha: "gt", alpha: "0.05", units: "minutes", random: true, ten: true, norm: true, normText: "A dotplot of the 25 times shows no strong skew or outliers.",
+      param: "the true mean delivery time of all deliveries from this chain" },
+    { name: "Phone battery (summary)", mode: "one", input: "sum", x: 19.4, s: 2.2, n: 40, mu0: 20, ha: "lt", alpha: "0.05", units: "hours", random: true, ten: true, norm: false,
+      param: "the true mean battery life of all phones of this model" },
+    { name: "Water bottle fill (raw data)", mode: "one", input: "raw", d1: [498.2, 501.1, 499.5, 497.8, 500.4, 498.9, 499.1, 497.5, 500.2, 498.6, 499.8, 498.0, 499.3, 501.0, 498.4], mu0: 500, ha: "ne", alpha: "0.05", units: "mL", random: true, ten: true, norm: false,
+      param: "the true mean fill of all bottles from this machine", label1: "Fill amounts (mL), 15 random bottles" },
+    { name: "Music and memory (paired raw)", mode: "paired", input: "raw", mu0: 0, ha: "lt", alpha: "0.05", units: "points", random: true, ten: true, norm: false,
+      d1: [14, 12, 15, 11, 13, 16, 12, 10, 14, 13, 15, 11, 12, 14, 13, 12, 15, 11], d2: [15, 11, 15, 13, 14, 15, 13, 12, 14, 13, 16, 10, 14, 14, 15, 11, 15, 12],
+      label1: "Score with music", label2: "Score in silence", diff: "music − silence", randomText: "Each volunteer did both conditions in a randomly assigned order.",
+      param: "the true mean difference in memory score (music − silence) for volunteers like these" },
+    { name: "Shoe soles (paired summary)", mode: "paired", input: "sum", x: 0.35, s: 0.9, n: 12, mu0: 0, ha: "ne", alpha: "0.05", units: "mm", random: true, ten: true, norm: true, diff: "A − B",
+      param: "the true mean difference in wear (A − B) for runners like these" }
+  ];
+  var S;
+  function load(p) {
+    S = JSON.parse(JSON.stringify(p));
+    S.d1 = S.d1 || [10, 12, 11, 13, 12, 14]; S.d2 = S.d2 || S.d1.map(function (v) { return v - 1; });
+    $("raw1").value = S.d1.join(", "); $("raw2").value = S.d2.join(", ");
+    $("sx").value = S.x == null ? 10 : S.x; $("ss").value = S.s == null ? 2 : S.s; $("sn").value = S.n == null ? 20 : S.n;
+    $("mu0").value = S.mu0; $("ha").value = S.ha; $("alpha").value = S.alpha; $("units").value = S.units || "";
+    $("cRandom").checked = !!S.random; $("c10").checked = !!S.ten; $("cNorm").checked = !!S.norm;
+    $("cRandomL").textContent = S.randomText || "The data come from a random sample (or random assignment).";
+    buildSegs(); render();
+  }
+  function seg(el, opts, cur, set) {
+    el.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1]; b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { set(o[0]); buildSegs(); render(); });
+      el.appendChild(b);
+    });
+  }
+  function buildSegs() {
+    seg($("modeSeg"), [["one", "One sample"], ["paired", "Paired"]], S.mode, function (v) { S.mode = v; if (v === "paired" && !S.diff) S.diff = "list 1 − list 2"; });
+    seg($("inSeg"), [["raw", "Raw data"], ["sum", "Summary stats"]], S.input, function (v) { S.input = v; });
+  }
+  function stats() {
+    var paired = S.mode === "paired";
+    if (S.input === "raw") {
+      var a = parse($("raw1").value), b = parse($("raw2").value);
+      if (a.some(isNaN) || (paired && b.some(isNaN))) return { ok: false, msg: "Only numbers, separated by commas or spaces." };
+      if (paired && a.length !== b.length) return { ok: false, msg: "Paired lists must have the same length. Now: " + a.length + " and " + b.length + "." };
+      var d = paired ? a.map(function (v, i) { return +(v - b[i]).toFixed(10); }) : a;
+      if (d.length < 2) return { ok: false, msg: "Enter at least 2 values." };
+      var s = Lab.sd(d); if (!(s > 0)) return { ok: false, msg: "All values are equal, so s = 0 and t cannot be computed." };
+      return { ok: true, x: Lab.mean(d), s: s, n: d.length, data: d };
+    }
+    var x = parseFloat($("sx").value), sd = parseFloat($("ss").value), n = parseInt($("sn").value, 10);
+    if (isNaN(x) || !(sd > 0) || !(n >= 2)) return { ok: false, msg: "Enter a mean, an SD above 0, and n ≥ 2." };
+    return { ok: true, x: x, s: sd, n: n, data: null };
+  }
+  var REL = { gt: "greater than", lt: "less than", ne: "different from" }, SYM = { gt: ">", lt: "<", ne: "≠" };
+
+  function render() {
+    var paired = S.mode === "paired", raw = S.input === "raw";
+    $("rawBox").hidden = !raw; $("sumBox").hidden = raw; $("raw2Wrap").hidden = !paired;
+    $("raw1L").textContent = paired ? (S.label1 || "List 1") : (S.label1 || "Data"); $("raw2L").textContent = S.label2 || "List 2";
+    $("sxL").innerHTML = paired ? "x̄<sub>d</sub>" : "x̄"; $("ssL").innerHTML = paired ? "s<sub>d</sub>" : "s"; $("snL").textContent = paired ? "n (pairs)" : "n";
+    $("k-mean").innerHTML = paired ? "x̄<sub>d</sub>" : "x̄"; $("k-sd").innerHTML = paired ? "s<sub>d</sub>" : "s";
+    $("mu0L").innerHTML = paired ? "Null value for μ<sub>d</sub>" : "μ₀ (null value)";
+    var sym = paired ? "μd" : "μ";
+    Array.prototype.forEach.call($("ha").options, function (o) { o.textContent = sym + " " + SYM[o.value] + " " + ($("mu0").value || "μ₀"); });
+    var st = stats(), mu0 = parseFloat($("mu0").value), ha = $("ha").value, a = +$("alpha").value, u = $("units").value.trim();
+    $("msg").textContent = st.ok ? (isNaN(mu0) ? "Enter a null value." : "") : st.msg;
+    $("diffs").textContent = paired && raw && st.ok ? "Differences (" + (S.diff || "list 1 − list 2") + "): " + st.data.map(function (v) { return N(v, 2); }).join(", ") : "";
+    if (!st.ok || isNaN(mu0)) return;
+
+    var df = st.n - 1, se = st.s / Math.sqrt(st.n), t = (st.x - mu0) / se, p = pval(t, df, ha), rej = p < a;
+    $("r-mean").textContent = N(st.x, 3); $("r-sd").textContent = N(st.s, 3); $("r-n").textContent = st.n + ", " + df;
+    $("r-se").textContent = N(se, 4); $("r-t").textContent = N(t, 3); $("r-p").textContent = pfmt(p); $("r-a").textContent = a;
+    $("r-dec").textContent = rej ? "Reject H₀" : "Fail to reject H₀";
+    var dc = $("decision"); dc.className = "decision " + (rej ? "rej" : "fail"); dc.textContent = rej ? "p < α: reject H₀" : "p ≥ α: fail to reject H₀";
+
+    // t graph
+    var f = function (x) { return Lab.tPdf(x, df); }, lim = Math.max(4.5, Math.min(9, Math.abs(t) + 0.8));
+    var ticks = []; for (var k = -Math.floor(lim); k <= Math.floor(lim); k++) ticks.push(k);
+    if (ticks.length > 11) ticks = ticks.filter(function (v) { return v % 2 === 0; });
+    var F = Lab.frame($("tg"), { x: [-lim, lim], y: [0, 0.42], xLabel: "t (df = " + df + ")", yLabel: "Density", xTicks: ticks, yTicks: [0, 0.1, 0.2, 0.3, 0.4], fmtX: String, fmtY: function (v) { return N(v, 1); } });
+    if (ha === "gt") shade(F, f, t, lim, "var(--c1)"); else if (ha === "lt") shade(F, f, -lim, t, "var(--c1)");
+    else { shade(F, f, Math.abs(t), lim, "var(--c1)"); shade(F, f, -lim, -Math.abs(t), "var(--c1)"); }
+    Lab.fn(F, f, "var(--accent)", 3, null, 200);
+    Lab.vline(F, t, "var(--c1)", 2.5);
+    var right = t >= 0 ? t < lim - 1.8 : t < -lim + 1.8; Lab.tag(F, t + (right ? 0.12 : -0.12), 0.36, "t = " + N(t, 2), "var(--c1)", right ? "start" : "end");
+    if (ha === "ne") { Lab.vline(F, -t, "var(--c1)", 1.5, "4 3"); }
+    $("t-sub").textContent = "Hₐ: " + sym + " " + SYM[ha] + " " + N(mu0, 3);
+    $("t-note").textContent = "Shaded area: p-value " + pEq(p) + (ha === "ne" ? " (both tails)" : "");
+
+    // conditions
+    var rnd = $("cRandom").checked, ten = $("c10").checked, nrm = $("cNorm").checked, shapeOK, shapeTxt;
+    if (st.n >= 30) { shapeOK = true; shapeTxt = "n = " + st.n + " ≥ 30, so the sampling distribution of " + (paired ? "x̄d" : "x̄") + " is approximately normal by the CLT."; }
+    else if (nrm) { shapeOK = true; shapeTxt = S.normText || ("the population" + (paired ? " of differences" : "") + " is approximately normal."); }
+    else if (st.data) {
+      var sm = Lab.summary(st.data), skew = Math.abs(sm.mean - sm.med) / sm.sd;
+      if (sm.outliers.length) { shapeOK = false; shapeTxt = "n = " + st.n + " < 30 and the " + (paired ? "differences include" : "data include") + " an outlier (" + sm.outliers.map(function (v) { return N(v, 2); }).join(", ") + "). The t test may not be reliable."; }
+      else if (skew > 0.35) { shapeOK = false; shapeTxt = "n = " + st.n + " < 30 and the " + (paired ? "differences" : "data") + " look noticeably skewed. Be cautious."; }
+      else { shapeOK = true; shapeTxt = "n = " + st.n + " < 30, but a dotplot of the " + (paired ? "differences" : "data") + " shows no strong skew or outliers."; }
+    } else { shapeOK = false; shapeTxt = "n = " + st.n + " < 30 and there are no data to graph, so normality cannot be checked."; }
+
+    // four steps
+    var param = S.param || (paired ? "the true mean difference" : "the true mean"), un = u ? " " + u : "";
+    var alt = param + " is " + REL[ha] + " " + N(mu0, 3) + un;
+    var steps = [
+      ["State", "H₀: " + sym + " = " + N(mu0, 3) + "<br>Hₐ: " + sym + " " + SYM[ha] + " " + N(mu0, 3) + "<br>where " + sym + " = " + param + (paired ? " (d = " + (S.diff || "list 1 − list 2") + ")" : "") + ". Use α = " + a + "."],
+      ["Plan", (paired ? "Paired t test for a mean difference." : "One-sample t test for a mean.") + "<br>" +
+        (rnd ? "✓ Random: " + ($("cRandomL").textContent.replace(/\.$/, "")) + "." : "✗ Random: no random sample or assignment is described.") + "<br>" +
+        (ten ? "✓ 10%: " + st.n + " is less than 10% of the population (or random assignment)." : "? 10%: need the population to be at least " + 10 * st.n + ".") + "<br>" +
+        (shapeOK ? "✓ " : "✗ ") + "Normal/Large: " + shapeTxt],
+      ["Do", "t = (" + N(st.x, 3) + " − " + N(mu0, 3) + ") ÷ (" + N(st.s, 3) + "/√" + st.n + ") = " + N(st.x - mu0, 3) + " ÷ " + N(se, 4) + " = <b>" + N(t, 3) + "</b><br>df = " + df +
+        "<br>p-value = " + (ha === "gt" ? "P(t ≥ " + N(t, 3) + ") = tcdf(" + N(t, 3) + ", 1E99, " + df + ")" : ha === "lt" ? "P(t ≤ " + N(t, 3) + ") = tcdf(−1E99, " + N(t, 3) + ", " + df + ")" : "2 × P(t ≥ " + N(Math.abs(t), 3) + ") = 2 · tcdf(" + N(Math.abs(t), 3) + ", 1E99, " + df + ")") + " <b>" + pEq(p) + "</b>" +
+        "<br><span class='note'>Calculator: T-Test, " + (st.data ? "Data" + (paired ? " (list of differences)" : "") : "Stats: x̄ = " + N(st.x, 3) + ", Sx = " + N(st.s, 3) + ", n = " + st.n) + ", μ₀ = " + N(mu0, 3) + ", μ " + SYM[ha] + " μ₀</span>"],
+      ["Conclude", "Because the p-value (" + pWord(p) + ") is " + (rej ? "less than " : "at least ") + "α = " + a + ", we " + (rej ? "<b>reject H₀</b>. We have convincing evidence that " : "<b>fail to reject H₀</b>. We do not have convincing evidence that ") + alt + "."]
+    ];
+    $("steps").innerHTML = steps.map(function (s) { return '<div class="card"><span class="tag">' + s[0] + "</span><div>" + s[1] + "</div></div>"; }).join("");
+
+    var tx = [], head;
+    head = "<b>Interpreting the p-value:</b> Assuming " + param + " is " + N(mu0, 3) + un + ", there is " + (p < 0.0001 ? "less than a 0.0001" : "about a " + N(p, 4)) + " probability of getting a sample mean" + (paired ? " difference" : "") + " " +
+      (ha === "gt" ? "of " + N(st.x, 3) + un + " or more" : ha === "lt" ? "of " + N(st.x, 3) + un + " or less" : "at least as far from " + N(mu0, 3) + " as " + N(st.x, 3) + " (in either direction)") + " by chance alone.";
+    tx.push("The sample mean is " + N(Math.abs(t), 2) + " standard errors " + (t >= 0 ? "above" : "below") + " the null value.");
+    if ((ha === "gt" && t < 0) || (ha === "lt" && t > 0)) tx.push("<b>Notice:</b> the sample result points the opposite way from Hₐ, so the p-value is large. The data cannot support Hₐ.");
+    if (ha !== "ne") tx.push("With a two-sided Hₐ the p-value would be " + pWord(Math.min(1, 2 * Lab.tCdf(Math.abs(t), Infinity, df))) + ".");
+    if (!rnd || !shapeOK) tx.push("<b>Caution:</b> a condition is not met, so this p-value may not be trustworthy.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + tx.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+
+    // p vs n
+    var nmax = Math.max(60, Math.min(500, st.n * 3)), pts = [];
+    for (var n = 2; n <= nmax; n += Math.max(1, Math.round(nmax / 200))) { var tt = (st.x - mu0) / (st.s / Math.sqrt(n)); pts.push([n, pval(tt, n - 1, ha)]); }
+    var G = Lab.frame($("png"), { x: [0, nmax], y: [0, 1], xLabel: "Sample size n (same x̄ and s)", yLabel: "p-value", xTicks: Lab.niceTicks(0, nmax, 6), yTicks: [0, 0.25, 0.5, 0.75, 1], fmtX: String, fmtY: function (v) { return N(v, 2); }, width: 880, height: 280 });
+    Lab.hline(G, a, "var(--c4)", 2, "6 4"); Lab.tag(G, nmax * 0.99, a + 0.03, "α = " + a, "var(--c4)", "end");
+    Lab.line(G, pts, "var(--accent)", 2.5);
+    if (st.n <= nmax) Lab.dot(G, st.n, p, "var(--c1)", true);
+  }
+
+  ["raw1", "raw2", "sx", "ss", "sn", "mu0", "units"].forEach(function (id) { $(id).addEventListener("input", render); });
+  ["ha", "alpha", "cRandom", "c10", "cNorm"].forEach(function (id) { $(id).addEventListener("change", render); });
+  PRESETS.forEach(function (p) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = p.name;
+    b.addEventListener("click", function () { load(p); });
+    $("scen").appendChild(b);
+  });
+  load(PRESETS[0]);
+
+  var Q = [
+    { s: "A random sample of 16 values has x̄ = 52.4 and s = 6. For H₀: μ = 50 vs. Hₐ: μ > 50, what is the test statistic?", o: ["t = 0.40", "t = 1.60", "t = 6.40", "t = 0.10"], c: 1, w: "t = (52.4 − 50) ÷ (6/√16) = 2.4 ÷ 1.5 = 1.60. Choice A forgets to divide s by √n." },
+    { s: "For the test in the previous question (t = 1.60, df = 15), which calculator command gives the p-value?", o: ["tcdf(1.60, 1E99, 15)", "tcdf(−1E99, 1.60, 15)", "2·tcdf(1.60, 1E99, 15)", "normalcdf(1.60, 1E99, 0, 1)"], c: 0, w: "Hₐ: μ > 50 is right-tailed, so the p-value is the area to the right of t = 1.60 under the t curve with df = 15 (about 0.065)." },
+    { s: "A two-sided t test gives t = −2.30 with df = 20. The p-value is about:", o: ["0.016", "0.032", "0.968", "0.984"], c: 1, w: "One tail: tcdf(−1E99, −2.30, 20) ≈ 0.016. For ≠, double it: about 0.032." },
+    { s: "A test of H₀: μ = 100 vs. Hₐ: μ ≠ 100 gives p-value = 0.08. At α = 0.05, the correct conclusion is:", o: ["Reject H₀; there is convincing evidence that μ ≠ 100.", "Fail to reject H₀; there is convincing evidence that μ = 100.", "Fail to reject H₀; there is not convincing evidence that μ ≠ 100.", "Accept H₀; μ = 100."], c: 2, w: "0.08 ≥ 0.05, so we fail to reject H₀. That means the evidence for Hₐ is not convincing; it does not prove H₀ (B and D)." },
+    { s: "Which is a correct interpretation of a p-value of 0.03 in a test of H₀: μ = 20 vs. Hₐ: μ > 20, where x̄ = 21.5?", o: ["There is a 3% chance that μ = 20.", "Assuming μ = 20, there is a 3% chance of getting a sample mean of 21.5 or more by chance.", "There is a 3% chance that the alternative hypothesis is false.", "3% of the data are above 21.5."], c: 1, w: "A p-value is computed assuming H₀ is true. It gives the probability of a result at least as extreme as the one observed, in the direction of Hₐ." },
+    { s: "Twelve subjects were measured before and after a treatment. The differences (after − before) have x̄d = 2.1 and sd = 3.0. What are the test statistic and df for H₀: μd = 0?", o: ["t = 2.42, df = 11", "t = 2.42, df = 22", "t = 0.70, df = 11", "t = 8.40, df = 11"], c: 0, w: "t = 2.1 ÷ (3.0/√12) = 2.1 ÷ 0.866 ≈ 2.42, with df = 12 − 1 = 11 because there are 12 pairs." },
+    { s: "Two studies have the same x̄, s, and null value. Study A has n = 20 and Study B has n = 200. Which statement is true?", o: ["Both have the same p-value.", "Study B has a larger test statistic (in absolute value) and a smaller p-value.", "Study A has a smaller p-value because it has fewer degrees of freedom.", "Study B has a larger standard error."], c: 1, w: "A larger n gives a smaller standard error s/√n, so the same difference x̄ − μ₀ is more standard errors away, giving a larger |t| and a smaller p-value." },
+    { s: "A test of Hₐ: μ < 50 gives x̄ = 53. Without calculating, what can you say about the p-value?", o: ["It is less than 0.05.", "It is greater than 0.5.", "It equals 0.", "It cannot be determined."], c: 1, w: "The sample mean is above 50, the opposite direction from Hₐ, so t > 0 and the area to the left of t is more than half of the curve." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("4.5");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [4], topic: "4.5", compact: true, storageKey: "topic-4.5" });</script>
+</body>
+</html>

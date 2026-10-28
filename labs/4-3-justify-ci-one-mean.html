@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justifying a Claim with a Mean Interval Study Lab</title>
+<meta name="description" content="Use a t interval for a mean or mean difference to decide whether a claimed value is plausible, and see how sample size and confidence level change the answer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.ctl select { width: 100%; }
+.cond { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: .92rem; }
+.cond li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+.cond .ok { color: var(--good); font-weight: 700; } .cond .no { color: var(--bad); font-weight: 700; } .cond .maybe { color: var(--c1); font-weight: 700; }
+.steps { display: grid; gap: 10px; }
+.steps .card { display: grid; gap: 6px; align-content: start; }
+.steps .tag { color: var(--accent); }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+[hidden] { display: none !important; }
+.inrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.verdict { font-size: .78rem; font-weight: 600; padding: 3px 12px; border-radius: 999px; }
+.verdict.in { background: var(--good-soft); color: var(--good); }
+.verdict.out { background: var(--bad-soft); color: var(--bad); }
+.game { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.game .card { display: grid; gap: 10px; align-content: start; }
+.game .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.game .fb { font-size: .9rem; color: var(--muted); }
+@media (max-width: 860px) { .inrow { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 4 · Topic 4.3</span>
+  <h1>Justifying a Claim with a Mean Interval Study Lab</h1>
+  <p class="lede">A confidence interval gives the <b>plausible values</b> of a parameter. If a claimed value of μ (or μ<sub>d</sub>) is inside the interval, the data do not give convincing evidence against the claim. If it is outside, they do. Set up an interval, move the claim, and practice writing the justification.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Is the claim plausible?</h2>
+    <p>Pick a preset or type your own summary statistics. Then move the claimed value.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">x̄ ± t* · s/√n</span> <span class="formula">claim inside → plausible</span> <span class="formula">claim outside → convincing evidence against it</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset claims</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:14px;">
+    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+      <div class="seg" id="modeSeg" role="group" aria-label="Parameter type"></div>
+      <span class="verdict" id="verdict"></span>
+    </div>
+    <p id="context" style="max-width:80ch;"></p>
+    <div class="inrow">
+      <div class="ctl"><label for="ix"><span id="ixL">x̄</span></label><input type="number" id="ix" step="any"></div>
+      <div class="ctl"><label for="is"><span id="isL">s</span></label><input type="number" id="is" step="any" min="0"></div>
+      <div class="ctl"><label for="in"><span id="inL">n</span></label><input type="number" id="in" step="1" min="2"></div>
+      <div class="ctl"><label for="iconf">Confidence level</label><select id="iconf"><option>90</option><option selected>95</option><option>99</option></select></div>
+    </div>
+    <div class="controls" style="grid-template-columns: 2fr 1fr;">
+      <div class="ctl">
+        <label for="claim"><span>Claimed value <span id="claimSym">μ₀</span></span> <output id="claim-o"></output></label>
+        <input type="range" id="claim" min="0" max="10" step="0.01" value="5">
+        <span class="hint">Drag the claim across the interval.</span>
+      </div>
+      <div class="ctl">
+        <label for="nslide">Sample size n <output id="n-o"></output></label>
+        <input type="range" id="nslide" min="2" max="200" step="1" value="30">
+        <span class="hint">Same x̄ and s, different n.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card graph-card">
+    <h3>Interval and claim <small id="g-sub"></small></h3>
+    <svg class="chart" id="ivg" role="img" aria-label="Number line with the confidence interval and the claimed value"></svg>
+    <div class="legend"><span class="l-c1">Confidence interval (plausible values)</span><span class="l-ad">Claimed value</span></div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">t* (df)</div><div class="v" id="r-t"></div></div>
+    <div class="stat"><div class="k">Margin of error</div><div class="v" id="r-me"></div></div>
+    <div class="stat"><div class="k">Interval</div><div class="v" id="r-ci" style="font-size:1.05rem"></div></div>
+    <div class="stat"><div class="k">Claim to nearest endpoint</div><div class="v" id="r-gap"></div></div>
+  </div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="calc" id="calc"></div>
+    </div>
+    <div class="story" id="story" aria-live="polite"></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Why the answer can change: margin of error vs. sample size</h3>
+    <p>For the current s, each curve shows the margin of error at every n. The dot is your interval. A claim just outside a narrow interval might be inside a wider one.</p>
+  </div>
+  <div class="card graph-card">
+    <svg class="chart" id="meg" role="img" aria-label="Margin of error plotted against sample size for 90, 95, and 99 percent confidence"></svg>
+    <div class="legend"><span class="l-c2">90%</span><span class="l-ad">95%</span><span class="l-c3">99%</span></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Practice: read the interval</h3>
+    <p>For each 95% interval, decide what it says about the claim.</p>
+  </div>
+  <div class="game" id="game"></div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Plausible values</span><h3>The interval is a list of believable values</h3><p>Every value inside the confidence interval is a plausible value of the parameter, based on the data. Values outside the interval are not plausible at that confidence level.</p></div>
+    <div class="card"><span class="tag">Claim inside</span><h3>Not convincing evidence against it</h3><p>If the claimed value is in the interval, the data do not give convincing evidence that the claim is wrong. That is <i>not</i> proof the claim is right: many other values are plausible too.</p></div>
+    <div class="card"><span class="tag">Claim outside</span><h3>Convincing evidence against it</h3><p>If the whole interval is below the claim, the data give convincing evidence that the true mean is less than the claim. If it is all above, convincing evidence that it is greater.</p></div>
+    <div class="card"><span class="tag">Mean difference</span><h3>Watch for 0</h3><p>For paired data the usual claim is μ<sub>d</sub> = 0 (no difference on average). An interval entirely above 0 or entirely below 0 is convincing evidence of a real mean difference in that direction.</p></div>
+    <div class="card"><span class="tag">Link to tests</span><h3>Two-sided test at α = 1 − C</h3><p>A C% interval and a two-sided test at α = 1 − C agree: the claim is rejected by the test exactly when it falls outside the interval. A 95% interval matches a two-sided test at α = 0.05.</p></div>
+    <div class="card"><span class="tag">Width matters</span><h3>More data, sharper answers</h3><p>Larger samples give narrower intervals, which can rule out claims a small sample could not. Higher confidence gives wider intervals, which rule out fewer claims.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>Sentence starters for justifying a claim with an interval. Always include the interval, the claim, and context.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Where is the claim?</th><th>Is it plausible?</th><th>What to write</th></tr></thead>
+    <tbody>
+      <tr><td>Inside the interval</td><td><b>Yes</b></td><td>"Because 16 is in the interval (15.7, 16.2), 16 oz is a plausible value for the true mean weight. We do not have convincing evidence that the mean differs from 16 oz."</td></tr>
+      <tr><td>Below the whole interval</td><td><b>No</b></td><td>"Because every value in (101.2, 108.9) is above 100, the data give convincing evidence that the true mean is greater than 100."</td></tr>
+      <tr><td>Above the whole interval</td><td><b>No</b></td><td>"Because all plausible values are below 16, there is convincing evidence that the true mean fill is less than 16 oz."</td></tr>
+      <tr><td>Paired, interval contains 0</td><td><b>0 is plausible</b></td><td>"Since 0 is in the interval, it is plausible there is no mean difference. The data are not convincing evidence that the program changes scores."</td></tr>
+      <tr><td>Paired, interval all above 0</td><td><b>0 is not plausible</b></td><td>"All values in the interval for μ<sub>after − before</sub> are positive, so there is convincing evidence of a mean increase."</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Refer to the interval directly: "Because 16 is not in the interval (15.69, 15.96)…" Graders look for the link between the claim and the interval.</li>
+        <li>Say <b>plausible</b> or <b>not plausible</b>, and then state the conclusion about the parameter in context.</li>
+        <li>For a claim like "at least 500 hours," notice the direction: an interval entirely below 500 contradicts it; an interval containing 500 does not.</li>
+        <li>If the question asks about a two-sided test, mention that a C% interval matches a test at α = 1 − C.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Saying "the interval proves the mean is 16." A claim inside the interval is plausible, not proven.</li>
+        <li>Comparing the claim to x̄ instead of to the interval. x̄ will almost never equal the claim exactly.</li>
+        <li>Concluding about individuals: "most boxes weigh less than 16 oz." The interval is about the mean.</li>
+        <li>Forgetting that the conditions (Random, 10%, Normal/Large) must hold for the interval to justify anything.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 4.3. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-4.html">Unit 4 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  var PRESETS = [
+    { name: "Cereal boxes labeled 16 oz", mode: "one", x: 15.82, s: 0.4, n: 36, conf: 95, claim: 16, units: "oz", lo: 15.4, hi: 16.4,
+      ctx: "A random sample of 36 boxes of cereal labeled 16 oz has a mean weight of 15.82 oz and SD 0.4 oz. Is the company's claim of a 16 oz mean plausible?", param: "the true mean weight of all boxes" },
+    { name: "Average commute is 25 minutes", mode: "one", x: 26.1, s: 8, n: 40, conf: 95, claim: 25, units: "minutes", lo: 20, hi: 32,
+      ctx: "A city says the mean commute is 25 minutes. A random sample of 40 workers has x̄ = 26.1 and s = 8 minutes.", param: "the true mean commute time of all workers in the city" },
+    { name: "Does tutoring help? (paired)", mode: "paired", x: 4.2, s: 6.5, n: 20, conf: 95, claim: 0, units: "points", lo: -4, hi: 10,
+      ctx: "Twenty randomly selected students took a test before and after tutoring. The differences (after − before) have x̄<sub>d</sub> = 4.2 and s<sub>d</sub> = 6.5 points. Is “no improvement on average” plausible?", param: "the true mean improvement (after − before)" },
+    { name: "Two tire brands wear the same? (paired)", mode: "paired", x: 0.8, s: 3, n: 15, conf: 95, claim: 0, units: "mm", lo: -3, hi: 4,
+      ctx: "On 15 randomly chosen cars, one front tire of each brand was mounted on each car (side chosen at random). Differences in tread wear (A − B) have x̄<sub>d</sub> = 0.8 and s<sub>d</sub> = 3 mm.", param: "the true mean difference in wear (A − B)" },
+    { name: "Bulbs last 500 hours", mode: "one", x: 489, s: 30, n: 25, conf: 95, claim: 500, units: "hours", lo: 460, hi: 520,
+      ctx: "A maker claims its bulbs last 500 hours on average. A random sample of 25 bulbs has x̄ = 489 and s = 30 hours. Lifetimes are approximately normal.", param: "the true mean lifetime of all bulbs" }
+  ];
+  var S;
+  function load(p) {
+    S = JSON.parse(JSON.stringify(p));
+    $("ix").value = S.x; $("is").value = S.s; $("in").value = S.n; $("iconf").value = S.conf;
+    setClaimRange(S.lo, S.hi); $("claim").value = S.claim;
+    $("context").innerHTML = S.ctx;
+    buildSeg(); render();
+  }
+  function setClaimRange(lo, hi) { var c = $("claim"); c.min = lo; c.max = hi; c.step = Lab.niceStep(hi - lo, 200); }
+  function buildSeg() {
+    var el = $("modeSeg"); el.innerHTML = "";
+    [["one", "One mean μ"], ["paired", "Mean difference μ_d"]].forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1].replace("μ_d", "μₓ").replace("μₓ", "μd");
+      b.setAttribute("aria-pressed", String(o[0] === S.mode));
+      b.addEventListener("click", function () { S.mode = o[0]; buildSeg(); render(); });
+      el.appendChild(b);
+    });
+  }
+  function ci() {
+    var x = parseFloat($("ix").value), s = parseFloat($("is").value), n = parseInt($("in").value, 10), C = +$("iconf").value / 100;
+    if (isNaN(x) || !(s > 0) || !(n >= 2)) return null;
+    var ts = Lab.invT((1 + C) / 2, n - 1), me = ts * s / Math.sqrt(n);
+    return { x: x, s: s, n: n, C: C, ts: ts, me: me, lo: x - me, hi: x + me };
+  }
+  function render() {
+    var paired = S.mode === "paired", sym = paired ? "μd" : "μ";
+    $("ixL").innerHTML = paired ? "x̄<sub>d</sub>" : "x̄"; $("isL").innerHTML = paired ? "s<sub>d</sub>" : "s"; $("inL").textContent = paired ? "n (pairs)" : "n";
+    $("claimSym").textContent = paired ? "for μd" : "μ₀";
+    var I = ci(), claim = +$("claim").value, u = S.units || "";
+    $("claim-o").textContent = N(claim, 3);
+    if (!I) { $("story").innerHTML = "<p>Enter a mean, an SD above 0, and n ≥ 2.</p>"; return; }
+    $("nslide").value = Math.min(200, I.n); $("n-o").textContent = I.n;
+    var inside = claim >= I.lo && claim <= I.hi;
+    var lo = Math.min(+$("claim").min, I.lo), hi = Math.max(+$("claim").max, I.hi), pad = (hi - lo) * 0.04;
+    var F = Lab.frame($("ivg"), { x: [lo - pad, hi + pad], y: [0, 1], xLabel: (paired ? "Mean difference" : "Mean") + (u ? " (" + u + ")" : ""), xTicks: Lab.niceTicks(lo - pad, hi + pad, 8).filter(function (v) { return v >= lo - pad && v <= hi + pad; }), yTicks: [], fmtX: function (v) { return N(v, 2); }, width: 880, height: 220 });
+    Lab.rect(F, I.lo, 0, I.hi, 1, "var(--c1)", .12);
+    Lab.line(F, [[I.lo, .45], [I.hi, .45]], "var(--c1)", 5);
+    Lab.line(F, [[I.lo, .33], [I.lo, .57]], "var(--c1)", 3); Lab.line(F, [[I.hi, .33], [I.hi, .57]], "var(--c1)", 3);
+    Lab.dot(F, I.x, .45, "var(--c1)", false);
+    Lab.tag(F, I.lo, .66, N(I.lo, 3), "var(--c1)", "middle"); Lab.tag(F, I.hi, .66, N(I.hi, 3), "var(--c1)", "middle");
+    Lab.tag(F, I.x, .2, (paired ? "x̄d = " : "x̄ = ") + N(I.x, 3), "var(--c1)", "middle");
+    Lab.vline(F, claim, "var(--accent)", 3);
+    Lab.tag(F, claim, .88, "claim = " + N(claim, 3), "var(--accent)", claim > (lo + hi) / 2 ? "end" : "start");
+    $("g-sub").textContent = Math.round(I.C * 100) + "% t interval, df = " + (I.n - 1);
+    var v = $("verdict"); v.className = "verdict " + (inside ? "in" : "out"); v.textContent = inside ? "Claim is plausible" : "Claim is not plausible";
+
+    $("r-t").textContent = N(I.ts, 3) + " (" + (I.n - 1) + ")"; $("r-me").textContent = N(I.me, 3);
+    $("r-ci").textContent = "(" + N(I.lo, 3) + ", " + N(I.hi, 3) + ")";
+    $("r-gap").textContent = inside ? "inside" : N(claim < I.lo ? I.lo - claim : claim - I.hi, 3) + " outside";
+
+    var r = "";
+    r += '<div class="row"><span>t* = invT(' + N((1 + I.C) / 2, 3) + ", " + (I.n - 1) + ")</span><span>= " + N(I.ts, 3) + "</span></div>";
+    r += '<div class="row"><span>ME = ' + N(I.ts, 3) + " × " + N(I.s, 3) + "/√" + I.n + "</span><span>= " + N(I.me, 3) + "</span></div>";
+    r += '<div class="row"><span>Interval = ' + N(I.x, 3) + " ± " + N(I.me, 3) + "</span><span>(" + N(I.lo, 3) + ", " + N(I.hi, 3) + ")</span></div>";
+    r += '<div class="row"><span>Is ' + N(claim, 3) + " between " + N(I.lo, 3) + " and " + N(I.hi, 3) + "?</span><span>" + (inside ? "Yes" : "No") + "</span></div>";
+    r += '<div class="row"><span>Matching test</span><span>two-sided, α = ' + N(1 - I.C, 2) + "</span></div>";
+    $("calc").innerHTML = r;
+
+    var head, t = [], cl = N(claim, 3) + (u ? " " + u : "");
+    if (inside) {
+      head = "<b>Plausible.</b> Because " + cl + " is inside the interval (" + N(I.lo, 3) + ", " + N(I.hi, 3) + "), it is a plausible value for " + S.param + ". We do <i>not</i> have convincing evidence that " + S.param + " differs from " + cl + ".";
+      t.push("This does not prove the claim. Every value from " + N(I.lo, 3) + " to " + N(I.hi, 3) + " is also plausible.");
+      if (paired && claim === 0) t.push("Here that means “no difference on average” is plausible.");
+    } else if (claim < I.lo) {
+      head = "<b>Not plausible.</b> Every value in the interval (" + N(I.lo, 3) + ", " + N(I.hi, 3) + ") is greater than " + cl + ", so we have convincing evidence that " + S.param + " is greater than " + cl + ".";
+    } else {
+      head = "<b>Not plausible.</b> Every value in the interval (" + N(I.lo, 3) + ", " + N(I.hi, 3) + ") is less than " + cl + ", so we have convincing evidence that " + S.param + " is less than " + cl + ".";
+    }
+    var need = Math.abs(claim - I.x);
+    if (need > 1e-9) {
+      var nCross = null; for (var k = 2; k <= 5000; k++) { if (Lab.invT((1 + I.C) / 2, k - 1) * I.s / Math.sqrt(k) < need) { nCross = k; break; } }
+      if (inside && nCross) t.push("With the same x̄ and s, a sample of about n = " + nCross + " would make the interval narrow enough to exclude " + cl + ".");
+      if (!inside && nCross && nCross > 2) t.push("With n below about " + nCross + " (same x̄ and s), the interval would be wide enough to include " + cl + ". Small samples can't rule out as much.");
+    }
+    t.push("A " + Math.round(I.C * 100) + "% interval matches a two-sided test at α = " + N(1 - I.C, 2) + ": the test would " + (inside ? "fail to reject" : "reject") + " H₀: " + (paired ? "μd" : "μ") + " = " + N(claim, 3) + ".");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+    renderME(I);
+  }
+  function renderME(I) {
+    var nmax = Math.max(60, Math.min(400, I.n * 2)), f = function (C) { return function (n) { return n < 2 ? NaN : Lab.invT((1 + C) / 2, Math.round(n) - 1) * I.s / Math.sqrt(Math.round(n)); }; };
+    var top = f(0.99)(8) * 1.05, yt = Lab.niceTicks(0, top, 5);
+    var F = Lab.frame($("meg"), { x: [0, nmax], y: [0, yt[yt.length - 1]], xLabel: "Sample size n", yLabel: "Margin of error", xTicks: Lab.niceTicks(0, nmax, 6), yTicks: yt, fmtX: String, fmtY: function (v) { return N(v, 3); }, width: 880, height: 300 });
+    [[0.9, "var(--c2)"], [0.95, "var(--accent)"], [0.99, "var(--c3)"]].forEach(function (c) {
+      var pts = []; for (var n = 3; n <= nmax; n += Math.max(1, Math.round(nmax / 150))) pts.push([n, f(c[0])(n)]);
+      Lab.line(F, pts, c[1], 2.5);
+    });
+    var claim = +$("claim").value, need = Math.abs(claim - I.x);
+    if (need < yt[yt.length - 1]) { Lab.hline(F, need, "var(--muted)", 1.5, "5 4"); Lab.tag(F, nmax * 0.98, need + yt[yt.length - 1] * 0.03, "distance from x̄ to the claim = " + N(need, 3), "var(--muted)", "end"); }
+    if (I.n <= nmax) Lab.dot(F, I.n, I.me, "var(--ink)", true);
+  }
+
+  // practice game
+  var G = [
+    { iv: "(3.1, 4.5) hours", claim: "μ = 4 hours", a: 0, w: "4 is inside the interval, so it is plausible. No convincing evidence against the claim." },
+    { iv: "(12.4, 13.9) mpg", claim: "μ = 15 mpg", a: 2, w: "The whole interval is below 15, so the data give convincing evidence that the true mean is less than 15 mpg." },
+    { iv: "(−2.3, −0.4) for μd (after − before)", claim: "μd = 0", a: 2, w: "Every value is negative, so 0 is not plausible. Convincing evidence that the mean difference is below 0 (a decrease on average)." },
+    { iv: "(0.5, 6.2) °F", claim: "μ = 6 °F", a: 0, w: "6 is inside the interval (barely), so it is plausible." },
+    { iv: "(−1.1, 2.7) for μd", claim: "μd = 0", a: 0, w: "0 is in the interval, so “no mean difference” is plausible. Not convincing evidence of a difference." },
+    { iv: "(101.2, 108.9) points", claim: "μ = 100 points", a: 1, w: "The whole interval is above 100, so 100 is not plausible. Convincing evidence that the true mean is greater than 100." }
+  ];
+  var OPTS = ["Plausible", "Not plausible: the mean is higher", "Not plausible: the mean is lower"];
+  G.forEach(function (g) {
+    var c = document.createElement("div"); c.className = "card";
+    c.innerHTML = '<div><span class="tag">95% interval</span><div style="font-family:var(--mono)">' + g.iv + '</div></div><div><span class="tag">Claim</span><div style="font-family:var(--mono)">' + g.claim + '</div></div><div class="opts"></div><p class="fb" aria-live="polite"></p>';
+    var opts = c.querySelector(".opts"), fb = c.querySelector(".fb");
+    OPTS.forEach(function (o, j) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = o;
+      b.addEventListener("click", function () {
+        Array.prototype.forEach.call(opts.children, function (x) { x.classList.remove("right", "wrong"); });
+        b.classList.add(j === g.a ? "right" : "wrong");
+        fb.innerHTML = (j === g.a ? "<b style='color:var(--good)'>Correct.</b> " : "<b style='color:var(--bad)'>Not quite.</b> ") + g.w;
+      });
+      opts.appendChild(b);
+    });
+    $("game").appendChild(c);
+  });
+
+  ["ix", "is", "in"].forEach(function (id) { $(id).addEventListener("input", render); });
+  $("iconf").addEventListener("change", render);
+  $("claim").addEventListener("input", render);
+  $("nslide").addEventListener("input", function (e) { $("in").value = e.target.value; render(); });
+  PRESETS.forEach(function (p) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = p.name;
+    b.addEventListener("click", function () { load(p); });
+    $("scen").appendChild(b);
+  });
+  load(PRESETS[0]);
+
+  var Q = [
+    { s: "A 95% confidence interval for the mean fill of soda bottles is (497.2, 499.6) mL. The label says 500 mL. What can you conclude?", o: ["500 mL is plausible, so the label is correct.", "500 mL is not plausible; there is convincing evidence the true mean fill is less than 500 mL.", "Most bottles contain less than 500 mL.", "The sample mean is 500 mL."], c: 1, w: "500 is above every value in the interval, so it is not a plausible value of the mean. The conclusion is about the mean, not individual bottles (C)." },
+    { s: "A 90% interval for the mean number of hours teens spend online is (3.8, 5.1). A researcher claims the mean is 4.5 hours. Which is correct?", o: ["The interval proves the mean is 4.5 hours.", "4.5 is plausible, so the data do not give convincing evidence against the claim.", "4.5 is not plausible because it is not the center of the interval.", "We cannot judge the claim without a significance test."], c: 1, w: "4.5 is inside the interval, so it is a plausible value. That does not prove the claim; other values are also plausible." },
+    { s: "A 95% paired t interval for the mean difference in blood pressure (after − before a new diet) is (−8.4, −2.1) mmHg. What does it suggest?", o: ["The diet has no effect on average.", "Convincing evidence that blood pressure decreases on average after the diet", "Convincing evidence that blood pressure increases on average", "Each person's blood pressure dropped between 2.1 and 8.4 mmHg."], c: 1, w: "All plausible values of μ<sub>after − before</sub> are negative, so 0 is not plausible and the mean difference is below 0: a decrease on average. D wrongly describes individuals." },
+    { s: "A 95% confidence interval for μ is (12.3, 15.9). A two-sided test of H₀: μ = 16 at α = 0.05 would:", o: ["Reject H₀, because 16 is not in the interval", "Fail to reject H₀, because 16 is close to the interval", "Reject H₀, because 16 is greater than x̄", "Give a p-value greater than 0.05"], c: 0, w: "A 95% interval matches a two-sided test at α = 0.05. Since 16 is outside the interval, the test rejects H₀ and the p-value is less than 0.05." },
+    { s: "A 95% interval for a mean includes the claimed value 20. If the researcher had used a 99% interval from the same data, then 20 would:", o: ["Definitely still be inside the interval", "Definitely be outside the interval", "Possibly be outside the interval", "Be the center of the interval"], c: 0, w: "A 99% interval from the same data is wider and contains the whole 95% interval, so any value inside the 95% interval is also inside the 99% interval." },
+    { s: "A 95% interval for a mean excludes the claim. Using the same data with a 90% interval, the claim would:", o: ["Definitely be excluded", "Definitely be included", "Possibly be included", "Be at the center"], c: 0, w: "The 90% interval is narrower and sits inside the 95% interval. If the claim is outside the wider interval, it is also outside the narrower one." },
+    { s: "A small sample gives a 95% interval of (−3.0, 9.0) for μd. The researcher concludes, “Since 0 is in the interval, there is no difference.” What is wrong with this?", o: ["Nothing; 0 in the interval proves no difference.", "0 is plausible, but so are many nonzero values; the data are just not convincing either way.", "The interval should have been a z interval.", "0 should have been compared with x̄d, not the interval."], c: 1, w: "An interval containing 0 means “no difference” is plausible, not proven. With such a wide interval, the sample is too small to tell." },
+    { s: "Which change, using the same sample mean and standard deviation, is most likely to turn a claim from plausible to not plausible?", o: ["Raise the confidence level to 99%", "Take a larger sample", "Use a sample with a larger standard deviation", "Report the median instead of the mean"], c: 1, w: "A larger n shrinks the margin of error, making the interval narrower, so it can exclude claims that a wider interval included. A and C widen the interval." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("4.3");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [4], topic: "4.3", compact: true, storageKey: "topic-4.3" });</script>
+</body>
+</html>

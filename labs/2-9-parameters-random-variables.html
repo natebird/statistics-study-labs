@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parameters of Random Variables Study Lab</title>
+<meta name="description" content="Find the mean (expected value) and standard deviation of a discrete random variable, then see how they change when you transform or combine variables.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.mini { min-width: 0; }
+.mini th, .mini td { padding: 5px 10px; font-family: var(--mono); font-size: .84rem; text-align: right; }
+.mini th { font-family: var(--body); text-transform: none; letter-spacing: 0; font-size: .82rem; }
+.mini td:first-child, .mini th:first-child { text-align: left; }
+.mini tfoot td { background: var(--paper); font-weight: 600; }
+.mini input[type="number"] { font: inherit; font-family: var(--mono); font-size: .86rem; width: 100%; min-width: 60px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.ctl input[type="number"] { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+
+.split3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+@media (max-width: 860px) { .split3 { grid-template-columns: 1fr; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 2 · Topic 2.9</span>
+  <h1>Parameters of Random Variables Study Lab</h1>
+  <p class="lede">The mean of a random variable, also called its expected value, is the long-run average of its values over many repetitions. Its standard deviation measures how far the values typically fall from that mean. Edit a distribution, run it thousands of times, and see how unit changes and combining variables affect the mean and standard deviation.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+
+  <div class="sec-head">
+    <h2 id="lab-h">1. Expected value and standard deviation</h2>
+    <p>Each value is weighted by its probability.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">μ = E(X) = Σ x · P(x)</span> <span class="formula">σ² = Σ (x − μ)² · P(x)</span> <span class="formula">σ = √σ²</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset random variables</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3>Distribution</h3>
+      <p class="note" id="ctx"></p>
+      <div class="tbl-wrap"><table class="mini" id="tbl"></table></div>
+      <p class="note" id="valid" aria-live="polite"></p>
+    </div>
+    <div class="card graph-card">
+      <h3>Probability histogram <small>μ marked, band shows μ ± σ</small></h3>
+      <svg class="chart" id="hist" role="img" aria-label="Probability histogram with the mean marked"></svg>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Mean μ = E(X)</div><div class="v" id="r-mu"></div></div>
+    <div class="stat"><div class="k">Variance σ²</div><div class="v" id="r-var"></div></div>
+    <div class="stat"><div class="k">Standard deviation σ</div><div class="v" id="r-sd"></div></div>
+    <div class="stat"><div class="k">Average of simulated trials</div><div class="v" id="r-sim"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card">
+      <h3>Show your work</h3>
+      <div class="tbl-wrap" id="work"></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Law of large numbers <small>running average of simulated trials</small></h3>
+      <div class="scenarios"><button type="button" class="primary" id="run">Run 1,000 trials</button><button type="button" id="clear">Clear</button></div>
+      <svg class="chart" id="lln" role="img" aria-label="Running average of simulated values approaching the mean"></svg>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Transform: Y = a + bX</h3>
+    <p>Converting units or computing profit from a count is a linear transformation. The mean gets the full rule; the standard deviation is only multiplied by |b|.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">μ<sub>Y</sub> = a + b · μ<sub>X</sub></span> <span class="formula">σ<sub>Y</sub> = |b| · σ<sub>X</sub></span></div>
+  </div>
+  <div class="lab">
+    <div class="card" style="display:grid; gap:14px; align-content:start;">
+      <div class="scenarios" id="scenT"></div>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="ta">Add a <output id="ta-o"></output></label><input type="range" id="ta" min="-50" max="50" step="1" value="0"></div>
+        <div class="ctl"><label for="tb">Multiply by b <output id="tb-o"></output></label><input type="range" id="tb" min="-3" max="5" step="0.5" value="1"></div>
+      </div>
+    </div>
+    <div class="card calc-card">
+      <h3>Y = <span id="yrule"></span></h3>
+      <div class="calc" id="calcT"></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Combine: X + Y and X − Y</h3>
+    <p>Means always add or subtract. If X and Y are <b>independent</b>, their <b>variances add</b>, whether you add or subtract the variables. Standard deviations never add directly.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">μ<sub>X±Y</sub> = μ<sub>X</sub> ± μ<sub>Y</sub></span> <span class="formula">σ<sub>X±Y</sub> = √(σ<sub>X</sub>² + σ<sub>Y</sub>²)</span></div>
+  </div>
+  <div class="card" style="display:grid; gap:14px;">
+    <div class="scenarios" id="scenC"></div>
+    <p class="note" id="ctxC"></p>
+    <div class="controls">
+      <div class="ctl"><label for="mx"><span>μ<sub>X</sub></span> <output id="mx-o"></output></label><input type="range" id="mx" min="0" max="100" step="1"></div>
+      <div class="ctl"><label for="sx"><span>σ<sub>X</sub></span> <output id="sx-o"></output></label><input type="range" id="sx" min="0" max="20" step="0.5"></div>
+      <div class="ctl"><label for="my"><span>μ<sub>Y</sub></span> <output id="my-o"></output></label><input type="range" id="my" min="0" max="100" step="1"></div>
+      <div class="ctl"><label for="sy"><span>σ<sub>Y</sub></span> <output id="sy-o"></output></label><input type="range" id="sy" min="0" max="20" step="0.5"></div>
+    </div>
+    <div class="split3">
+      <div class="calc" id="calcSum"></div>
+      <div class="calc" id="calcDiff"></div>
+      <div class="note" id="noteC"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+
+    <div class="card"><span class="tag">Expected value</span><h3>The long-run average</h3><p>E(X) = Σ x·P(x) is what the average of X settles toward over many, many repetitions. It does not have to be a possible value: the expected number of heads in 3 flips is 1.5.</p></div>
+    <div class="card"><span class="tag">Spread</span><h3>Standard deviation σ<sub>X</sub></h3><p>σ<sub>X</sub> measures how far the values of X typically fall from μ<sub>X</sub>, in the units of X. Find the variance first, then take the square root.</p></div>
+    <div class="card"><span class="tag">Law of large numbers</span><h3>Averages settle down</h3><p>As the number of independent trials grows, the average of the observed values gets closer and closer to μ. In the short run, averages can bounce around a lot.</p></div>
+    <div class="card"><span class="tag">Transform</span><h3>Y = a + bX</h3><p>Adding a shifts the mean by a but leaves the spread alone. Multiplying by b multiplies the mean by b and the standard deviation by |b|. The shape does not change.</p></div>
+    <div class="card"><span class="tag">Combine</span><h3>Variances add</h3><p>For independent X and Y, Var(X + Y) = Var(X − Y) = σ<sub>X</sub>² + σ<sub>Y</sub>². Subtracting does not cancel variability; a difference is still uncertain in both directions.</p></div>
+    <div class="card"><span class="tag">Notation</span><h3>Parameters, not statistics</h3><p>μ<sub>X</sub> and σ<sub>X</sub> describe the whole probability model, so they are parameters. The mean and SD of simulated or observed data are statistics that estimate them.</p></div>
+
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>How the mean and standard deviation respond to each change.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+
+    <thead><tr><th>Situation</th><th>Mean</th><th>Standard deviation</th><th>Condition</th></tr></thead>
+    <tbody>
+      <tr><td><b>Y = X + a</b></td><td>μ<sub>X</sub> + a</td><td>σ<sub>X</sub> <span class="shift">(no change)</span></td><td>None</td></tr>
+      <tr><td><b>Y = bX</b></td><td>b · μ<sub>X</sub></td><td>|b| · σ<sub>X</sub></td><td>None</td></tr>
+      <tr><td><b>Y = a + bX</b></td><td>a + b · μ<sub>X</sub></td><td>|b| · σ<sub>X</sub></td><td>None</td></tr>
+      <tr><td><b>X + Y</b></td><td>μ<sub>X</sub> + μ<sub>Y</sub></td><td>√(σ<sub>X</sub>² + σ<sub>Y</sub>²)</td><td>SD rule needs X, Y independent</td></tr>
+      <tr><td><b>X − Y</b></td><td>μ<sub>X</sub> − μ<sub>Y</sub></td><td>√(σ<sub>X</sub>² + σ<sub>Y</sub>²)</td><td>SD rule needs X, Y independent</td></tr>
+      <tr><td><b>X₁ + X₂ + X₃</b> (3 independent copies)</td><td>3μ<sub>X</sub></td><td>√3 · σ<sub>X</sub></td><td>Independent</td></tr>
+      <tr><td><b>3X</b> (one value tripled)</td><td>3μ<sub>X</sub></td><td>3σ<sub>X</sub></td><td>None</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+
+        <li>Show the expected value as a sum: "E(X) = 0(0.10) + 1(0.25) + 2(0.40) + 3(0.25) = 1.80."</li>
+        <li>Interpret the mean as a long-run average in context: "If many households were selected, the average number of cars would be about 1.8."</li>
+        <li>Interpret σ as typical variation: "The number of cars typically varies by about 0.93 from the mean of 1.8."</li>
+        <li>When combining, state independence before adding variances: "Since the two times are independent, σ = √(4² + 3²) = 5 minutes."</li>
+        <li>Calculator work is fine for the arithmetic, but write the formula with numbers in it.</li>
+
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+
+        <li>Adding standard deviations: √(4² + 3²) = 5, not 4 + 3 = 7.</li>
+        <li>Subtracting variances for X − Y. Variances always add for independent variables.</li>
+        <li>Letting a constant change the standard deviation. A flat fee shifts the mean only.</li>
+        <li>Confusing 3X (one value tripled, SD × 3) with X₁ + X₂ + X₃ (three independent values, SD × √3).</li>
+        <li>Saying "we expect X to be 1.8" for a count. Say the long-run average is 1.8.</li>
+
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 2.9. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-2.html">Unit 2 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+
+  var PRESETS = [
+    { name: "Cars per household", ctx: "X = number of cars owned by a randomly chosen household.", unit: "cars", xs: [0, 1, 2, 3, 4], ps: [0.08, 0.32, 0.38, 0.16, 0.06] },
+    { name: "Raffle ticket winnings", ctx: "X = net winnings from a $2 raffle ticket: 1 prize of $500 and 5 prizes of $50 among 1,000 tickets.", unit: "dollars", xs: [-2, 48, 498], ps: [0.994, 0.005, 0.001] },
+    { name: "Heads in 3 flips", ctx: "X = number of heads in 3 flips of a fair coin.", unit: "heads", xs: [0, 1, 2, 3], ps: [0.125, 0.375, 0.375, 0.125] },
+    { name: "Fair six-sided die", ctx: "X = the number rolled on a fair die.", unit: "", xs: [1, 2, 3, 4, 5, 6], ps: [1, 1, 1, 1, 1, 1].map(function () { return 0.1667; }).map(function (p, i) { return i === 5 ? 0.1665 : p; }) },
+    { name: "Insurance payout", ctx: "X = amount an insurer pays on one policy in a year (in thousands of dollars).", unit: "thousand dollars", xs: [0, 1, 10, 50], ps: [0.90, 0.07, 0.025, 0.005] }
+  ];
+  var S, sim = [];
+  function load(p) { S = { ctx: p.ctx, unit: p.unit, xs: p.xs.slice(), ps: p.ps.slice() }; sim = []; buildTable(); compute(); }
+  function buildTable() {
+    var h = '<thead><tr><th>Value x</th><th>P(X = x)</th></tr></thead><tbody>';
+    S.xs.forEach(function (x, i) {
+      h += '<tr><td><label class="sr" for="x' + i + '">Value ' + (i + 1) + '</label><input type="number" id="x' + i + '" value="' + x + '"></td>' +
+        '<td><label class="sr" for="p' + i + '">Probability ' + (i + 1) + '</label><input type="number" id="p' + i + '" step="0.01" min="0" max="1" value="' + S.ps[i] + '"></td></tr>';
+    });
+    $("tbl").innerHTML = h + '</tbody><tfoot><tr><td>Total</td><td id="totCell"></td></tr></tfoot>';
+    S.xs.forEach(function (_, i) {
+      $("x" + i).addEventListener("input", function (e) { var v = parseFloat(e.target.value); S.xs[i] = isNaN(v) ? 0 : v; sim = []; compute(); });
+      $("p" + i).addEventListener("input", function (e) { var v = parseFloat(e.target.value); S.ps[i] = isNaN(v) ? 0 : v; sim = []; compute(); });
+    });
+  }
+  function params() {
+    var mu = 0, v = 0; S.xs.forEach(function (x, i) { mu += x * S.ps[i]; });
+    S.xs.forEach(function (x, i) { v += (x - mu) * (x - mu) * S.ps[i]; });
+    return { mu: mu, v: v, sd: Math.sqrt(v) };
+  }
+  function valid() { var t = Lab.sum(S.ps); return !S.ps.some(function (p) { return p < 0 || p > 1; }) && Math.abs(t - 1) < 0.0015; }
+  function u() { return S.unit ? " " + S.unit : ""; }
+  function compute() {
+    var tot = Lab.sum(S.ps), ok = valid();
+    $("ctx").textContent = S.ctx; $("totCell").textContent = N(tot, 4);
+    $("valid").innerHTML = ok ? "Valid distribution." : '<b style="color:var(--bad)">Not valid:</b> the probabilities must each be 0 to 1 and add to 1 (now ' + N(tot, 4) + ").";
+    var P = params();
+    $("r-mu").textContent = ok ? N(P.mu, 3) : "n/a"; $("r-var").textContent = ok ? N(P.v, 3) : "n/a"; $("r-sd").textContent = ok ? N(P.sd, 3) : "n/a";
+    $("r-sim").textContent = sim.length ? N(Lab.mean(sim), 3) + " (n = " + sim.length + ")" : "Run trials";
+    // histogram
+    var idx = S.xs.map(function (_, i) { return i; }).sort(function (a, b) { return S.xs[a] - S.xs[b]; });
+    var xs = idx.map(function (i) { return S.xs[i]; }), ps = idx.map(function (i) { return S.ps[i]; });
+    var lo = xs[0], hi = xs[xs.length - 1], pad = Math.max((hi - lo) * 0.08, 0.6);
+    var top = Math.max.apply(null, ps.concat([0.1])), yt = Lab.niceTicks(0, Math.min(1.05, top * 1.15), 5);
+    var ticks = xs.length <= 8 ? xs : Lab.niceTicks(lo, hi, 6);
+    var F = Lab.frame($("hist"), { x: [lo - pad, hi + pad], y: [0, yt[yt.length - 1]], xLabel: "Value of X", yLabel: "Probability", xTicks: ticks, yTicks: yt, fmtX: function (v) { return N(v, 2); }, fmtY: function (v) { return N(v, 2); } });
+    if (ok) Lab.rect(F, P.mu - P.sd, 0, P.mu + P.sd, F.yr[1], "var(--c2)", .12);
+    var minGap = xs.length > 1 ? Math.min.apply(null, xs.slice(1).map(function (x, i) { return x - xs[i]; })) : 1;
+    var w = Math.max(Math.min(minGap * 0.8, (hi - lo + 1) * 0.12), (hi - lo + 2 * pad) * 0.012);
+    ps.forEach(function (p, i) { if (p > 0) Lab.rect(F, xs[i] - w / 2, 0, xs[i] + w / 2, Math.min(p, F.yr[1]), "var(--accent)", .85); });
+    if (ok) { Lab.vline(F, P.mu, "var(--c1)", 2.5, "6 4"); Lab.tag(F, P.mu + (hi - lo + 2 * pad) * 0.012, F.yr[1] * 0.92, "μ = " + N(P.mu, 3), "var(--c1)"); }
+    // work table
+    var t = '<table class="mini"><thead><tr><th>x</th><th>P(x)</th><th>x · P(x)</th><th>(x − μ)² · P(x)</th></tr></thead><tbody>';
+    xs.forEach(function (x, i) { t += "<tr><td>" + N(x, 3) + "</td><td>" + N(ps[i], 4) + "</td><td>" + N(x * ps[i], 4) + "</td><td>" + N((x - P.mu) * (x - P.mu) * ps[i], 4) + "</td></tr>"; });
+    t += '</tbody><tfoot><tr><td></td><td>Σ = ' + N(tot, 4) + '</td><td>μ = ' + N(P.mu, 4) + '</td><td>σ² = ' + N(P.v, 4) + '</td></tr><tr><td colspan="4">σ = √' + N(P.v, 4) + " = " + N(P.sd, 4) + "</td></tr></tfoot></table>";
+    t += '<p class="note" style="margin-top:8px">Calculator: put x in L1 and P(x) in L2, then 1-Var Stats L1, L2. Use σx, not Sx.</p>';
+    $("work").innerHTML = t;
+    drawLLN(P, ok);
+    story(P, ok);
+    renderT();
+  }
+  function story(P, ok) {
+    if (!ok) { $("story").innerHTML = "<p><b>Fix the distribution first.</b> The mean and standard deviation only make sense for a valid probability model.</p>"; return; }
+    var t = [];
+    var head = "<b>E(X) = " + N(P.mu, 3) + u() + ".</b> Over many repetitions, the average value of X would settle near " + N(P.mu, 3) + ".";
+    t.push("The values of X typically vary by about <b>" + N(P.sd, 3) + u() + "</b> from the mean.");
+    if (S.xs.indexOf(Math.round(P.mu * 1000) / 1000) < 0) t.push("The mean is not one of the possible values. That is fine: it is a long-run average, not a prediction for one trial.");
+    if (P.mu < 0 && S.xs.some(function (x) { return x > 0; })) t.push("A negative expected value means that, on average, the player loses money in the long run, even though some tickets win.");
+    if (sim.length) t.push("The simulated average after " + sim.length + " trials is " + N(Lab.mean(sim), 3) + ". The law of large numbers says this gets closer to μ as the trials pile up.");
+    $("story").innerHTML = "<p>" + head + "</p><ul>" + t.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+  }
+  var R = Lab.rng(7);
+  function draw1() { var r = R(), c = 0; for (var i = 0; i < S.xs.length; i++) { c += S.ps[i]; if (r < c) return S.xs[i]; } return S.xs[S.xs.length - 1]; }
+  function drawLLN(P, ok) {
+    var n = Math.max(sim.length, 1000), run = [], s = 0;
+    sim.forEach(function (v, i) { s += v; run.push([i + 1, s / (i + 1)]); });
+    var lo = P.mu - P.sd, hi = P.mu + P.sd;
+    if (run.length) { var rv = run.slice(Math.min(20, run.length - 1)).map(function (p) { return p[1]; }); lo = Math.min(lo, Math.min.apply(null, rv)); hi = Math.max(hi, Math.max.apply(null, rv)); }
+    if (!(hi > lo)) { lo = P.mu - 1; hi = P.mu + 1; }
+    var yt = Lab.niceTicks(lo, hi, 5);
+    var F = Lab.frame($("lln"), { x: [0, n], y: [yt[0], yt[yt.length - 1]], xLabel: "Number of trials", yLabel: "Running average of X", xTicks: Lab.niceTicks(0, n, 5), yTicks: yt, fmtX: function (v) { return N(v, 0); }, fmtY: function (v) { return N(v, 2); }, height: 260 });
+    if (ok) { Lab.hline(F, P.mu, "var(--c1)", 2, "6 4"); Lab.tag(F, n * 0.98, P.mu + (yt[yt.length - 1] - yt[0]) * 0.04, "μ = " + N(P.mu, 3), "var(--c1)", "end"); }
+    if (run.length) Lab.line(F, run, "var(--accent)", 2);
+  }
+  $("run").addEventListener("click", function () { if (!valid()) return; for (var i = 0; i < 1000; i++) sim.push(draw1()); if (sim.length > 20000) sim = sim.slice(-20000); compute(); });
+  $("clear").addEventListener("click", function () { sim = []; compute(); });
+  PRESETS.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { load(p); }); $("scen").appendChild(b); });
+
+  var T = { a: 0, b: 1 };
+  function renderT() {
+    $("ta").value = T.a; $("tb").value = T.b;
+    $("ta-o").textContent = (T.a < 0 ? "−" : "+") + Math.abs(T.a); $("tb-o").textContent = "× " + N(T.b, 1);
+    $("yrule").textContent = N(T.a) + " + " + N(T.b, 1) + "X";
+    var P = params(), my = T.a + T.b * P.mu, sy = Math.abs(T.b) * P.sd;
+    $("calcT").innerHTML =
+      '<div class="row"><span>μ<sub>Y</sub> = a + b·μ<sub>X</sub> = ' + N(T.a) + " + " + N(T.b, 1) + "(" + N(P.mu, 3) + ")</span><span>= " + N(my, 3) + "</span></div>" +
+      '<div class="row"><span>σ<sub>Y</sub> = |b|·σ<sub>X</sub> = ' + N(Math.abs(T.b), 1) + "(" + N(P.sd, 3) + ")</span><span>= " + N(sy, 3) + "</span></div>" +
+      '<div class="row"><span>' + (T.a !== 0 ? "Adding " + N(T.a) + " moved the mean but not the SD." : "a = 0, so nothing is added.") + (T.b < 0 ? " A negative b flips the distribution, but the SD uses |b|, so it stays positive." : "") + "</span><span></span></div>";
+  }
+  $("ta").addEventListener("input", function (e) { T.a = +e.target.value; renderT(); });
+  $("tb").addEventListener("input", function (e) { T.b = +e.target.value; renderT(); });
+  [["Profit: $5 per car minus $10 fee", -10, 5], ["Double every value", 0, 2], ["Add a $20 bonus", 20, 1], ["Reset", 0, 1]].forEach(function (x) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = x[0];
+    b.addEventListener("click", function () { T.a = x[1]; T.b = x[2]; renderT(); });
+    $("scenT").appendChild(b);
+  });
+
+  var C;
+  var CP = [
+    { name: "Commute: drive + walk", ctx: "X = driving time and Y = walking time (minutes), independent.", mx: 25, sx: 4, my: 8, sy: 3 },
+    { name: "Weights: box − contents", ctx: "X = weight of a full box and Y = weight of the empty box (grams), independent.", mx: 80, sx: 6, my: 20, sy: 2 },
+    { name: "Two test sections", ctx: "X = math score and Y = reading score, assumed independent.", mx: 60, sx: 12, my: 55, sy: 9 }
+  ];
+  function renderC() {
+    ["mx", "sx", "my", "sy"].forEach(function (k) { $(k).value = C[k]; $(k + "-o").textContent = N(C[k], 1); });
+    $("ctxC").textContent = C.ctx;
+    var sdc = Math.sqrt(C.sx * C.sx + C.sy * C.sy);
+    $("calcSum").innerHTML = '<div class="row h"><span>X + Y</span><span></span></div>' +
+      '<div class="row"><span>μ = ' + N(C.mx) + " + " + N(C.my) + "</span><span>= " + N(C.mx + C.my, 2) + "</span></div>" +
+      '<div class="row"><span>σ = √(' + N(C.sx, 1) + "² + " + N(C.sy, 1) + "²)</span><span>= " + N(sdc, 3) + "</span></div>";
+    $("calcDiff").innerHTML = '<div class="row h"><span>X − Y</span><span></span></div>' +
+      '<div class="row"><span>μ = ' + N(C.mx) + " − " + N(C.my) + "</span><span>= " + N(C.mx - C.my, 2) + "</span></div>" +
+      '<div class="row"><span>σ = √(' + N(C.sx, 1) + "² + " + N(C.sy, 1) + "²)</span><span>= " + N(sdc, 3) + "</span></div>";
+    $("noteC").innerHTML = "Same σ for the sum and the difference. Adding the SDs would give " + N(C.sx + C.sy, 2) + ", which is <b>too big</b>; subtracting them would give " + N(Math.abs(C.sx - C.sy), 2) + ", which is <b>too small</b>.";
+  }
+  ["mx", "sx", "my", "sy"].forEach(function (k) { $(k).addEventListener("input", function (e) { C[k] = +e.target.value; renderC(); }); });
+  CP.forEach(function (p) { var b = document.createElement("button"); b.type = "button"; b.textContent = p.name; b.addEventListener("click", function () { C = Object.assign({}, p); renderC(); }); $("scenC").appendChild(b); });
+  C = Object.assign({}, CP[0]); renderC();
+  load(PRESETS[0]);
+
+  var Q = [
+    { s: "X takes values 0, 1, 2 with probabilities 0.5, 0.3, 0.2. What is E(X)?", o: ["1", "0.7", "0.33", "1.5"], c: 1, w: "E(X) = 0(0.5) + 1(0.3) + 2(0.2) = 0 + 0.3 + 0.4 = 0.7." },
+    { s: "A game costs $3. You win $10 (net gain $7) with probability 0.2; otherwise you lose the $3. What is the expected net gain?", o: ["−$1.00", "$1.40", "−$0.80", "$7.00"], c: 2, w: "E = 7(0.2) + (−3)(0.8) = 1.4 − 2.4 = −0.8. On average a player loses 80 cents per game in the long run." },
+    { s: "Which statement best interprets E(X) = 2.4 where X is the number of pets per household?", o: ["Most households have 2.4 pets.", "Over many randomly selected households, the average number of pets is about 2.4.", "Every household has between 2 and 3 pets.", "The probability a household has 2.4 pets is highest."], c: 1, w: "The expected value is a long-run average over many repetitions, not a value any single household has." },
+    { s: "X has mean 10 and standard deviation 2. If Y = 3X + 5, what are the mean and SD of Y?", o: ["Mean 35, SD 6", "Mean 35, SD 11", "Mean 30, SD 6", "Mean 35, SD 2"], c: 0, w: "μY = 5 + 3(10) = 35. σY = 3(2) = 6. Adding 5 does not affect the SD." },
+    { s: "Independent X and Y have σX = 6 and σY = 8. What is the standard deviation of X − Y?", o: ["2", "14", "10", "100"], c: 2, w: "Variances add even for a difference: σ = √(36 + 64) = √100 = 10. Choice D is the variance." },
+    { s: "The weight of a single apple has mean 150 g and SD 10 g. Weights of apples are independent. What is the SD of the total weight of 4 apples?", o: ["40 g", "20 g", "10 g", "400 g"], c: 1, w: "Total of 4 independent apples: variance = 4(10²) = 400, so σ = 20 g. 40 g would be the SD of 4 times one apple's weight." },
+    { s: "As a simulation of a random variable is repeated more and more times, the average of the simulated values:", o: ["Gets closer to the expected value", "Gets farther from the expected value", "Equals the expected value after 100 trials", "Has a larger standard deviation"], c: 0, w: "This is the law of large numbers. The average approaches μ in the long run, but it is not guaranteed to equal μ after any fixed number of trials." },
+    { s: "Which condition is needed to find σX+Y using √(σX² + σY²)?", o: ["X and Y are normal", "X and Y have the same mean", "X and Y are independent", "X and Y are mutually exclusive"], c: 2, w: "The variance addition rule requires independence. Normality is not needed for the rule itself." }
+  ];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("2.9");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [2], topic: "2.9", compact: true, storageKey: "topic-2.9" });</script>
+</body>
+</html>

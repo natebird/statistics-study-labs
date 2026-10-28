@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Potential Errors When Performing Tests Study Lab</title>
+<meta name="description" content="See Type I error, Type II error, and power as areas under two sampling distributions, and how n, α, and the true p change them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.k-acc { color: var(--accent); } .k-c1 { color: var(--c1); } .k-c2 { color: var(--c2); } .k-bad { color: var(--bad); } .k-ghost { color: var(--ghost); }
+.steps { display: grid; gap: 10px; }
+.steps .card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.05rem; }
+.steps .card h4 .tag { margin-right: 8px; }
+.steps .card p { font-size: .95rem; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.errgrid { display: grid; grid-template-columns: auto 1fr 1fr; gap: 0; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.errgrid > div { padding: 10px 12px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); font-size: .92rem; }
+.errgrid .hd { background: var(--paper); font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.errgrid .e1 { background: var(--bad-soft); } .errgrid .e2 { background: var(--accent-soft); } .errgrid .okc { background: var(--good-soft); }
+@media (max-width: 520px) { .errgrid { grid-template-columns: 1fr 1fr 1fr; font-size: .8rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.8</span>
+  <h1>Potential Errors When Performing Tests Study Lab</h1>
+  <p class="lede">Every test decision can be wrong. A <b>Type I error</b> rejects a true null hypothesis; a <b>Type II error</b> fails to reject a false one. <b>Power</b> is the chance the test catches a real effect. See all three as areas and learn what moves them.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Errors and power explorer</h2>
+    <p>A test can be wrong in two ways. The <b>gray curve</b> shows how p̂ varies if H₀ is true; the <b>blue curve</b> shows how p̂ varies if the true proportion is the value you set. The red dashed line is the cutoff: p̂ values beyond it lead us to reject H₀.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="formula">P(Type I error) = α</span> <span class="formula">P(Type II error) = β</span> <span class="formula">Power = 1 − β</span></div>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset situations</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="ctx"></h3>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="p0">Null value p₀ <output id="p0-o"></output></label><input type="range" id="p0" min="0.05" max="0.95" step="0.01"></div>
+        <div class="ctl"><label for="pa">True proportion p <output id="pa-o"></output></label><input type="range" id="pa" min="0.02" max="0.98" step="0.01"><span class="hint">In real life you never know this</span></div>
+        <div class="ctl"><label for="n">Sample size n <output id="n-o"></output></label><input type="range" id="n" min="20" max="2000" step="10"></div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Alternative</span><div class="seg" id="alt" role="group" aria-label="Alternative hypothesis"></div></div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Significance level</span><div class="seg" id="al" role="group" aria-label="Significance level"></div></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Two sampling distributions <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Null and alternative sampling distributions with the rejection region, alpha, beta, and power shaded"></svg>
+      <div class="marker-key"><span class="k-bad">α (Type I risk)</span><span class="k-c1">β (Type II risk)</span><span class="k-c2">Power</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">P(Type I error) = α</div><div class="v" id="r-a"></div></div>
+    <div class="stat"><div class="k">P(Type II error) = β</div><div class="v" id="r-b"></div></div>
+    <div class="stat"><div class="k">Power = 1 − β</div><div class="v" id="r-pw"></div></div>
+    <div class="stat"><div class="k">Reject H₀ if p̂ is…</div><div class="v" id="r-c" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="lab">
+    <div class="card calc-card"><h3>Show the work</h3><div class="calc" id="calc"></div></div>
+    <div class="card calc-card">
+      <h3>The two errors in this context</h3>
+      <div class="errgrid" id="grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Type I</span><h3>False alarm</h3><p>Rejecting H₀ when it is true. Its probability is α, chosen before the test.</p></div>
+    <div class="card"><span class="tag">Type II</span><h3>Missed effect</h3><p>Failing to reject H₀ when it is false. Its probability is β, which depends on the true value of p.</p></div>
+    <div class="card"><span class="tag">Power</span><h3>Catching a real effect</h3><p>Power = 1 − β = P(reject H₀ when a specific alternative is true). Researchers usually want power of at least 0.80.</p></div>
+    <div class="card"><span class="tag">Trade-off</span><h3>α vs. β</h3><p>For a fixed n, lowering α makes Type I errors rarer but Type II errors more likely. Only a larger sample lowers both.</p></div>
+    <div class="card"><span class="tag">What raises power</span><h3>Four levers</h3><p>Larger n, larger α, a true value farther from p₀ (bigger effect), and less variability.</p></div>
+    <div class="card"><span class="tag">Which is worse?</span><h3>It depends on context</h3><p>Ask what happens after each mistake. If a false alarm is costly, choose a small α; if missing an effect is costly, aim for high power.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>The four possible outcomes of a test.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Decision</th><th>If H₀ is true</th><th>If H₀ is false</th></tr></thead>
+    <tbody>
+      <tr><td><b>Reject H₀</b></td><td><span class="shift">Type I error</span>, probability α</td><td>Correct decision, probability = power</td></tr>
+      <tr><td><b>Fail to reject H₀</b></td><td>Correct decision, probability 1 − α</td><td><span class="shift">Type II error</span>, probability β</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>Describe an error in context with both parts: what the truth is and what you concluded. "A Type I error would be concluding that more than 5% of packages are late when in fact 5% are late."</li>
+        <li>Give a consequence of the error in context when asked.</li>
+        <li>If the decision was "reject H₀," only a Type I error is possible; if "fail to reject," only Type II.</li>
+        <li>To increase power without raising the Type I error rate, say "increase the sample size."</li>
+        <li>Interpret power: "If the true late rate is 8%, there is about a 0.81 probability the test (with n = 400 and α = 0.05) will find convincing evidence that the rate is above 5%."</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Defining errors without context ("rejecting a true null" alone may not earn credit).</li>
+        <li>Saying α is the probability that H₀ is true, or that the decision is wrong.</li>
+        <li>Thinking a larger α lowers power. A larger α makes it easier to reject, so power goes up.</li>
+        <li>Saying both error probabilities can be lowered by changing α. Only a bigger sample (or less variability) lowers both.</li>
+        <li>Mixing up which error is possible given the test's actual decision.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.8. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  // ---------- helpers shared by the Unit 3 labs (inline on purpose) ----------
+  function buttons(id, list) {
+    var box = $(id); box.innerHTML = "";
+    list.forEach(function (x) { var b = document.createElement("button"); b.type = "button"; b.textContent = x[0]; b.addEventListener("click", x[1]); box.appendChild(b); });
+  }
+  function seg(id, opts, cur, onPick) {
+    var box = $(id); box.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { onPick(o[0]); seg(id, opts, o[0], onPick); });
+      box.appendChild(b);
+    });
+  }
+  function fmtP(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function zStar(C) { return Lab.invNorm(1 - (1 - C) / 2); }
+  function sym(alt) { return alt === "lt" ? "<" : alt === "gt" ? ">" : "≠"; }
+  /* hist(svg, vals, o): density-scaled histogram on a fixed axis so a curve can be laid on top.
+     o = { lo, hi, w, xLabel, ticks, yMax, curve: f(x), colorOf(lo, hi) -> color, lines: [{ x, color, label, dash }] } */
+  function hist(svg, vals, o) {
+    var nb = Math.round((o.hi - o.lo) / o.w), cnt = new Array(nb).fill(0);
+    vals.forEach(function (v) { var i = Math.floor((v - o.lo) / o.w + 1e-9); if (i >= 0 && i < nb) cnt[i]++; else if (i === nb && Math.abs(v - o.hi) < 1e-9) cnt[nb - 1]++; });
+    var dens = cnt.map(function (c) { return vals.length ? c / vals.length / o.w : 0; });
+    var top = o.yMax || Math.max.apply(null, dens.concat([o.curve ? o.curve(o.peak != null ? o.peak : (o.lo + o.hi) / 2) : 0, 1e-9])) * 1.15;
+    var F = Lab.frame(svg, { x: [o.lo, o.hi], y: [0, top], xLabel: o.xLabel || "", yLabel: o.yLabel || "", xTicks: (o.ticks || Lab.niceTicks(o.lo, o.hi, 6)).filter(function (t) { return t >= o.lo - 1e-9 && t <= o.hi + 1e-9; }), yTicks: [], fmtX: o.fmt || function (v) { return N(v, 2); } });
+    dens.forEach(function (dv, i) {
+      if (!dv) return; var a = o.lo + i * o.w, b = a + o.w;
+      Lab.el("rect", { x: F.sx(a) + .3, y: F.sy(dv), width: Math.max(0, F.sx(b) - F.sx(a) - .6), height: F.sy(0) - F.sy(dv), fill: (o.colorOf && o.colorOf(a, b)) || "var(--accent)", opacity: .55 }, F.g);
+    });
+    if (o.curve) Lab.fn(F, o.curve, o.curveColor || "var(--ink)", 2, null, 160);
+    (o.lines || []).forEach(function (l, k) {
+      Lab.vline(F, l.x, l.color, 2.5, l.dash || null);
+      if (l.label) Lab.tag(F, l.x + (o.hi - o.lo) * 0.01 * (l.left ? -1 : 1), top * (0.93 - 0.1 * k), l.label, l.color, l.left ? "end" : "start");
+    });
+    return F;
+  }
+  function binom(r, n, p) { var k = 0; for (var i = 0; i < n; i++) if (r() < p) k++; return k; }
+  function story(id, head, items) { $(id).innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+  function rows(id, list) { $(id).innerHTML = list.map(function (r) { return '<div class="row' + (r[2] ? " h" : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function slider(id, outId, fmt, onChange) { var s = $(id); function u() { $(outId).textContent = fmt(+s.value); } s.addEventListener("input", function () { u(); onChange(+s.value); }); u(); return { set: function (v) { s.value = v; u(); } }; }
+
+  var PRE = [
+    { name: "Late deliveries", ctx: "Is the late rate higher than the claimed 5%?", p0: 0.05, pa: 0.08, n: 400, alt: "gt", al: 0.05,
+      e1: "Conclude the company's late rate is above 5% when it really is 5%. The company is wrongly accused.", e2: "Fail to find that the late rate is above 5% when it really is higher. Customers keep getting late packages." },
+    { name: "New drug cure rate", ctx: "Does a new drug cure more than 60% of patients (the old drug's rate)?", p0: 0.6, pa: 0.68, n: 150, alt: "gt", al: 0.01,
+      e1: "Conclude the new drug works better when it doesn't. Patients switch to a drug that is no better (and may cost more or have side effects).", e2: "Miss a drug that really is better. Patients lose out on a better treatment." },
+    { name: "Fair coin?", ctx: "Is this coin unfair?", p0: 0.5, pa: 0.55, n: 200, alt: "ne", al: 0.05,
+      e1: "Decide a fair coin is unfair.", e2: "Fail to detect that a biased coin is unfair." },
+    { name: "Fewer texting drivers", ctx: "Has texting at the intersection dropped below 22%?", p0: 0.22, pa: 0.17, n: 300, alt: "lt", al: 0.05,
+      e1: "Conclude the campaign reduced texting when it didn't. The city may stop looking for better solutions.", e2: "Conclude there's no convincing evidence the campaign worked when it actually did. A good program might be cancelled." },
+    { name: "H₀ is actually true", ctx: "What if the null value is exactly right?", p0: 0.3, pa: 0.3, n: 200, alt: "gt", al: 0.05,
+      e1: "Reject a true null hypothesis.", e2: "Not possible here: a Type II error can only happen when H₀ is false." }
+  ];
+  var ALTS = [["lt", "p < p₀"], ["gt", "p > p₀"], ["ne", "p ≠ p₀"]], ALS = [0.01, 0.05, 0.1];
+  var S = {};
+  var p0S = slider("p0", "p0-o", function (v) { return N(v, 2); }, function (v) { S.p0 = v; render(); });
+  var paS = slider("pa", "pa-o", function (v) { return N(v, 2); }, function (v) { S.pa = v; render(); });
+  var nS = slider("n", "n-o", function (v) { return v; }, function (v) { S.n = v; render(); });
+  function load(p) {
+    S = { p0: p.p0, pa: p.pa, n: p.n, alt: p.alt, al: p.al, pre: p }; $("ctx").textContent = p.ctx;
+    p0S.set(p.p0); paS.set(p.pa); nS.set(p.n);
+    seg("alt", ALTS, S.alt, function (v) { S.alt = v; render(); });
+    seg("al", ALS.map(function (a) { return [a, String(a)]; }), S.al, function (v) { S.al = v; render(); });
+    render();
+  }
+  function shade(F, f, a, b, color) {
+    var lo = Math.max(F.xr[0], a), hi = Math.min(F.xr[1], b); if (hi <= lo) return;
+    var pts = [[lo, 0]]; for (var i = 0; i <= 80; i++) { var x = lo + (hi - lo) * i / 80; pts.push([x, f(x)]); } pts.push([hi, 0]);
+    Lab.el("path", { d: pts.map(function (p, j) { return (j ? "L" : "M") + F.sx(p[0]).toFixed(1) + " " + F.sy(p[1]).toFixed(1); }).join(" ") + " Z", fill: color, opacity: .35 }, F.g);
+  }
+  function render() {
+    var s0 = Math.sqrt(S.p0 * (1 - S.p0) / S.n), sa = Math.sqrt(S.pa * (1 - S.pa) / S.n);
+    var zc = S.alt === "ne" ? Lab.invNorm(1 - S.al / 2) : Lab.invNorm(1 - S.al);
+    var cHi = S.p0 + zc * s0, cLo = S.p0 - zc * s0, power, beta;
+    if (S.alt === "gt") power = Lab.normCdf(cHi, Infinity, S.pa, sa);
+    else if (S.alt === "lt") power = Lab.normCdf(-Infinity, cLo, S.pa, sa);
+    else power = Lab.normCdf(-Infinity, cLo, S.pa, sa) + Lab.normCdf(cHi, Infinity, S.pa, sa);
+    var h0true = Math.abs(S.pa - S.p0) < 1e-9;
+    beta = h0true ? NaN : 1 - power;
+    var a = Math.max(0, Math.min(S.p0 - 4 * s0, S.pa - 4 * sa)), b = Math.min(1, Math.max(S.p0 + 4 * s0, S.pa + 4 * sa));
+    var top = Math.max(Lab.normPdf(S.p0, S.p0, s0), Lab.normPdf(S.pa, S.pa, sa)) * 1.18;
+    var F = Lab.frame($("g"), { x: [a, b], y: [0, top], xLabel: "Sample proportion p̂", yLabel: "", xTicks: Lab.niceTicks(a, b, 6).filter(function (t) { return t >= a && t <= b; }), yTicks: [], fmtX: function (v) { return N(v, 3); } });
+    var f0 = function (x) { return Lab.normPdf(x, S.p0, s0); }, fa = function (x) { return Lab.normPdf(x, S.pa, sa); };
+    var rejRanges = S.alt === "gt" ? [[cHi, b]] : S.alt === "lt" ? [[a, cLo]] : [[a, cLo], [cHi, b]];
+    var accRange = S.alt === "gt" ? [a, cHi] : S.alt === "lt" ? [cLo, b] : [cLo, cHi];
+    if (!h0true) { rejRanges.forEach(function (r) { shade(F, fa, r[0], r[1], "var(--c2)"); }); shade(F, fa, accRange[0], accRange[1], "var(--c1)"); }
+    rejRanges.forEach(function (r) { shade(F, f0, r[0], r[1], "var(--bad)"); });
+    Lab.fn(F, f0, "var(--muted)", 2.5, null, 200);
+    if (!h0true) Lab.fn(F, fa, "var(--accent)", 2.5, null, 200);
+    if (S.alt !== "lt") Lab.vline(F, cHi, "var(--bad)", 2, "6 4");
+    if (S.alt !== "gt") Lab.vline(F, cLo, "var(--bad)", 2, "6 4");
+    Lab.tag(F, S.p0, Lab.normPdf(S.p0, S.p0, s0) * 1.05, "H₀: p = " + N(S.p0, 2), "var(--muted)", "middle");
+    if (!h0true) Lab.tag(F, S.pa, Lab.normPdf(S.pa, S.pa, sa) * 1.05 + (Math.abs(S.pa - S.p0) < 2 * s0 ? top * 0.06 : 0), "true p = " + N(S.pa, 2), "var(--accent)", "middle");
+    $("g-sub").textContent = "n = " + S.n + ", α = " + S.al;
+    $("r-a").textContent = N(S.al, 2);
+    $("r-b").textContent = h0true ? "n/a" : N(beta, 3);
+    $("r-pw").textContent = h0true ? "n/a" : N(power, 3);
+    $("r-c").textContent = S.alt === "gt" ? "> " + N(cHi, 4) : S.alt === "lt" ? "< " + N(cLo, 4) : "< " + N(cLo, 3) + " or > " + N(cHi, 3);
+    var zt = "z* = " + N(zc, 3) + (S.alt === "ne" ? " (two-sided)" : " (one-sided)");
+    var L = [
+      ["SD if H₀ true: √(" + N(S.p0, 2) + " × " + N(1 - S.p0, 2) + " ÷ " + S.n + ")", N(s0, 4)],
+      ["Cutoff: p₀ " + (S.alt === "lt" ? "−" : S.alt === "gt" ? "+" : "±") + " z* × SD, " + zt, S.alt === "gt" ? N(cHi, 4) : S.alt === "lt" ? N(cLo, 4) : N(cLo, 4) + ", " + N(cHi, 4)]
+    ];
+    if (!h0true) {
+      L.push(["SD if p = " + N(S.pa, 2) + ": √(" + N(S.pa, 2) + " × " + N(1 - S.pa, 2) + " ÷ " + S.n + ")", N(sa, 4)]);
+      L.push(["Power = P(p̂ in the rejection region when p = " + N(S.pa, 2) + ")", N(power, 4)]);
+      L.push(["β = 1 − power", N(beta, 4), true]);
+    } else L.push(["H₀ is true, so P(reject) = α", N(S.al, 2), true]);
+    rows("calc", L);
+    var e = S.pre;
+    $("grid").innerHTML = '<div class="hd"></div><div class="hd">H₀ is true</div><div class="hd">H₀ is false</div>' +
+      '<div class="hd">Reject H₀</div><div class="e1"><b>Type I error</b> (prob. α)<br>' + e.e1 + '</div><div class="okc"><b>Correct</b> (prob. = power)</div>' +
+      '<div class="hd">Fail to reject</div><div class="okc"><b>Correct</b> (prob. 1 − α)</div><div class="e2"><b>Type II error</b> (prob. β)<br>' + e.e2 + "</div>";
+    var head, t = [];
+    if (h0true) head = "<b>H₀ is true here, so the only possible mistake is a Type I error,</b> and it happens with probability α = " + S.al + ". The blue curve sits on top of the gray one.";
+    else if ((S.alt === "gt" && S.pa < S.p0) || (S.alt === "lt" && S.pa > S.p0)) head = "<b>The truth is on the other side of p₀ from Hₐ.</b> Power is tiny (" + N(power, 3) + "): this test is looking in the wrong direction.";
+    else head = "<b>Power = " + N(power, 3) + ".</b> If the true proportion is " + N(S.pa, 2) + ", this test will correctly reject H₀ in about " + Math.round(power * 100) + "% of random samples, and make a Type II error in about " + Math.round(beta * 100) + "%.";
+    t.push("Raise <b>n</b>: both curves get narrower, overlap less, and power goes up.");
+    t.push("Raise <b>α</b>: the cutoff moves toward p₀, so power goes up, but so does the chance of a Type I error.");
+    t.push("Move the <b>true p</b> farther from p₀: a bigger effect is easier to detect, so power goes up.");
+    story("story", head, t);
+  }
+  buttons("scen", PRE.map(function (p) { return [p.name, function () { load(p); }]; }));
+  load(PRE[0]);
+
+  var Q = [
+ {
+  "s": "A Type I error occurs when:",
+  "o": [
+   "We reject H₀ when H₀ is true",
+   "We fail to reject H₀ when H₀ is false",
+   "We reject H₀ when H₀ is false",
+   "We fail to reject H₀ when H₀ is true"
+  ],
+  "c": 0,
+  "w": "Type I = false alarm: rejecting a true null. C and D are correct decisions; B is a Type II error."
+ },
+ {
+  "s": "A factory tests H₀: p = 0.02 vs Hₐ: p > 0.02, where p is the defect rate. Rejecting H₀ shuts down the line for repairs. What is a Type II error here?",
+  "o": [
+   "Shutting down the line when the defect rate is 2%",
+   "Not shutting down the line when the defect rate is above 2%",
+   "Shutting down the line when the defect rate is above 2%",
+   "Not shutting down the line when the defect rate is 2%"
+  ],
+  "c": 1,
+  "w": "Type II: failing to reject a false H₀. The defect rate really is higher, but the test doesn't detect it and the line keeps running."
+ },
+ {
+  "s": "If α = 0.05, what is the probability of a Type I error (assuming conditions are met)?",
+  "o": [
+   "0.95",
+   "0.05",
+   "It depends on the true value of p",
+   "It equals the power"
+  ],
+  "c": 1,
+  "w": "α is the probability of rejecting H₀ when it is true."
+ },
+ {
+  "s": "Which change would increase the power of a test, assuming everything else stays the same?",
+  "o": [
+   "Decreasing the sample size",
+   "Decreasing α from 0.05 to 0.01",
+   "Increasing the sample size",
+   "Making the true p closer to p₀"
+  ],
+  "c": 2,
+  "w": "Larger n gives less variable p̂ values, so the curves overlap less. Lower α and smaller effects both reduce power."
+ },
+ {
+  "s": "A test has power 0.80 against the alternative p = 0.35. What does that mean?",
+  "o": [
+   "There is an 80% chance that p = 0.35.",
+   "If p = 0.35, there is an 80% chance the test will reject H₀.",
+   "The p-value will be 0.80.",
+   "There is an 80% chance of a Type I error."
+  ],
+  "c": 1,
+  "w": "Power is the probability of correctly rejecting H₀ when a specific alternative value is true."
+ },
+ {
+  "s": "A researcher lowers α from 0.05 to 0.01. What happens to the probabilities of Type I and Type II errors?",
+  "o": [
+   "Both decrease",
+   "Type I decreases, Type II increases",
+   "Type I increases, Type II decreases",
+   "Both increase"
+  ],
+  "c": 1,
+  "w": "A stricter cutoff makes false alarms rarer but makes it harder to reject a false H₀, so β rises."
+ },
+ {
+  "s": "In a medical test of a new treatment, which error would most concern a patient who might miss out on a better treatment?",
+  "o": [
+   "Type I error",
+   "Type II error",
+   "Sampling error",
+   "Response bias"
+  ],
+  "c": 1,
+  "w": "Missing a real improvement (failing to reject a false H₀) is a Type II error."
+ },
+ {
+  "s": "The test result was \"reject H₀.\" Which error could have been made?",
+  "o": [
+   "Type I only",
+   "Type II only",
+   "Either Type I or Type II",
+   "Neither"
+  ],
+  "c": 0,
+  "w": "A Type II error only happens when you fail to reject. After rejecting, the only possible mistake is a Type I error."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.8");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.8", compact: true, storageKey: "topic-3.8" });</script>
+</body>
+</html>

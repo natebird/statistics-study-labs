@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justifying a Claim with a Proportion Interval Study Lab</title>
+<meta name="description" content="Use a confidence interval as a set of plausible values to decide whether a claim about a population proportion is supported.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
+<script src="../assets/prefs.js?v=1"></script>
+<style>
+.calc-card { display: grid; gap: 10px; align-content: start; }
+.calc .row span:last-child { font-family: var(--mono); white-space: nowrap; text-align: right; }
+.calc .row.h { font-weight: 600; color: var(--accent); border-bottom: 0; padding-top: 6px; }
+.ctl input[type="number"], .ctl select { font: inherit; font-family: var(--mono); font-size: .95rem; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.marker-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
+.marker-key span::before { content: ""; display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.k-acc { color: var(--accent); } .k-c1 { color: var(--c1); } .k-c2 { color: var(--c2); } .k-bad { color: var(--bad); } .k-ghost { color: var(--ghost); }
+.steps { display: grid; gap: 10px; }
+.steps .card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.05rem; }
+.steps .card h4 .tag { margin-right: 8px; }
+.steps .card p { font-size: .95rem; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+@media (max-width: 520px) { .calc .row { flex-wrap: wrap; } .calc .row span:last-child { white-space: normal; } }
+.judge { display: grid; gap: 10px; }
+.judge .card { display: grid; gap: 8px; }
+.judge .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.judge .fb { font-size: .9rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topnav" id="topnav"></div>
+
+<header>
+  <span class="kicker">AP Statistics · Unit 3 · Topic 3.4</span>
+  <h1>Justifying a Claim with a Proportion Interval Study Lab</h1>
+  <p class="lede">A confidence interval gives the <b>plausible values</b> for a population proportion. If a claimed value is outside the interval, the data give convincing evidence against it. If it is inside, the claim is plausible, but not proven. Move the interval and the claim to see the logic.</p>
+</header>
+
+<!-- LAB -->
+<section aria-labelledby="lab-h">
+  <div class="sec-head">
+    <h2 id="lab-h">1. Does the interval support the claim?</h2>
+    <p>A confidence interval is the set of <b>plausible values</b> for p. To judge a claim, look at where the claimed value sits relative to the interval.</p>
+  </div>
+
+  <div class="card" style="display:grid; gap:8px;">
+    <div class="tag">Preset claims</div>
+    <div class="scenarios" id="scen"></div>
+  </div>
+
+  <div class="lab">
+    <div class="card" style="display:grid; gap:12px; align-content:start;">
+      <h3 id="ctx"></h3>
+      <div class="controls" style="grid-template-columns:1fr 1fr;">
+        <div class="ctl"><label for="ph">Sample proportion p̂ <output id="ph-o"></output></label><input type="range" id="ph" min="0.05" max="0.95" step="0.005"></div>
+        <div class="ctl"><label for="n">Sample size n <output id="n-o"></output></label><input type="range" id="n" min="20" max="3000" step="10"></div>
+        <div class="ctl"><label for="p0">Claimed value <output id="p0-o"></output></label><input type="range" id="p0" min="0.05" max="0.95" step="0.01"></div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Claim</span><div class="seg" id="ct" role="group" aria-label="Type of claim"></div></div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><span class="tag">Confidence</span><div class="seg" id="cl" role="group" aria-label="Confidence level"></div></div>
+    </div>
+    <div class="card graph-card">
+      <h3>Interval vs. claim <small id="g-sub"></small></h3>
+      <svg class="chart" id="g" role="img" aria-label="Number line showing the confidence interval and the claimed value"></svg>
+      <div class="marker-key"><span class="k-acc">Confidence interval (plausible values)</span><span class="k-c1">Claimed value</span><span class="k-c2">Values the claim allows</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">Interval</div><div class="v" id="r-ci" style="font-size:1rem"></div></div>
+    <div class="stat"><div class="k">Margin of error</div><div class="v" id="r-me"></div></div>
+    <div class="stat"><div class="k">Claimed value inside?</div><div class="v" id="r-in"></div></div>
+    <div class="stat"><div class="k">Verdict</div><div class="v" id="r-v" style="font-size:1rem"></div></div>
+  </div>
+
+  <div class="story" id="story" aria-live="polite"></div>
+
+  <div class="card calc-card"><h3>Show your work</h3><div class="calc" id="calc"></div></div>
+
+  <div class="sec-head" style="margin-top:8px;">
+    <h3 style="font-size:1.2rem;">Judge the statement</h3>
+    <p>A random sample of 1,000 adults gives a 95% confidence interval of <b>(0.43, 0.49)</b> for the proportion of all adults in the state who support a new park tax. Is each statement correct?</p>
+  </div>
+  <div class="judge" id="judge"></div>
+  <p class="score" id="jscore"></p>
+</section>
+
+<!-- CONCEPTS -->
+<section aria-labelledby="con-h">
+  <div class="sec-head"><h2 id="con-h">2. Key ideas</h2></div>
+  <div class="concepts">
+    <div class="card"><span class="tag">Plausible values</span><h3>Inside means plausible</h3><p>Every value inside the interval is consistent with the data. Values outside it are not plausible at that confidence level.</p></div>
+    <div class="card"><span class="tag">Equals claims</span><h3>p = value</h3><p>If the value is outside the interval, there is convincing evidence p differs from it. If inside, we can't rule it out.</p></div>
+    <div class="card"><span class="tag">Direction claims</span><h3>p > value or p < value</h3><p>For convincing evidence that p > 0.5, the whole interval must be above 0.5. If the interval contains 0.5, the evidence is not convincing.</p></div>
+    <div class="card"><span class="tag">Not proof</span><h3>Plausible ≠ true</h3><p>A plausible claim isn't proven. Other values in the interval are equally plausible, and the interval itself might miss p.</p></div>
+    <div class="card"><span class="tag">Width matters</span><h3>Confidence and n</h3><p>Wider intervals (higher confidence, smaller n) contain more plausible values, so they rule out fewer claims.</p></div>
+    <div class="card"><span class="tag">Link to tests</span><h3>Same decision, two tools</h3><p>A C% two-sided interval and a two-sided test at α = 1 − C usually agree on whether a claimed value is plausible.</p></div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section aria-labelledby="tbl-h">
+  <div class="sec-head">
+    <h2 id="tbl-h">3. Quick reference</h2>
+    <p>How to word your conclusion from a confidence interval.</p>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Claim</th><th>What the interval shows</th><th>Conclusion</th></tr></thead>
+    <tbody>
+      <tr><td>p = 0.50</td><td>0.50 inside the interval</td><td><b>Plausible</b>; no convincing evidence against the claim</td></tr>
+      <tr><td>p = 0.50</td><td>0.50 outside the interval</td><td><b>Convincing evidence</b> that p ≠ 0.50</td></tr>
+      <tr><td>p &gt; 0.50</td><td>Entire interval above 0.50</td><td><b>Convincing evidence</b> that p &gt; 0.50</td></tr>
+      <tr><td>p &gt; 0.50</td><td>Interval includes 0.50 or values below</td><td><b>Not convincing</b>; values ≤ 0.50 are plausible</td></tr>
+      <tr><td>p &lt; 0.30</td><td>Entire interval below 0.30</td><td><b>Convincing evidence</b> that p &lt; 0.30</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- FRQ + MISTAKES -->
+<section aria-labelledby="frq-h">
+  <div class="sec-head"><h2 id="frq-h">4. On the FRQ</h2></div>
+  <div class="two">
+    <div class="card">
+      <h3>How to earn the points</h3>
+      <ul>
+        <li>State the interval and the claimed value, then say where the value falls: "Because 0.50 is not in the interval (0.38, 0.46)…"</li>
+        <li>Use the word "plausible" and connect to the claim: "…0.50 is not a plausible value for the true proportion of residents who support the stadium."</li>
+        <li>For a directional claim, say "all values in the interval are greater than 0.50."</li>
+        <li>Avoid "proves" or "accept." Say "does not provide convincing evidence against the claim."</li>
+        <li>Keep the conclusion about the population parameter, in context.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>Concluding the claim is true because the value is in the interval. It is only plausible.</li>
+        <li>Using p̂ alone to judge a claim ("p̂ = 0.53 > 0.50, so a majority") without accounting for the margin of error.</li>
+        <li>Saying a value just outside the interval is plausible because it is "close."</li>
+        <li>Forgetting that a directional claim requires the entire interval on one side.</li>
+        <li>Talking about the sample ("53% of the sample") instead of the population in the conclusion.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section aria-labelledby="quiz-h">
+  <div class="sec-head" style="display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px;">
+    <div style="display:grid; gap:6px;"><h2 id="quiz-h">5. Practice questions</h2><p>AP-style multiple choice. Pick an answer to see the explanation.</p></div>
+    <div style="display:flex; gap:10px; align-items:center;"><span class="score" id="score">0 / 0 correct</span><button id="quiz-reset" type="button">Start over</button></div>
+  </div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section aria-labelledby="terms-h">
+  <div class="sec-head">
+    <h2 id="terms-h">6. Key terms</h2>
+    <p>The vocabulary for topic 3.4. Read the list, flip through flashcards, or quiz yourself. For every term in the unit, see the <a href="../terms/unit-3.html">Unit 3 terminology guide</a>.</p>
+  </div>
+  <div id="key-terms"></div>
+</section>
+
+<div class="pager" id="pager"></div>
+
+</div>
+
+<script src="../assets/glossary/unit-1.js"></script>
+<script src="../assets/glossary/unit-2.js"></script>
+<script src="../assets/glossary/unit-3.js"></script>
+<script src="../assets/glossary/unit-4.js"></script>
+<script src="../assets/glossary/unit-5.js"></script>
+<script src="../assets/glossary.js?v=1"></script>
+<script src="../assets/lab.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var N = Lab.num;
+  // ---------- helpers shared by the Unit 3 labs (inline on purpose) ----------
+  function buttons(id, list) {
+    var box = $(id); box.innerHTML = "";
+    list.forEach(function (x) { var b = document.createElement("button"); b.type = "button"; b.textContent = x[0]; b.addEventListener("click", x[1]); box.appendChild(b); });
+  }
+  function seg(id, opts, cur, onPick) {
+    var box = $(id); box.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o[1];
+      b.setAttribute("aria-pressed", String(o[0] === cur));
+      b.addEventListener("click", function () { onPick(o[0]); seg(id, opts, o[0], onPick); });
+      box.appendChild(b);
+    });
+  }
+  function fmtP(p) { return p < 0.0001 ? "< 0.0001" : N(p, 4); }
+  function zStar(C) { return Lab.invNorm(1 - (1 - C) / 2); }
+  function sym(alt) { return alt === "lt" ? "<" : alt === "gt" ? ">" : "≠"; }
+  /* hist(svg, vals, o): density-scaled histogram on a fixed axis so a curve can be laid on top.
+     o = { lo, hi, w, xLabel, ticks, yMax, curve: f(x), colorOf(lo, hi) -> color, lines: [{ x, color, label, dash }] } */
+  function hist(svg, vals, o) {
+    var nb = Math.round((o.hi - o.lo) / o.w), cnt = new Array(nb).fill(0);
+    vals.forEach(function (v) { var i = Math.floor((v - o.lo) / o.w + 1e-9); if (i >= 0 && i < nb) cnt[i]++; else if (i === nb && Math.abs(v - o.hi) < 1e-9) cnt[nb - 1]++; });
+    var dens = cnt.map(function (c) { return vals.length ? c / vals.length / o.w : 0; });
+    var top = o.yMax || Math.max.apply(null, dens.concat([o.curve ? o.curve(o.peak != null ? o.peak : (o.lo + o.hi) / 2) : 0, 1e-9])) * 1.15;
+    var F = Lab.frame(svg, { x: [o.lo, o.hi], y: [0, top], xLabel: o.xLabel || "", yLabel: o.yLabel || "", xTicks: (o.ticks || Lab.niceTicks(o.lo, o.hi, 6)).filter(function (t) { return t >= o.lo - 1e-9 && t <= o.hi + 1e-9; }), yTicks: [], fmtX: o.fmt || function (v) { return N(v, 2); } });
+    dens.forEach(function (dv, i) {
+      if (!dv) return; var a = o.lo + i * o.w, b = a + o.w;
+      Lab.el("rect", { x: F.sx(a) + .3, y: F.sy(dv), width: Math.max(0, F.sx(b) - F.sx(a) - .6), height: F.sy(0) - F.sy(dv), fill: (o.colorOf && o.colorOf(a, b)) || "var(--accent)", opacity: .55 }, F.g);
+    });
+    if (o.curve) Lab.fn(F, o.curve, o.curveColor || "var(--ink)", 2, null, 160);
+    (o.lines || []).forEach(function (l, k) {
+      Lab.vline(F, l.x, l.color, 2.5, l.dash || null);
+      if (l.label) Lab.tag(F, l.x + (o.hi - o.lo) * 0.01 * (l.left ? -1 : 1), top * (0.93 - 0.1 * k), l.label, l.color, l.left ? "end" : "start");
+    });
+    return F;
+  }
+  function binom(r, n, p) { var k = 0; for (var i = 0; i < n; i++) if (r() < p) k++; return k; }
+  function story(id, head, items) { $(id).innerHTML = "<p>" + head + "</p>" + (items && items.length ? "<ul>" + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : ""); }
+  function rows(id, list) { $(id).innerHTML = list.map(function (r) { return '<div class="row' + (r[2] ? " h" : "") + '"><span>' + r[0] + "</span><span>" + (r[1] == null ? "" : r[1]) + "</span></div>"; }).join(""); }
+  function slider(id, outId, fmt, onChange) { var s = $(id); function u() { $(outId).textContent = fmt(+s.value); } s.addEventListener("input", function () { u(); onChange(+s.value); }); u(); return { set: function (v) { s.value = v; u(); } }; }
+
+  var PRE = [
+    { name: "Is the tax favored by a majority?", ctx: "Adults in a state who support a park tax", ph: 0.48, n: 1000, p0: 0.5, ct: "gt", C: 0.95 },
+    { name: "Company claims 90% satisfaction", ctx: "Customers who are satisfied with a delivery service", ph: 0.84, n: 300, p0: 0.9, ct: "eq", C: 0.95 },
+    { name: "More than a quarter are left-handed?", ctx: "Students at a school who are left-handed", ph: 0.28, n: 150, p0: 0.25, ct: "gt", C: 0.95 },
+    { name: "Fewer than 60% recycle?", ctx: "Households in a city that recycle", ph: 0.54, n: 800, p0: 0.6, ct: "lt", C: 0.99 },
+    { name: "Coin claimed to be fair", ctx: "Flips of a coin that land heads", ph: 0.53, n: 400, p0: 0.5, ct: "eq", C: 0.95 }
+  ];
+  var LV = [0.9, 0.95, 0.99], CT = [["eq", "p = value"], ["gt", "p > value"], ["lt", "p < value"]];
+  var S = {};
+  var phS = slider("ph", "ph-o", function (v) { return N(v, 3); }, function (v) { S.ph = v; render(); });
+  var nS = slider("n", "n-o", function (v) { return v; }, function (v) { S.n = v; render(); });
+  var p0S = slider("p0", "p0-o", function (v) { return N(v, 2); }, function (v) { S.p0 = v; render(); });
+  function load(p) {
+    S = { ph: p.ph, n: p.n, p0: p.p0, ct: p.ct, C: p.C, ctx: p.ctx }; $("ctx").textContent = p.ctx;
+    phS.set(p.ph); nS.set(p.n); p0S.set(p.p0);
+    seg("cl", LV.map(function (c) { return [c, Math.round(c * 100) + "%"]; }), S.C, function (c) { S.C = c; render(); });
+    seg("ct", CT, S.ct, function (c) { S.ct = c; render(); });
+    render();
+  }
+  function render() {
+    var z = zStar(S.C), se = Math.sqrt(S.ph * (1 - S.ph) / S.n), me = z * se, lo = S.ph - me, hi = S.ph + me;
+    var inside = S.p0 >= lo && S.p0 <= hi, C = Math.round(S.C * 100) + "%";
+    var verdict, cls;
+    if (S.ct === "eq") { verdict = inside ? "Plausible" : "Not plausible"; cls = inside ? "ok" : "no"; }
+    else if (S.ct === "gt") { var all = lo > S.p0; verdict = all ? "Convincing evidence" : "Not convincing"; cls = all ? "ok" : "no"; }
+    else { var all2 = hi < S.p0; verdict = all2 ? "Convincing evidence" : "Not convincing"; cls = all2 ? "ok" : "no"; }
+    $("r-ci").textContent = "(" + N(lo, 3) + ", " + N(hi, 3) + ")"; $("r-me").textContent = N(me, 3);
+    $("r-in").textContent = inside ? "Yes" : "No"; $("r-v").innerHTML = '<span class="' + cls + '">' + verdict + "</span>";
+    $("g-sub").textContent = C + " interval, n = " + S.n;
+    var a = Math.max(0, Math.min(lo, S.p0) - 0.08), b = Math.min(1, Math.max(hi, S.p0) + 0.08);
+    var F = Lab.frame($("g"), { x: [a, b], y: [0, 10], xLabel: "Proportion", yLabel: "", xTicks: Lab.niceTicks(a, b, 6).filter(function (t) { return t >= a && t <= b; }), yTicks: [], fmtX: function (v) { return N(v, 2); }, height: 230 });
+    if (S.ct === "gt") Lab.rect(F, S.p0, 0, b, 10, "var(--c2)", .12);
+    if (S.ct === "lt") Lab.rect(F, a, 0, S.p0, 10, "var(--c2)", .12);
+    Lab.line(F, [[lo, 5], [hi, 5]], "var(--accent)", 6);
+    Lab.line(F, [[lo, 4], [lo, 6]], "var(--accent)", 3); Lab.line(F, [[hi, 4], [hi, 6]], "var(--accent)", 3);
+    Lab.dot(F, S.ph, 5, "var(--accent)", false);
+    Lab.tag(F, lo, 6.8, N(lo, 3), "var(--accent)", "middle"); Lab.tag(F, hi, 6.8, N(hi, 3), "var(--accent)", "middle");
+    Lab.tag(F, S.ph, 3.2, "p̂ = " + N(S.ph, 3), "var(--ink)", "middle");
+    Lab.vline(F, S.p0, "var(--c1)", 2.5, "6 4");
+    Lab.tag(F, S.p0, 9.2, "claim: " + N(S.p0, 2), "var(--c1)", "middle");
+    rows("calc", [
+      [C + " interval: " + N(S.ph, 3) + " ± " + N(z, 3) + "√(" + N(S.ph, 3) + " × " + N(1 - S.ph, 3) + " ÷ " + S.n + ")", "(" + N(lo, 4) + ", " + N(hi, 4) + ")"],
+      ["Claimed value", N(S.p0, 2)],
+      [S.ct === "eq" ? "Is " + N(S.p0, 2) + " inside the interval?" : S.ct === "gt" ? "Is every value in the interval above " + N(S.p0, 2) + "?" : "Is every value in the interval below " + N(S.p0, 2) + "?",
+        S.ct === "eq" ? (inside ? "yes" : "no") : S.ct === "gt" ? (lo > S.p0 ? "yes" : "no") : (hi < S.p0 ? "yes" : "no"), true]
+    ]);
+    var who = S.ctx.charAt(0).toLowerCase() + S.ctx.slice(1), head, t = [];
+    var ivs = "the interval from " + N(lo, 3) + " to " + N(hi, 3);
+    if (S.ct === "eq") {
+      head = inside ? "<b>" + N(S.p0, 2) + " is a plausible value.</b> Because " + N(S.p0, 2) + " is inside " + ivs + ", the data do not give convincing evidence against the claim that p = " + N(S.p0, 2) + "."
+        : "<b>The claim is not plausible.</b> Because " + N(S.p0, 2) + " is not inside " + ivs + ", there is convincing evidence that the true proportion of " + who + " is " + (S.p0 > hi ? "less" : "greater") + " than " + N(S.p0, 2) + ".";
+      if (inside) t.push("Plausible is not the same as proven. Every value in the interval is plausible, including " + N(lo, 3) + " and " + N(hi, 3) + ".");
+    } else {
+      var dir = S.ct === "gt" ? "greater" : "less", yes = S.ct === "gt" ? lo > S.p0 : hi < S.p0;
+      head = yes ? "<b>Convincing evidence that p is " + dir + " than " + N(S.p0, 2) + ".</b> Every value in " + ivs + " is " + dir + " than " + N(S.p0, 2) + ", so all plausible values support the claim."
+        : "<b>Not convincing evidence that p is " + dir + " than " + N(S.p0, 2) + ".</b> " + (inside ? "The interval includes " + N(S.p0, 2) + (S.ct === "gt" ? " and values below it" : " and values above it") + ", so p = " + N(S.p0, 2) + " is still plausible." : "In fact, every plausible value is on the other side of " + N(S.p0, 2) + ".");
+    }
+    t.push("Try raising the confidence level: the interval widens, so it gets harder to rule values out. Try a larger n: the interval narrows.");
+    t.push("Context sentence: \"We are " + C + " confident that " + ivs + " captures the true proportion of " + who + ".\"");
+    story("story", head, t);
+  }
+  buttons("scen", PRE.map(function (p) { return [p.name, function () { load(p); }]; }));
+  load(PRE[0]);
+
+  // ---- judge the statement
+  var J = [
+    ["There is convincing evidence that a minority of adults in the state support the tax.", true, "Every plausible value (0.43 to 0.49) is below 0.50, so the data give convincing evidence that less than half support the tax."],
+    ["There is a 95% probability that the true proportion is between 0.43 and 0.49.", false, "The parameter is fixed. It is either in the interval or not. The 95% describes how often the method captures p in repeated samples."],
+    ["95% of adults in the state have a support level between 0.43 and 0.49.", false, "The interval estimates one number, the population proportion. It says nothing about individual adults."],
+    ["0.45 is a plausible value for the true proportion.", true, "0.45 is inside the interval, so it is a plausible value for p."],
+    ["It is plausible that 40% of adults support the tax.", false, "0.40 is below the interval, so it is not a plausible value of p."],
+    ["If we took many samples of 1,000 adults and built a 95% interval from each, about 95% of them would capture the true proportion.", true, "That is exactly what the 95% confidence level means."],
+    ["About 95% of other random samples of 1,000 adults would have a p̂ between 0.43 and 0.49.", false, "The interval is centered at this sample's p̂ (0.46), not at p. Other samples' p̂ values are centered at p, which could be anywhere in or even outside this interval."],
+    ["A 99% interval from the same data would be wider than (0.43, 0.49).", true, "Higher confidence needs a larger z*, so the margin of error grows."]
+  ];
+  var jRight = 0, jDone = 0;
+  J.forEach(function (j, i) {
+    var c = document.createElement("div"); c.className = "card";
+    c.innerHTML = '<div class="qn" style="font-family:var(--mono);font-size:.76rem;color:var(--muted)">Statement ' + (i + 1) + '</div><div>' + j[0] + '</div><div class="btns"><button type="button" class="chip">Correct</button><button type="button" class="chip">Incorrect</button></div><div class="fb" hidden></div>';
+    var bs = c.querySelectorAll("button"), fb = c.querySelector(".fb");
+    [true, false].forEach(function (ans, k) {
+      bs[k].addEventListener("click", function () {
+        bs[0].disabled = bs[1].disabled = true;
+        var good = ans === j[1]; bs[k].classList.add(good ? "right" : "wrong"); if (!good) bs[1 - k].classList.add("right");
+        jDone++; if (good) jRight++;
+        fb.hidden = false; fb.innerHTML = (good ? "<b style='color:var(--good)'>Right.</b> " : "<b style='color:var(--bad)'>Not quite.</b> ") + j[2];
+        $("jscore").textContent = jRight + " / " + jDone + " judged correctly";
+      });
+    });
+    $("judge").appendChild(c);
+  });
+
+  var Q = [
+ {
+  "s": "A 95% confidence interval for the proportion of a city's residents who support a new stadium is (0.38, 0.46). The mayor claims 50% support it. Which is correct?",
+  "o": [
+   "The claim is plausible because 0.50 is close to the interval.",
+   "The interval provides convincing evidence that fewer than 50% support the stadium, because 0.50 is not in the interval and all plausible values are below it.",
+   "The interval proves that exactly 42% support the stadium.",
+   "We cannot judge the claim without a hypothesis test."
+  ],
+  "c": 1,
+  "w": "0.50 is above the entire interval, so it is not a plausible value and every plausible value is less than 0.50."
+ },
+ {
+  "s": "A 90% confidence interval for a proportion is (0.51, 0.59). Is there convincing evidence that more than half the population agrees?",
+  "o": [
+   "Yes, because every value in the interval is greater than 0.50",
+   "No, because 0.50 is not in the interval",
+   "No, because 90% confidence is too low to make any conclusion",
+   "Yes, because p̂ = 0.55"
+  ],
+  "c": 0,
+  "w": "All plausible values exceed 0.50, so the interval gives convincing evidence that p > 0.50. Citing only p̂ (D) ignores sampling variability."
+ },
+ {
+  "s": "A 95% interval for the proportion of defective items is (0.02, 0.07). The manufacturer claims the defect rate is 5%. What is the best conclusion?",
+  "o": [
+   "The claim is proven true.",
+   "The claim is plausible, since 0.05 is in the interval; the data do not give convincing evidence against it.",
+   "The claim is false, since p̂ is not 0.05.",
+   "The defect rate must be between 2% and 7%."
+  ],
+  "c": 1,
+  "w": "A value inside the interval is plausible. That doesn't prove it, and the interval could miss p (D overstates certainty)."
+ },
+ {
+  "s": "A 95% interval (0.47, 0.56) is computed for the proportion of voters who favor a candidate. Which statement is supported?",
+  "o": [
+   "The candidate will win.",
+   "The candidate will lose.",
+   "It is plausible that the candidate has more than 50% support, and also plausible that she has less.",
+   "The candidate's support is exactly 51.5%."
+  ],
+  "c": 2,
+  "w": "The interval contains values on both sides of 0.50, so neither winning nor losing is supported by convincing evidence."
+ },
+ {
+  "s": "Using the same data, a 99% interval is computed instead of a 95% interval. Compared to the 95% interval, the 99% interval:",
+  "o": [
+   "Is narrower, so it is more likely to exclude a claimed value",
+   "Is wider, so it is less likely to exclude a claimed value",
+   "Has the same width but a different center",
+   "Has a different p̂"
+  ],
+  "c": 1,
+  "w": "Higher confidence uses a larger z*, giving a wider interval that contains more plausible values."
+ },
+ {
+  "s": "Researchers want stronger evidence about whether p > 0.30 but their 95% interval is (0.28, 0.40). Which change would most likely help, assuming p really is about 0.34?",
+  "o": [
+   "Use a 99% confidence level",
+   "Collect a larger random sample",
+   "Use a convenience sample",
+   "Report p̂ only"
+  ],
+  "c": 1,
+  "w": "A larger random sample narrows the interval around the true value, which may push the lower bound above 0.30. Higher confidence widens the interval."
+ },
+ {
+  "s": "What does it mean for a value to be \"plausible\" based on a confidence interval?",
+  "o": [
+   "It is the true value of the parameter.",
+   "It falls inside the interval, so the data are consistent with it being the parameter.",
+   "It equals the sample proportion.",
+   "It has a 95% chance of being the parameter."
+  ],
+  "c": 1,
+  "w": "Values inside the interval are consistent with the data at that confidence level. The interval does not tell us which plausible value is correct."
+ },
+ {
+  "s": "A 95% interval for the proportion of students who bike to school is (0.12, 0.20). Which conclusion about whether 10% of students bike is correct?",
+  "o": [
+   "10% is plausible because it is near the interval.",
+   "There is convincing evidence that more than 10% of students bike.",
+   "There is convincing evidence that fewer than 10% of students bike.",
+   "No conclusion is possible."
+  ],
+  "c": 1,
+  "w": "0.10 is below every value in the interval, so all plausible values exceed 0.10."
+ }
+];
+  Lab.quiz(Q, $("quiz"), $("score"), $("quiz-reset"));
+  Lab.nav("3.4");
+})();
+</script>
+<script>Glossary.mount(document.getElementById("key-terms"), { units: [3], topic: "3.4", compact: true, storageKey: "topic-3.4" });</script>
+</body>
+</html>
