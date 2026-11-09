@@ -136,7 +136,7 @@
       <tr><td><b>Y = a + bX</b></td><td>a + b · μ<sub>X</sub></td><td>|b| · σ<sub>X</sub></td><td>None</td></tr>
       <tr><td><b>Y = 100 − 2X</b> (negative b)</td><td>100 − 2μ<sub>X</sub></td><td>2σ<sub>X</sub> <span class="shift">(uses |b|)</span></td><td>None</td></tr>
       <tr><td><b>°C to °F:</b> F = 32 + 1.8C, with μ<sub>C</sub> = 20, σ<sub>C</sub> = 5</td><td>32 + 1.8(20) = 68°F</td><td>1.8(5) = 9°F</td><td>None</td></tr>
-      <tr><td><b>Cars example:</b> fee Y = 15 + 10X, with μ<sub>X</sub> = 1.8, σ<sub>X</sub> = 0.93</td><td>15 + 10(1.8) = $33</td><td>10(0.93) = $9.30</td><td>None</td></tr>
+      <tr><td><b>Cars example:</b> fee Y = 15 + 10X, with μ<sub>X</sub> = 1.8, σ<sub>X</sub> = 0.93</td><td>15 + 10(1.8) = $33</td><td>10(0.927) ≈ $9.27</td><td>None</td></tr>
     </tbody>
 
   </table>
@@ -155,7 +155,7 @@
         <li>Show the expected value as a sum: "E(X) = 0(0.10) + 1(0.25) + 2(0.40) + 3(0.25) = 1.80."</li>
         <li>Interpret the mean as a long-run average in context: "If many households were selected, the average number of cars would be about 1.8."</li>
         <li>Interpret σ as typical variation: "The number of cars typically varies by about 0.93 from the mean of 1.8."</li>
-        <li>For a transformation, show both rules with numbers: "Y = 15 + 10X, so μ<sub>Y</sub> = 15 + 10(1.8) = $33 and σ<sub>Y</sub> = 10(0.93) = $9.30. The $15 does not change σ."</li>
+        <li>For a transformation, show both rules with numbers: "Y = 15 + 10X, so μ<sub>Y</sub> = 15 + 10(1.8) = $33 and σ<sub>Y</sub> = 10(0.927) ≈ $9.27. The $15 does not change σ."</li>
         <li>Calculator work (Desmos or TI-84) is fine for the arithmetic, but write the formula with numbers in it.</li>
 
       </ul>
@@ -210,7 +210,7 @@
   var N = Lab.num;
 
   var PRESETS = [
-    { name: "Cars per household", ctx: "X = number of cars owned by a randomly chosen household.", unit: "cars", xs: [0, 1, 2, 3, 4], ps: [0.08, 0.32, 0.38, 0.16, 0.06] },
+    { name: "Cars per household", ctx: "X = number of cars owned by a randomly chosen household.", unit: "cars", xs: [0, 1, 2, 3], ps: [0.10, 0.25, 0.40, 0.25] },
     { name: "Raffle ticket winnings", ctx: "X = net winnings from a $2 raffle ticket: 1 prize of $500 and 5 prizes of $50 among 1,000 tickets.", unit: "dollars", xs: [-2, 48, 498], ps: [0.994, 0.005, 0.001] },
     { name: "Heads in 3 flips", ctx: "X = number of heads in 3 flips of a fair coin.", unit: "heads", xs: [0, 1, 2, 3], ps: [0.125, 0.375, 0.375, 0.125] },
     { name: "Fair six-sided die", ctx: "X = the number rolled on a fair die.", unit: "", xs: [1, 2, 3, 4, 5, 6], ps: [1, 1, 1, 1, 1, 1].map(function () { return 1 / 6; }) },
